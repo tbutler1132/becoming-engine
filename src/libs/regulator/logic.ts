@@ -1,7 +1,6 @@
 // Pure logic functions for the Regulator organ
 // All functions are pure: (State, Input) => Result | NewState
 
-import * as crypto from "node:crypto";
 import {
   ACTION_STATUSES,
   EPISODE_STATUSES,
@@ -63,6 +62,10 @@ export function getActiveEpisodesByNode(
       e.node.id === node.id &&
       e.status === ACTIVE_STATUS,
   );
+}
+
+export function isBaseline(state: State, node: NodeRef): boolean {
+  return getActiveEpisodesByNode(state, node).length === 0;
 }
 
 /**
@@ -186,7 +189,7 @@ export function createAction(
   }
 
   const action: Action = {
-    id: crypto.randomUUID(),
+    id: params.actionId,
     description: params.description,
     status: ACTION_PENDING_STATUS,
     ...(params.episodeId ? { episodeId: params.episodeId } : {}),
@@ -259,7 +262,7 @@ export function openEpisode(
 
   // Create new episode
   const newEpisode: Episode = {
-    id: crypto.randomUUID(),
+    id: params.episodeId,
     node: params.node,
     type: params.type,
     ...(params.type === STABILIZE_TYPE

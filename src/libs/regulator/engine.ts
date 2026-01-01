@@ -52,6 +52,13 @@ export class Regulator {
   }
 
   /**
+   * Returns true when the node is in baseline (no active Episodes).
+   */
+  isBaseline(state: State, node: NodeRef): boolean {
+    return logic.isBaseline(state, node);
+  }
+
+  /**
    * Gets all variables for a specific node.
    */
   getVariables(state: State, node: NodeRef): Variable[] {

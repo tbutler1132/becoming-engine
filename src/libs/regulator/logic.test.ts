@@ -292,6 +292,7 @@ describe("Regulator Logic (Pure Functions)", () => {
   describe("validateEpisodeParams", () => {
     it("validates non-empty objective", () => {
       const validParams = {
+        episodeId: "ep-1",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v1",
@@ -303,6 +304,7 @@ describe("Regulator Logic (Pure Functions)", () => {
 
     it("fails on empty objective", () => {
       const invalidParams = {
+        episodeId: "ep-1",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v1",
@@ -324,6 +326,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const params = {
+        episodeId: "ep-1",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v1",
@@ -351,6 +354,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const params = {
+        episodeId: "ep-1",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v1",
@@ -379,6 +383,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const params = {
+        episodeId: "ep-2",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[1], // Try to open second Explore
         objective: "Another explore",
@@ -407,6 +412,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const sameVariable = openEpisode(state, {
+        episodeId: "s2",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v1",
@@ -415,6 +421,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       expect(sameVariable.ok).toBe(false);
 
       const differentVariable = openEpisode(state, {
+        episodeId: "s3",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v2",
@@ -578,6 +585,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const result = createAction(state, {
+        actionId: "a1",
         node: DEFAULT_PERSONAL_NODE,
         description: "Do the thing",
       });
@@ -598,6 +606,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const result = createAction(state, {
+        actionId: "a1",
         node: DEFAULT_PERSONAL_NODE,
         episodeId: "e1",
         description: "Do the thing",
@@ -623,6 +632,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const wrongNode = createAction(state, {
+        actionId: "a1",
         node: DEFAULT_PERSONAL_NODE,
         episodeId: "e1",
         description: "Do the thing",
@@ -648,6 +658,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const result = createAction(state, {
+        actionId: "a1",
         node: DEFAULT_PERSONAL_NODE,
         episodeId: "e1",
         description: "Do the thing",
@@ -673,6 +684,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const result = createAction(state, {
+        actionId: "a1",
         node: DEFAULT_PERSONAL_NODE,
         episodeId: "e1",
         description: "Do the thing",

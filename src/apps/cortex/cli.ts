@@ -10,21 +10,12 @@ import {
 } from "../../libs/memory/index.js";
 import { Regulator } from "../../libs/regulator/index.js";
 import { parseCli } from "../../libs/sensorium/index.js";
+import * as crypto from "node:crypto";
 
 const ACTIVE_STATUS = EPISODE_STATUSES[0];
 
-function isNodeInBaseline(state: State, node: NodeRef): boolean {
-  const hasActiveEpisode = state.episodes.some(
-    (e) =>
-      e.node.type === node.type &&
-      e.node.id === node.id &&
-      e.status === ACTIVE_STATUS,
-  );
-  return !hasActiveEpisode;
-}
-
-function printStatus(state: State, node: NodeRef): void {
-  if (isNodeInBaseline(state, node)) {
+function printStatus(state: State, node: NodeRef, regulator: Regulator): void {
+  if (regulator.isBaseline(state, node)) {
     // Silence is Success: minimal output.
     console.log(`becoming status ${node.type}:${node.id}`);
     console.log("Silence is Success (baseline).");
@@ -70,7 +61,7 @@ async function main(): Promise<void> {
   const command = parsed.value;
 
   if (command.kind === "status") {
-    printStatus(state, command.node ?? DEFAULT_PERSONAL_NODE);
+    printStatus(state, command.node ?? DEFAULT_PERSONAL_NODE, regulator);
     return;
   }
 
@@ -92,7 +83,9 @@ async function main(): Promise<void> {
   }
 
   if (command.kind === "act") {
+    const actionId = crypto.randomUUID();
     const result = regulator.act(state, {
+      actionId,
       node: command.node,
       ...(command.episodeId ? { episodeId: command.episodeId } : {}),
       description: command.description,

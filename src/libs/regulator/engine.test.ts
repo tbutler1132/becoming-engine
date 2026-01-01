@@ -140,6 +140,7 @@ describe("Regulator (Class Integration)", () => {
 
       const regulator = new Regulator();
       const result = regulator.openEpisode(state, {
+        episodeId: "ep-1",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v1",
@@ -169,6 +170,7 @@ describe("Regulator (Class Integration)", () => {
 
       const regulator = new Regulator({ logger: mockLogger });
       regulator.openEpisode(state, {
+        episodeId: "ep-1",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v1",
@@ -197,6 +199,7 @@ describe("Regulator (Class Integration)", () => {
 
       const regulator = new Regulator({ logger: mockLogger });
       regulator.openEpisode(state, {
+        episodeId: "ep-1",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v1",

@@ -18,12 +18,14 @@ type ExploreEpisodeType = (typeof EPISODE_TYPES)[1];
 
 export type OpenEpisodeParams =
   | {
+      episodeId: string;
       node: NodeRef;
       type: StabilizeEpisodeType;
       variableId: string;
       objective: string;
     }
   | {
+      episodeId: string;
       node: NodeRef;
       type: ExploreEpisodeType;
       objective: string;
@@ -42,6 +44,7 @@ export interface SignalParams {
 }
 
 export interface CreateActionParams {
+  actionId: string;
   node: NodeRef;
   episodeId?: string;
   description: string;

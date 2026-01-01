@@ -74,6 +74,7 @@ const canAct = regulator.canAct(state, DEFAULT_PERSONAL_NODE);
 
 // Mutation methods (return new State)
 const result = regulator.openEpisode(state, {
+  episodeId: "episode-1",
   node: DEFAULT_PERSONAL_NODE,
   type: EPISODE_TYPES[0],
   variableId: "var-1",
