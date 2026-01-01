@@ -8,7 +8,7 @@ The system is organized into discrete "organs" (modules) with strict boundaries 
 
 ### `/src/libs` (Organs)
 - **`memory`**: The system's soul. Handles ontology (definitions) and persistence. Ensures state survives restarts with atomic writes and schema versioning.
-- **`regulator`**: (In development) The control loop. Monitors variables and manages episodes of intervention.
+- **`regulator`**: The cybernetic control loop. Enforces homeostasis rules (Max 1 Explore, No Action without Episode) and manages temporary interventions through pure, composable functions.
 - **`sensorium`**: (In development) Input processing. Converts external signals into internal state updates.
 
 ### `/src/apps` (Applications)
