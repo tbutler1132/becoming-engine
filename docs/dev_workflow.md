@@ -60,6 +60,10 @@ Prefer explicit policy objects (dependency injection) over environment-driven be
 
 If you’re using subagents, see: `docs/subagents.md`.
 
+## Roadmap
+
+If you want a lightweight “what next” list without over-committing, see: `docs/roadmap.md`.
+
 ## Adding a New Organ (Checklist)
 
 - `src/libs/<organ>/index.ts` (public API)

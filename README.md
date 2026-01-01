@@ -64,3 +64,4 @@ Refer to the `docs/` directory for the core principles:
 
 - [System Context](./docs/system_context.md): The cybernetic philosophy.
 - [Engineering Standards](./docs/standards.md): Coding rules and AI directives.
+- [Roadmap](./docs/roadmap.md): A non-binding sequence of next micro-projects.
