@@ -64,4 +64,17 @@ Refer to the `docs/` directory for the core principles:
 
 - [System Context](./docs/system_context.md): The cybernetic philosophy.
 - [Engineering Standards](./docs/standards.md): Coding rules and AI directives.
+- [Operating Manual](./docs/becoming-engine.md): Core objects, rules, and workflow.
 - [Roadmap](./docs/roadmap.md): A non-binding sequence of next micro-projects.
+
+## 🤖 For AI Agents
+
+Starting a fresh session? Read these in order:
+
+1. [System Context](./docs/system_context.md) — philosophy and doctrine
+2. [Engineering Standards](./docs/standards.md) — coding rules
+3. [Developer Workflow](./docs/dev_workflow.md) — contribution patterns
+4. [Operating Manual](./docs/becoming-engine.md) — core objects and rules
+5. [Roadmap](./docs/roadmap.md) — what's next
+
+Run `npm run check` after every change.

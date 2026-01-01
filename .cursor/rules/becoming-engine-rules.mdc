@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+
+1. Read `docs/system_context.md` before proposing any feature.
+2. Follow `docs/standards.md` strictly (pure logic, const assertions, Result types).
+3. Run `npm run check` after every change.
+4. Baseline is quiet; do not add noise.

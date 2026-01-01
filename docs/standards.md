@@ -17,6 +17,9 @@ We value code that is easy to **delete** and **compose** over code that is "clev
 - **Discriminated Unions:** Use discriminated unions for state management rather than boolean flags.
   - _Bad:_ `{ isLoading: boolean, error: Error | null, data: T | null }`
   - _Good:_ `type State<T> = { status: 'loading' } | { status: 'error', error: Error } | { status: 'success', data: T }`
+- **Result Types for Operations:** Operations that can fail return `Result<T>` instead of throwing.
+  - `type Result<T> = { ok: true; value: T } | { ok: false; error: string }`
+  - This makes errors explicit and composable without try/catch.
 - **No "Magic Strings":** Use `enums` or `const` assertions for fixed string values.
 
 ## 3. Modularity & Architecture
@@ -24,6 +27,7 @@ We value code that is easy to **delete** and **compose** over code that is "clev
 - **Strict Boundaries:** Code is organized into Modules.
   - Modules should expose a public API via an `index.ts`.
   - Modules should **not** reach into the internals of other modules (e.g., `import { helper } from '../other-module/internal/helper'` is forbidden).
+- **Internal Folders:** Implementation details live in `<module>/internal/`. These files are never imported from outside the module.
 - **Unidirectional Data Flow:** Data flows down; events/signals flow up. Avoid circular dependencies.
 - **Pure Logic Separation:** Separate "Business Logic" from "Side Effects" (I/O, Database, UI).
   - Logic functions should be pure: `(State, Input) => NewState`.
