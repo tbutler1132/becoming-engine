@@ -21,9 +21,41 @@ import type {
 
 const LEGACY_SCHEMA_VERSION_V1 = 1 as const;
 const LEGACY_SCHEMA_VERSION_V2 = 2 as const;
+const LEGACY_SCHEMA_VERSION_V3 = 3 as const;
 
 export type StateV2 = Omit<State, "schemaVersion"> & {
   schemaVersion: typeof LEGACY_SCHEMA_VERSION_V2;
+};
+
+/** V3 Episode without timestamp fields */
+export type EpisodeV3 = {
+  id: string;
+  node: NodeRef;
+  type: EpisodeType;
+  variableId?: string;
+  objective: string;
+  status: EpisodeStatus;
+};
+
+export type StateV3 = {
+  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V3;
+  variables: Array<{
+    id: string;
+    node: NodeRef;
+    name: string;
+    status: VariableStatus;
+  }>;
+  episodes: EpisodeV3[];
+  actions: Array<{
+    id: string;
+    description: string;
+    status: ActionStatus;
+    episodeId?: string;
+  }>;
+  notes: Array<{
+    id: string;
+    content: string;
+  }>;
 };
 
 export type LegacyVariable = {
@@ -78,6 +110,12 @@ function isLegacySchemaVersionV2(
   value: unknown,
 ): value is typeof LEGACY_SCHEMA_VERSION_V2 {
   return value === LEGACY_SCHEMA_VERSION_V2;
+}
+
+function isLegacySchemaVersionV3(
+  value: unknown,
+): value is typeof LEGACY_SCHEMA_VERSION_V3 {
+  return value === LEGACY_SCHEMA_VERSION_V3;
 }
 
 function isMember<T extends readonly string[]>(
@@ -381,12 +419,12 @@ export function isValidLegacyStateV2(data: unknown): data is StateV2 {
   return true;
 }
 
-export function isValidStateV3(data: unknown): data is State {
+export function isValidLegacyStateV3(data: unknown): data is StateV3 {
   if (typeof data !== "object" || data === null) {
     return false;
   }
   const obj = data as Record<string, unknown>;
-  if (!isSchemaVersion(obj.schemaVersion)) {
+  if (!isLegacySchemaVersionV3(obj.schemaVersion)) {
     return false;
   }
   if (
@@ -436,6 +474,110 @@ export function isValidStateV3(data: unknown): data is State {
       return false;
     }
     if (e.variableId !== undefined && typeof e.variableId !== "string") {
+      return false;
+    }
+  }
+
+  for (const action of obj.actions) {
+    if (typeof action !== "object" || action === null) {
+      return false;
+    }
+    const a = action as Record<string, unknown>;
+    if (
+      typeof a.id !== "string" ||
+      typeof a.description !== "string" ||
+      !isActionStatus(a.status)
+    ) {
+      return false;
+    }
+    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
+      return false;
+    }
+  }
+
+  for (const note of obj.notes) {
+    if (
+      typeof note !== "object" ||
+      note === null ||
+      typeof (note as Record<string, unknown>).id !== "string" ||
+      typeof (note as Record<string, unknown>).content !== "string"
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function isValidStateV4(data: unknown): data is State {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+  const obj = data as Record<string, unknown>;
+  if (!isSchemaVersion(obj.schemaVersion)) {
+    return false;
+  }
+  if (
+    !Array.isArray(obj.variables) ||
+    !Array.isArray(obj.episodes) ||
+    !Array.isArray(obj.actions) ||
+    !Array.isArray(obj.notes)
+  ) {
+    return false;
+  }
+
+  if (
+    !hasUniqueIds(obj.variables) ||
+    !hasUniqueIds(obj.episodes) ||
+    !hasUniqueIds(obj.actions) ||
+    !hasUniqueIds(obj.notes) ||
+    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
+  ) {
+    return false;
+  }
+
+  for (const variable of obj.variables) {
+    if (
+      typeof variable !== "object" ||
+      variable === null ||
+      typeof (variable as Record<string, unknown>).id !== "string" ||
+      !isNodeRef((variable as Record<string, unknown>).node) ||
+      typeof (variable as Record<string, unknown>).name !== "string" ||
+      !isVariableStatus((variable as Record<string, unknown>).status)
+    ) {
+      return false;
+    }
+  }
+
+  for (const episode of obj.episodes) {
+    if (typeof episode !== "object" || episode === null) {
+      return false;
+    }
+    const e = episode as Record<string, unknown>;
+    // Validate base episode fields
+    if (
+      typeof e.id !== "string" ||
+      !isNodeRef(e.node) ||
+      !isEpisodeType(e.type) ||
+      typeof e.objective !== "string" ||
+      !isEpisodeStatus(e.status)
+    ) {
+      return false;
+    }
+    // variableId is optional
+    if (e.variableId !== undefined && typeof e.variableId !== "string") {
+      return false;
+    }
+    // openedAt is required (ISO timestamp string)
+    if (typeof e.openedAt !== "string") {
+      return false;
+    }
+    // closedAt is optional
+    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
+      return false;
+    }
+    // closureNoteId is optional
+    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
       return false;
     }
   }

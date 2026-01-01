@@ -3,11 +3,11 @@
 
 import type { State, Variable, NodeRef } from "../memory/index.js";
 import type {
+  CloseEpisodeParams,
   CreateActionParams,
   Result,
   OpenEpisodeParams,
   SignalParams,
-  VariableUpdate,
 } from "./types.js";
 import * as logic from "./logic.js";
 import type { RegulatorPolicy } from "./policy.js";
@@ -120,20 +120,16 @@ export class Regulator {
    *
    * **Contract:**
    * - Returns: Result<State> with new state if successful
-   * - Parameters: episodeId, optional variableUpdates
+   * - Parameters: CloseEpisodeParams (episodeId, closedAt, optional closureNoteId, optional variableUpdates)
    * - Side effects: Logs episode closure (if logger provided)
    * - Error handling: Returns error if episode not found or already closed
    */
-  closeEpisode(
-    state: State,
-    episodeId: string,
-    variableUpdates?: VariableUpdate[],
-  ): Result<State> {
-    const result = logic.closeEpisode(state, episodeId, variableUpdates);
+  closeEpisode(state: State, params: CloseEpisodeParams): Result<State> {
+    const result = logic.closeEpisode(state, params);
     if (result.ok) {
-      const updateCount = variableUpdates?.length ?? 0;
+      const updateCount = params.variableUpdates?.length ?? 0;
       this.logger.info(
-        `Episode closed: ${episodeId}${updateCount > 0 ? ` (${updateCount} variable(s) updated)` : ""}`,
+        `Episode closed: ${params.episodeId}${updateCount > 0 ? ` (${updateCount} variable(s) updated)` : ""}`,
       );
     } else {
       this.logger.warn(`Episode close failed: ${result.error}`);

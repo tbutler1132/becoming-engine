@@ -23,7 +23,7 @@ Principles:
 
 ### MP4 — Episode Lifecycle (Open/Close Commands + Timestamps)
 
-- [ ] **Complete**
+- [x] **Complete**
 
 **Goal**: Make Episodes meaningfully "temporary" with explicit closure, timestamps, and CLI commands to drive the full lifecycle.
 

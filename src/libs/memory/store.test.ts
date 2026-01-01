@@ -205,6 +205,7 @@ describe("JsonStore", () => {
             type: EPISODE_TYPES[0],
             objective: "Test objective",
             status: EPISODE_STATUSES[0],
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [

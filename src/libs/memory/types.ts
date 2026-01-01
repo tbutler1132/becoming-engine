@@ -37,7 +37,7 @@ export type EpisodeStatus = (typeof EPISODE_STATUSES)[number];
 export const ACTION_STATUSES = ["Pending", "Done"] as const;
 export type ActionStatus = (typeof ACTION_STATUSES)[number];
 
-export const SCHEMA_VERSION = 3 as const;
+export const SCHEMA_VERSION = 4 as const;
 export type SchemaVersion = typeof SCHEMA_VERSION;
 
 export interface Variable {
@@ -58,6 +58,12 @@ export interface Episode {
   variableId?: string;
   objective: string;
   status: EpisodeStatus;
+  /** ISO timestamp when episode was opened */
+  openedAt: string;
+  /** ISO timestamp when episode was closed (set on close) */
+  closedAt?: string;
+  /** Optional link to closure note (set on close, prep for MP5) */
+  closureNoteId?: string;
 }
 
 export interface Action {
