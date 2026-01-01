@@ -72,6 +72,7 @@ describe("Regulator (Class Integration)", () => {
             type: EPISODE_TYPES[1],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
           {
             id: "e2",
@@ -79,6 +80,7 @@ describe("Regulator (Class Integration)", () => {
             type: EPISODE_TYPES[1],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -116,6 +118,7 @@ describe("Regulator (Class Integration)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -145,6 +148,7 @@ describe("Regulator (Class Integration)", () => {
         type: EPISODE_TYPES[0],
         variableId: "v1",
         objective: "Test objective",
+        openedAt: "2025-01-01T00:00:00.000Z",
       });
 
       expect(result.ok).toBe(true);
@@ -175,6 +179,7 @@ describe("Regulator (Class Integration)", () => {
         type: EPISODE_TYPES[0],
         variableId: "v1",
         objective: "Test",
+        openedAt: "2025-01-01T00:00:00.000Z",
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -204,6 +209,7 @@ describe("Regulator (Class Integration)", () => {
         type: EPISODE_TYPES[0],
         variableId: "v1",
         objective: "", // Empty objective should fail
+        openedAt: "2025-01-01T00:00:00.000Z",
       });
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -224,6 +230,7 @@ describe("Regulator (Class Integration)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -231,11 +238,17 @@ describe("Regulator (Class Integration)", () => {
       };
 
       const regulator = new Regulator();
-      const result = regulator.closeEpisode(state, "e1");
+      const result = regulator.closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+      });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.value.episodes[0]?.status).toBe(CLOSED_STATUS);
+        expect(result.value.episodes[0]?.closedAt).toBe(
+          "2025-01-01T12:00:00.000Z",
+        );
       }
     });
 
@@ -263,6 +276,7 @@ describe("Regulator (Class Integration)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -270,9 +284,11 @@ describe("Regulator (Class Integration)", () => {
       };
 
       const regulator = new Regulator({ logger: mockLogger });
-      regulator.closeEpisode(state, "e1", [
-        { id: "v1", status: VARIABLE_STATUSES[1] },
-      ]);
+      regulator.closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        variableUpdates: [{ id: "v1", status: VARIABLE_STATUSES[1] }],
+      });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.stringContaining("Episode closed"),
@@ -293,6 +309,7 @@ describe("Regulator (Class Integration)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -301,7 +318,10 @@ describe("Regulator (Class Integration)", () => {
 
       // Should not throw even without logger
       const regulator = new Regulator();
-      const result = regulator.closeEpisode(state, "e1");
+      const result = regulator.closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+      });
       expect(result.ok).toBe(true);
     });
   });

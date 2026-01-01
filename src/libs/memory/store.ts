@@ -14,9 +14,14 @@ import {
   isValidLegacyStateV0,
   isValidLegacyStateV1,
   isValidLegacyStateV2,
-  isValidStateV3,
+  isValidLegacyStateV3,
+  isValidStateV4,
 } from "./internal/validation.js";
-import { migrateLegacyToV2, migrateV2ToV3 } from "./internal/migrations.js";
+import {
+  migrateLegacyToV2,
+  migrateV2ToV3,
+  migrateV3ToV4,
+} from "./internal/migrations.js";
 import {
   acquireLock,
   backupInvalidStateFile,
@@ -82,12 +87,16 @@ export class JsonStore {
       }
       const data: unknown = await fs.readJson(this.filePath);
 
-      if (isValidStateV3(data)) {
+      if (isValidStateV4(data)) {
         return data;
       }
 
+      if (isValidLegacyStateV3(data)) {
+        return migrateV3ToV4(data);
+      }
+
       if (isValidLegacyStateV2(data)) {
-        return migrateV2ToV3(data);
+        return migrateV3ToV4(migrateV2ToV3(data));
       }
 
       if (isValidLegacyStateV1(data)) {

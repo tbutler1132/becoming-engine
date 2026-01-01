@@ -3,10 +3,16 @@
 
 import {
   DEFAULT_PERSONAL_NODE,
+  EPISODE_TYPES,
   NODE_TYPES,
   VARIABLE_STATUSES,
 } from "../memory/index.js";
-import type { NodeRef, NodeType, VariableStatus } from "../memory/index.js";
+import type {
+  EpisodeType,
+  NodeRef,
+  NodeType,
+  VariableStatus,
+} from "../memory/index.js";
 
 export type SensoriumCommand =
   | { kind: "status"; node: NodeRef }
@@ -21,6 +27,18 @@ export type SensoriumCommand =
       node: NodeRef;
       episodeId?: string;
       description: string;
+    }
+  | {
+      kind: "open";
+      node: NodeRef;
+      type: EpisodeType;
+      variableId?: string;
+      objective: string;
+    }
+  | {
+      kind: "close";
+      node: NodeRef;
+      episodeId: string;
     };
 
 export type SensoriumParseResult<T> =
@@ -29,6 +47,10 @@ export type SensoriumParseResult<T> =
 
 function isNodeType(value: string): value is NodeType {
   return (NODE_TYPES as readonly string[]).includes(value);
+}
+
+function isEpisodeType(value: string): value is EpisodeType {
+  return (EPISODE_TYPES as readonly string[]).includes(value);
 }
 
 export function parseNodeRef(input: string): SensoriumParseResult<NodeRef> {
@@ -142,8 +164,62 @@ export function parseCli(
     };
   }
 
+  if (command === "open") {
+    const typeRaw = getFlagValue(argv, "--type");
+    const variableId = getFlagValue(argv, "--variableId");
+    const objective = getFlagValue(argv, "--objective");
+
+    if (!typeRaw) {
+      return { ok: false, error: "Missing required flag: --type" };
+    }
+    if (!isEpisodeType(typeRaw)) {
+      return {
+        ok: false,
+        error: `Invalid episode type '${typeRaw}'. Expected one of: ${EPISODE_TYPES.join(", ")}`,
+      };
+    }
+    if (!objective || objective.trim().length === 0) {
+      return { ok: false, error: "Missing required flag: --objective" };
+    }
+    // Stabilize requires variableId
+    if (typeRaw === "Stabilize" && !variableId) {
+      return {
+        ok: false,
+        error: "Stabilize episodes require --variableId",
+      };
+    }
+
+    return {
+      ok: true,
+      value: {
+        kind: "open",
+        node,
+        type: typeRaw,
+        ...(variableId ? { variableId } : {}),
+        objective,
+      },
+    };
+  }
+
+  if (command === "close") {
+    const episodeId = getFlagValue(argv, "--episodeId");
+
+    if (!episodeId) {
+      return { ok: false, error: "Missing required flag: --episodeId" };
+    }
+
+    return {
+      ok: true,
+      value: {
+        kind: "close",
+        node,
+        episodeId,
+      },
+    };
+  }
+
   return {
     ok: false,
-    error: `Unknown command '${command}'. Expected one of: status, signal, act`,
+    error: `Unknown command '${command}'. Expected one of: status, signal, act, open, close`,
   };
 }

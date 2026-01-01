@@ -23,18 +23,27 @@ export type OpenEpisodeParams =
       type: StabilizeEpisodeType;
       variableId: string;
       objective: string;
+      openedAt: string;
     }
   | {
       episodeId: string;
       node: NodeRef;
       type: ExploreEpisodeType;
       objective: string;
+      openedAt: string;
     };
 
 // Optional variable updates when closing an episode
 export interface VariableUpdate {
   id: string;
   status: VariableStatus;
+}
+
+export interface CloseEpisodeParams {
+  episodeId: string;
+  closedAt: string;
+  closureNoteId?: string;
+  variableUpdates?: VariableUpdate[];
 }
 
 export interface SignalParams {

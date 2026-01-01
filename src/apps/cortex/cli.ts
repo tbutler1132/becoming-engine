@@ -100,6 +100,58 @@ async function main(): Promise<void> {
     console.log("Action created.");
     return;
   }
+
+  if (command.kind === "open") {
+    const episodeId = crypto.randomUUID();
+    const openedAt = new Date().toISOString();
+
+    const params =
+      command.type === "Stabilize"
+        ? {
+            episodeId,
+            node: command.node,
+            type: command.type,
+            variableId: command.variableId as string,
+            objective: command.objective,
+            openedAt,
+          }
+        : {
+            episodeId,
+            node: command.node,
+            type: command.type,
+            objective: command.objective,
+            openedAt,
+          };
+
+    const result = regulator.openEpisode(state, params);
+
+    if (!result.ok) {
+      console.error(result.error);
+      process.exit(1);
+    }
+
+    await store.save(result.value);
+    console.log(`Episode opened: ${episodeId}`);
+    return;
+  }
+
+  if (command.kind === "close") {
+    const closedAt = new Date().toISOString();
+
+    const result = regulator.closeEpisode(state, {
+      episodeId: command.episodeId,
+      closedAt,
+    });
+
+    if (!result.ok) {
+      console.error(result.error);
+      process.exit(1);
+    }
+
+    await store.save(result.value);
+    console.log(`Episode closed: ${command.episodeId}`);
+    return;
+  }
 }
 
 main().catch((err: unknown) => {

@@ -56,6 +56,11 @@ npm run becoming:dev -- status --node Personal:personal
 npm run becoming:dev -- signal --node Personal:personal --variableId <id> --status InRange
 npm run becoming:dev -- act --node Personal:personal --description "Do the thing"
 npm run becoming:dev -- act --node Personal:personal --episodeId <id> --description "Do the thing"
+
+# Episode lifecycle
+npm run becoming:dev -- open --node Personal:personal --type Explore --objective "Learn X"
+npm run becoming:dev -- open --node Personal:personal --type Stabilize --variableId <id> --objective "Restore agency"
+npm run becoming:dev -- close --node Personal:personal --episodeId <id>
 ```
 
 ## 📜 Doctrine

@@ -15,11 +15,11 @@ import type {
   VariableStatus,
 } from "../memory/index.js";
 import type {
+  CloseEpisodeParams,
   CreateActionParams,
   Result,
   OpenEpisodeParams,
   SignalParams,
-  VariableUpdate,
 } from "./types.js";
 import type { RegulatorPolicyForNode } from "./policy.js";
 import { MAX_ACTIVE_EXPLORE_PER_NODE } from "./types.js";
@@ -270,6 +270,7 @@ export function openEpisode(
       : {}),
     objective: params.objective,
     status: ACTIVE_STATUS,
+    openedAt: params.openedAt,
   };
 
   // Return new state with episode added
@@ -284,14 +285,15 @@ export function openEpisode(
 
 /**
  * Closes an episode and optionally updates variables.
- * Returns a new State with the episode closed and variables updated.
+ * Returns a new State with the episode closed, timestamps set, and variables updated.
  * Pure function: does not mutate input state.
  */
 export function closeEpisode(
   state: State,
-  episodeId: string,
-  variableUpdates?: VariableUpdate[],
+  params: CloseEpisodeParams,
 ): Result<State> {
+  const { episodeId, closedAt, closureNoteId, variableUpdates } = params;
+
   // Find the episode
   const episode = state.episodes.find((e) => e.id === episodeId);
   if (!episode) {
@@ -302,9 +304,16 @@ export function closeEpisode(
     return { ok: false, error: `Episode '${episodeId}' is already closed` };
   }
 
-  // Close the episode
+  // Close the episode with timestamp and optional closureNoteId
   const updatedEpisodes = state.episodes.map((e) =>
-    e.id === episodeId ? { ...e, status: CLOSED_STATUS } : e,
+    e.id === episodeId
+      ? {
+          ...e,
+          status: CLOSED_STATUS,
+          closedAt,
+          ...(closureNoteId ? { closureNoteId } : {}),
+        }
+      : e,
   );
 
   // Update variables if provided

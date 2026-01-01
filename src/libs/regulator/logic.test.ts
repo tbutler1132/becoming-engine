@@ -73,6 +73,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
           {
             id: "e2",
@@ -80,6 +81,8 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[1],
             objective: "Test",
             status: CLOSED_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+            closedAt: "2025-01-01T01:00:00.000Z",
           },
           {
             id: "e3",
@@ -87,6 +90,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -114,6 +118,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
           {
             id: "e2",
@@ -121,6 +126,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0], // Stabilize
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
           {
             id: "e3",
@@ -128,6 +134,8 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
             status: CLOSED_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+            closedAt: "2025-01-01T01:00:00.000Z",
           },
         ],
         actions: [],
@@ -164,6 +172,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
             status: ACTIVE_STATUS, // Active
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -190,6 +199,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
             status: ACTIVE_STATUS, // Active
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -211,6 +221,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
           {
             id: "e2",
@@ -218,6 +229,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -275,6 +287,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -297,6 +310,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         type: EPISODE_TYPES[0],
         variableId: "v1",
         objective: "Valid objective",
+        openedAt: "2025-01-01T00:00:00.000Z",
       };
       const result = validateEpisodeParams(validParams);
       expect(result.ok).toBe(true);
@@ -309,6 +323,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         type: EPISODE_TYPES[0],
         variableId: "v1",
         objective: "",
+        openedAt: "2025-01-01T00:00:00.000Z",
       };
       const result = validateEpisodeParams(invalidParams);
       expect(result.ok).toBe(false);
@@ -316,7 +331,7 @@ describe("Regulator Logic (Pure Functions)", () => {
   });
 
   describe("openEpisode", () => {
-    it("returns new state with episode added", () => {
+    it("returns new state with episode added and sets openedAt", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
         variables: [],
@@ -325,12 +340,14 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
       };
 
+      const openedAt = "2025-01-01T12:00:00.000Z";
       const params = {
         episodeId: "ep-1",
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
         variableId: "v1",
         objective: "Restore agency",
+        openedAt,
       };
 
       const result = openEpisode(state, params);
@@ -339,6 +356,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         expect(result.value.episodes).toHaveLength(1);
         expect(result.value.episodes[0]?.objective).toBe("Restore agency");
         expect(result.value.episodes[0]?.status).toBe(ACTIVE_STATUS);
+        expect(result.value.episodes[0]?.openedAt).toBe(openedAt);
+        expect(result.value.episodes[0]?.closedAt).toBeUndefined();
         // Original state unchanged (pure function)
         expect(state.episodes).toHaveLength(0);
       }
@@ -359,6 +378,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         type: EPISODE_TYPES[0],
         variableId: "v1",
         objective: "",
+        openedAt: "2025-01-01T00:00:00.000Z",
       };
 
       const result = openEpisode(state, params);
@@ -376,6 +396,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
             status: ACTIVE_STATUS, // Active
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -387,6 +408,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[1], // Try to open second Explore
         objective: "Another explore",
+        openedAt: "2025-01-01T01:00:00.000Z",
       };
 
       const result = openEpisode(state, params);
@@ -405,6 +427,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             variableId: "v1",
             objective: "Stabilize v1",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -417,6 +440,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         type: EPISODE_TYPES[0],
         variableId: "v1",
         objective: "Another stabilize v1",
+        openedAt: "2025-01-01T01:00:00.000Z",
       });
       expect(sameVariable.ok).toBe(false);
 
@@ -426,13 +450,14 @@ describe("Regulator Logic (Pure Functions)", () => {
         type: EPISODE_TYPES[0],
         variableId: "v2",
         objective: "Stabilize v2",
+        openedAt: "2025-01-01T01:00:00.000Z",
       });
       expect(differentVariable.ok).toBe(true);
     });
   });
 
   describe("closeEpisode", () => {
-    it("marks episode as closed", () => {
+    it("marks episode as closed and sets closedAt", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
         variables: [],
@@ -443,18 +468,51 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS, // Active
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
         notes: [],
       };
 
-      const result = closeEpisode(state, "e1");
+      const closedAt = "2025-01-01T12:00:00.000Z";
+      const result = closeEpisode(state, { episodeId: "e1", closedAt });
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.value.episodes[0]?.status).toBe(CLOSED_STATUS);
+        expect(result.value.episodes[0]?.closedAt).toBe(closedAt);
         // Original state unchanged (pure function)
         expect(state.episodes[0]?.status).toBe(ACTIVE_STATUS);
+        expect(state.episodes[0]?.closedAt).toBeUndefined();
+      }
+    });
+
+    it("sets closureNoteId when provided", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+      };
+
+      const result = closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNoteId: "note-1",
+      });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.episodes[0]?.closureNoteId).toBe("note-1");
       }
     });
 
@@ -476,15 +534,18 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS, // Active
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
         notes: [],
       };
 
-      const result = closeEpisode(state, "e1", [
-        { id: "v1", status: VARIABLE_STATUSES[1] },
-      ]);
+      const result = closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        variableUpdates: [{ id: "v1", status: VARIABLE_STATUSES[1] }],
+      });
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.value.variables[0]?.status).toBe(VARIABLE_STATUSES[1]);
@@ -502,7 +563,10 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
       };
 
-      const result = closeEpisode(state, "nonexistent");
+      const result = closeEpisode(state, {
+        episodeId: "nonexistent",
+        closedAt: "2025-01-01T12:00:00.000Z",
+      });
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain("not found");
@@ -520,13 +584,18 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: CLOSED_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+            closedAt: "2025-01-01T06:00:00.000Z",
           },
         ],
         actions: [],
         notes: [],
       };
 
-      const result = closeEpisode(state, "e1");
+      const result = closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+      });
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain("already closed");
@@ -625,6 +694,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
@@ -651,6 +721,8 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: EPISODE_STATUSES[1],
+            openedAt: "2025-01-01T00:00:00.000Z",
+            closedAt: "2025-01-01T06:00:00.000Z",
           },
         ],
         actions: [],
@@ -677,6 +749,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             type: EPISODE_TYPES[0],
             objective: "Test",
             status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
         actions: [],
