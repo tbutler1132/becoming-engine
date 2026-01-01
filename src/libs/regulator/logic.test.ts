@@ -5,19 +5,27 @@ import {
   countActiveExplores,
   canStartExplore,
   canCreateAction,
+  applySignal,
+  createAction,
   validateEpisodeParams,
   openEpisode,
   closeEpisode,
 } from "./logic.js";
 import {
-  NODE_TYPES,
+  DEFAULT_PERSONAL_NODE,
+  DEFAULT_ORG_NODE,
+  ACTION_STATUSES,
   VARIABLE_STATUSES,
   EPISODE_TYPES,
   EPISODE_STATUSES,
   SCHEMA_VERSION,
 } from "../memory/index.js";
+
+const ACTIVE_STATUS = EPISODE_STATUSES[0];
+const CLOSED_STATUS = EPISODE_STATUSES[1];
 import type { State } from "../memory/index.js";
 import { MAX_ACTIVE_EXPLORE_PER_NODE } from "./types.js";
+import type { RegulatorPolicyForNode } from "./policy.js";
 
 describe("Regulator Logic (Pure Functions)", () => {
   describe("getVariablesByNode", () => {
@@ -27,13 +35,13 @@ describe("Regulator Logic (Pure Functions)", () => {
         variables: [
           {
             id: "v1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             name: "Agency",
             status: VARIABLE_STATUSES[1],
           },
           {
             id: "v2",
-            node: NODE_TYPES[1],
+            node: DEFAULT_ORG_NODE,
             name: "Capacity",
             status: VARIABLE_STATUSES[1],
           },
@@ -43,11 +51,11 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
       };
 
-      const personalVars = getVariablesByNode(state, NODE_TYPES[0]);
+      const personalVars = getVariablesByNode(state, DEFAULT_PERSONAL_NODE);
       expect(personalVars).toHaveLength(1);
       expect(personalVars[0]?.name).toBe("Agency");
 
-      const orgVars = getVariablesByNode(state, NODE_TYPES[1]);
+      const orgVars = getVariablesByNode(state, DEFAULT_ORG_NODE);
       expect(orgVars).toHaveLength(1);
       expect(orgVars[0]?.name).toBe("Capacity");
     });
@@ -61,31 +69,34 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: EPISODE_STATUSES[0],
+            status: ACTIVE_STATUS,
           },
           {
             id: "e2",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[1],
             objective: "Test",
-            status: EPISODE_STATUSES[1],
+            status: CLOSED_STATUS,
           },
           {
             id: "e3",
-            node: NODE_TYPES[1],
+            node: DEFAULT_ORG_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: EPISODE_STATUSES[0],
+            status: ACTIVE_STATUS,
           },
         ],
         actions: [],
         notes: [],
       };
 
-      const personalActive = getActiveEpisodesByNode(state, NODE_TYPES[0]);
+      const personalActive = getActiveEpisodesByNode(
+        state,
+        DEFAULT_PERSONAL_NODE,
+      );
       expect(personalActive).toHaveLength(1);
       expect(personalActive[0]?.id).toBe("e1");
     });
@@ -99,31 +110,31 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
-            status: EPISODE_STATUSES[0], // Active
+            status: ACTIVE_STATUS,
           },
           {
             id: "e2",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0], // Stabilize
             objective: "Test",
-            status: EPISODE_STATUSES[0], // Active
+            status: ACTIVE_STATUS,
           },
           {
             id: "e3",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
-            status: EPISODE_STATUSES[1], // Closed
+            status: CLOSED_STATUS,
           },
         ],
         actions: [],
         notes: [],
       };
 
-      const count = countActiveExplores(state, NODE_TYPES[0]);
+      const count = countActiveExplores(state, DEFAULT_PERSONAL_NODE);
       expect(count).toBe(1);
     });
   });
@@ -138,7 +149,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
       };
 
-      const result = canStartExplore(state, NODE_TYPES[0]);
+      const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
       expect(result.ok).toBe(true);
     });
 
@@ -149,21 +160,21 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
-            status: EPISODE_STATUSES[0], // Active
+            status: ACTIVE_STATUS, // Active
           },
         ],
         actions: [],
         notes: [],
       };
 
-      const result = canStartExplore(state, NODE_TYPES[0]);
+      const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain(
-          `${MAX_ACTIVE_EXPLORE_PER_NODE} active Explore`
+          `${MAX_ACTIVE_EXPLORE_PER_NODE} active Explore`,
         );
       }
     });
@@ -175,44 +186,70 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
-            status: EPISODE_STATUSES[0], // Active
+            status: ACTIVE_STATUS, // Active
           },
         ],
         actions: [],
         notes: [],
       };
 
-      const result = canStartExplore(state, NODE_TYPES[1]);
+      const result = canStartExplore(state, DEFAULT_ORG_NODE);
       expect(result.ok).toBe(true);
     });
-  });
 
-  describe("canCreateAction", () => {
-    it("allows action when active episode exists", () => {
+    it("respects configurable policy override", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
         variables: [],
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
-            type: EPISODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1], // Explore
             objective: "Test",
-            status: EPISODE_STATUSES[0], // Active
+            status: ACTIVE_STATUS,
+          },
+          {
+            id: "e2",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1], // Explore
+            objective: "Test",
+            status: ACTIVE_STATUS,
           },
         ],
         actions: [],
         notes: [],
       };
 
-      const result = canCreateAction(state, NODE_TYPES[0]);
-      expect(result.ok).toBe(true);
-    });
+      const policyTwo: RegulatorPolicyForNode = {
+        maxActiveExplorePerNode: 2,
+        maxActiveStabilizePerVariable: 1,
+      };
+      const resultTwo = canStartExplore(
+        state,
+        DEFAULT_PERSONAL_NODE,
+        policyTwo,
+      );
+      expect(resultTwo.ok).toBe(false); // cannot start third when max=2
 
-    it("fails without active episode (Silence rule)", () => {
+      const policyThree: RegulatorPolicyForNode = {
+        maxActiveExplorePerNode: 3,
+        maxActiveStabilizePerVariable: 1,
+      };
+      const resultThree = canStartExplore(
+        state,
+        DEFAULT_PERSONAL_NODE,
+        policyThree,
+      );
+      expect(resultThree.ok).toBe(true); // can start third when max=3
+    });
+  });
+
+  describe("canCreateAction", () => {
+    it("allows action without episodeId", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
         variables: [],
@@ -221,19 +258,43 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
       };
 
-      const result = canCreateAction(state, NODE_TYPES[0]);
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain("no active episodes");
-      }
+      const result = canCreateAction(state, {
+        node: DEFAULT_PERSONAL_NODE,
+      });
+      expect(result.ok).toBe(true);
+    });
+
+    it("allows action when referenced episode is active and node matches", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test",
+            status: ACTIVE_STATUS,
+          },
+        ],
+        actions: [],
+        notes: [],
+      };
+
+      const result = canCreateAction(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        episodeId: "e1",
+      });
+      expect(result.ok).toBe(true);
     });
   });
 
   describe("validateEpisodeParams", () => {
     it("validates non-empty objective", () => {
       const validParams = {
-        node: NODE_TYPES[0],
+        node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
+        variableId: "v1",
         objective: "Valid objective",
       };
       const result = validateEpisodeParams(validParams);
@@ -242,8 +303,9 @@ describe("Regulator Logic (Pure Functions)", () => {
 
     it("fails on empty objective", () => {
       const invalidParams = {
-        node: NODE_TYPES[0],
+        node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
+        variableId: "v1",
         objective: "",
       };
       const result = validateEpisodeParams(invalidParams);
@@ -262,8 +324,9 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const params = {
-        node: NODE_TYPES[0],
+        node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
+        variableId: "v1",
         objective: "Restore agency",
       };
 
@@ -272,7 +335,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       if (result.ok) {
         expect(result.value.episodes).toHaveLength(1);
         expect(result.value.episodes[0]?.objective).toBe("Restore agency");
-        expect(result.value.episodes[0]?.status).toBe(EPISODE_STATUSES[0]);
+        expect(result.value.episodes[0]?.status).toBe(ACTIVE_STATUS);
         // Original state unchanged (pure function)
         expect(state.episodes).toHaveLength(0);
       }
@@ -288,8 +351,9 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const params = {
-        node: NODE_TYPES[0],
+        node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
+        variableId: "v1",
         objective: "",
       };
 
@@ -304,10 +368,10 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[1], // Explore
             objective: "Test",
-            status: EPISODE_STATUSES[0], // Active
+            status: ACTIVE_STATUS, // Active
           },
         ],
         actions: [],
@@ -315,13 +379,48 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const params = {
-        node: NODE_TYPES[0],
+        node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[1], // Try to open second Explore
         objective: "Another explore",
       };
 
       const result = openEpisode(state, params);
       expect(result.ok).toBe(false);
+    });
+
+    it("enforces Stabilize constraint per variable", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "s1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0], // Stabilize
+            variableId: "v1",
+            objective: "Stabilize v1",
+            status: ACTIVE_STATUS,
+          },
+        ],
+        actions: [],
+        notes: [],
+      };
+
+      const sameVariable = openEpisode(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        type: EPISODE_TYPES[0],
+        variableId: "v1",
+        objective: "Another stabilize v1",
+      });
+      expect(sameVariable.ok).toBe(false);
+
+      const differentVariable = openEpisode(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        type: EPISODE_TYPES[0],
+        variableId: "v2",
+        objective: "Stabilize v2",
+      });
+      expect(differentVariable.ok).toBe(true);
     });
   });
 
@@ -333,10 +432,10 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: EPISODE_STATUSES[0], // Active
+            status: ACTIVE_STATUS, // Active
           },
         ],
         actions: [],
@@ -346,9 +445,9 @@ describe("Regulator Logic (Pure Functions)", () => {
       const result = closeEpisode(state, "e1");
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.episodes[0]?.status).toBe(EPISODE_STATUSES[1]);
+        expect(result.value.episodes[0]?.status).toBe(CLOSED_STATUS);
         // Original state unchanged (pure function)
-        expect(state.episodes[0]?.status).toBe(EPISODE_STATUSES[0]);
+        expect(state.episodes[0]?.status).toBe(ACTIVE_STATUS);
       }
     });
 
@@ -358,7 +457,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         variables: [
           {
             id: "v1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             name: "Agency",
             status: VARIABLE_STATUSES[0], // Low
           },
@@ -366,10 +465,10 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: EPISODE_STATUSES[0], // Active
+            status: ACTIVE_STATUS, // Active
           },
         ],
         actions: [],
@@ -377,7 +476,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       };
 
       const result = closeEpisode(state, "e1", [
-        { id: "v1", status: "InRange" },
+        { id: "v1", status: VARIABLE_STATUSES[1] },
       ]);
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -410,10 +509,10 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: EPISODE_STATUSES[1], // Closed
+            status: CLOSED_STATUS,
           },
         ],
         actions: [],
@@ -427,5 +526,163 @@ describe("Regulator Logic (Pure Functions)", () => {
       }
     });
   });
-});
 
+  describe("applySignal", () => {
+    it("updates only the intended variable", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: VARIABLE_STATUSES[0],
+          },
+          {
+            id: "v2",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Continuity",
+            status: VARIABLE_STATUSES[0],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+      };
+
+      const result = applySignal(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        variableId: "v1",
+        status: VARIABLE_STATUSES[1],
+      });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.variables.find((v) => v.id === "v1")?.status).toBe(
+          VARIABLE_STATUSES[1],
+        );
+        expect(result.value.variables.find((v) => v.id === "v2")?.status).toBe(
+          VARIABLE_STATUSES[0],
+        );
+      }
+    });
+  });
+
+  describe("createAction", () => {
+    it("succeeds without episodeId (episode-less action)", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+      };
+
+      const result = createAction(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        description: "Do the thing",
+      });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.actions).toHaveLength(1);
+        expect(result.value.actions[0]?.episodeId).toBeUndefined();
+      }
+    });
+
+    it("fails if episode does not exist", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+      };
+
+      const result = createAction(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        episodeId: "e1",
+        description: "Do the thing",
+      });
+      expect(result.ok).toBe(false);
+    });
+
+    it("fails if episode is wrong node", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_ORG_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test",
+            status: ACTIVE_STATUS,
+          },
+        ],
+        actions: [],
+        notes: [],
+      };
+
+      const wrongNode = createAction(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        episodeId: "e1",
+        description: "Do the thing",
+      });
+      expect(wrongNode.ok).toBe(false);
+    });
+
+    it("fails if episode is not active", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test",
+            status: EPISODE_STATUSES[1],
+          },
+        ],
+        actions: [],
+        notes: [],
+      };
+
+      const result = createAction(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        episodeId: "e1",
+        description: "Do the thing",
+      });
+      expect(result.ok).toBe(false);
+    });
+
+    it("succeeds when episode is active and node matches", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test",
+            status: ACTIVE_STATUS,
+          },
+        ],
+        actions: [],
+        notes: [],
+      };
+
+      const result = createAction(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        episodeId: "e1",
+        description: "Do the thing",
+      });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.actions).toHaveLength(1);
+        expect(result.value.actions[0]?.episodeId).toBe("e1");
+        expect(result.value.actions[0]?.status).toBe(ACTION_STATUSES[0]);
+      }
+    });
+  });
+});

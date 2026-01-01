@@ -9,17 +9,29 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:memory": "tsx src/libs/memory/test-store.ts"
+    "test:memory": "tsx src/libs/memory/test-store.ts",
+    "lint": "eslint .",
+    "format": "prettier -w .",
+    "format:check": "prettier -c .",
+    "check": "npm test && npx tsc --noEmit && npm run lint && npm run format:check",
+    "becoming:dev": "tsx src/apps/cortex/cli.ts",
+    "becoming:status": "tsx src/apps/cortex/cli.ts status"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^25.0.3",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "prettier": "^3.7.4",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.51.0",
     "vitest": "^4.0.16"
   },
   "dependencies": {

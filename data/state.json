@@ -1,15 +1,21 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "variables": [
     {
       "id": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
-      "node": "Personal",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
       "name": "Agency",
       "status": "InRange"
     },
     {
       "id": "9c06f69d-f75c-46e6-9235-191fc78ad23a",
-      "node": "Org",
+      "node": {
+        "type": "Org",
+        "id": "org"
+      },
       "name": "Execution Capacity",
       "status": "InRange"
     }

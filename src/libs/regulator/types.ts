@@ -1,26 +1,48 @@
 // Regulator types and constraints
 // The Regulator organ enforces cybernetic homeostasis rules
 
-import type { NodeType, EpisodeType } from "../memory/index.js";
+import { EPISODE_TYPES } from "../memory/index.js";
+import type { NodeRef, VariableStatus } from "../memory/index.js";
 
 // Constraint constants (no magic numbers)
 export const MAX_ACTIVE_EXPLORE_PER_NODE = 1;
+export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
 
 // Result type for operations that can fail
 export type Result<T, E = string> =
   | { ok: true; value: T }
   | { ok: false; error: E };
 
-// Parameters for episode operations
-export interface OpenEpisodeParams {
-  node: NodeType;
-  type: EpisodeType;
-  objective: string;
-}
+type StabilizeEpisodeType = (typeof EPISODE_TYPES)[0];
+type ExploreEpisodeType = (typeof EPISODE_TYPES)[1];
+
+export type OpenEpisodeParams =
+  | {
+      node: NodeRef;
+      type: StabilizeEpisodeType;
+      variableId: string;
+      objective: string;
+    }
+  | {
+      node: NodeRef;
+      type: ExploreEpisodeType;
+      objective: string;
+    };
 
 // Optional variable updates when closing an episode
 export interface VariableUpdate {
   id: string;
-  status: "Low" | "InRange" | "High";
+  status: VariableStatus;
 }
 
+export interface SignalParams {
+  node: NodeRef;
+  variableId: string;
+  status: VariableStatus;
+}
+
+export interface CreateActionParams {
+  node: NodeRef;
+  episodeId?: string;
+  description: string;
+}

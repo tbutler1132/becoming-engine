@@ -29,7 +29,33 @@ We value code that is easy to **delete** and **compose** over code that is "clev
   - Logic functions should be pure: `(State, Input) => NewState`.
   - This makes logic universally testable without mocking databases.
 
-## 4. Coding Style & Cleanliness
+## 4. Selective Configuration Principle
+
+**Configure boundaries, not mechanisms. Make policy legible, keep machinery simple.**
+
+When deciding what should be configurable, ask: "Could this value legitimately differ between deployments or evolve as the system learns?"
+
+### Should Be Configurable (Policy/Boundaries)
+
+- **Constraints/Thresholds:** Episode limits, variable thresholds, timeouts
+- **Paths/Locations:** File paths, data directories, external service endpoints
+- **Observability:** Loggers, metrics collectors, debug flags
+- **Retry/Timeout Policies:** Network timeouts, retry counts
+
+These are **boundaries** that may vary by context or evolve with learning.
+
+### Should NOT Be Configurable (Mechanism/Ontology)
+
+- **Core Ontology:** What a `Variable`/`Episode`/`Action` is (these define reality)
+- **Pure Logic:** How filtering/validation works (these are algorithms)
+- **Data Structures:** The shape of `State` (these are contracts)
+- **Algorithm Choices:** How episodes are opened/closed (these are mechanisms)
+
+These are **implementation details**. Making them configurable adds complexity without clear benefit.
+
+**Principle:** Keep the system "quiet" (minimal configuration) while allowing boundaries to be explicit and revisable.
+
+## 5. Coding Style & Cleanliness
 
 - **Small Functions:** Functions should ideally fit on a single screen. If a function does "x AND y", split it.
 - **Naming Conventions:**
@@ -40,12 +66,12 @@ We value code that is easy to **delete** and **compose** over code that is "clev
   - _Bad:_ `if (x) { if (y) { ... } }`
   - _Good:_ `if (!x) return; if (!y) return; ...`
 
-## 5. Testing & Iteration
+## 6. Testing & Iteration
 
 - **Test Behavior, Not Implementation:** Tests should describe _what_ the module does, not _how_.
 - **Dependency Injection:** If a class relies on an external service (like a database), inject the interface, not the concrete class. This allows easy mocking and swapping.
 
-## 6. AI Agent Behavior Protocol
+## 7. AI Agent Behavior Protocol
 
 When generating code, follow this loop:
 

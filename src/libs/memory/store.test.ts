@@ -7,6 +7,7 @@ import {
   SEED_PERSONAL_NODE,
   SEED_ORG_NODE,
   SEED_STATUS,
+  DEFAULT_PERSONAL_NODE,
   ACTION_STATUSES,
   EPISODE_STATUSES,
   EPISODE_TYPES,
@@ -53,14 +54,14 @@ describe("JsonStore", () => {
       expect(state.notes).toHaveLength(0);
 
       const agencyVar = state.variables.find(
-        (v) => v.name === SEED_AGENCY_NAME
+        (v) => v.name === SEED_AGENCY_NAME,
       );
       expect(agencyVar).toBeDefined();
       expect(agencyVar?.node).toBe(SEED_PERSONAL_NODE);
       expect(agencyVar?.status).toBe(SEED_STATUS);
 
       const execVar = state.variables.find(
-        (v) => v.name === SEED_EXECUTION_CAPACITY_NAME
+        (v) => v.name === SEED_EXECUTION_CAPACITY_NAME,
       );
       expect(execVar).toBeDefined();
       expect(execVar?.node).toBe(SEED_ORG_NODE);
@@ -80,7 +81,7 @@ describe("JsonStore", () => {
       // Verify IDs look like UUIDs (basic format check)
       for (const id of ids) {
         expect(id).toMatch(
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
         );
       }
     });
@@ -105,7 +106,7 @@ describe("JsonStore", () => {
         variables: [
           {
             id: "test-1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             name: "Test Var",
             status: VARIABLE_STATUSES[0],
           },
@@ -125,7 +126,7 @@ describe("JsonStore", () => {
       expect(state).toEqual(existingState);
     });
 
-    it("migrates a v0 state (missing schemaVersion) to v1", async () => {
+    it("migrates a v0 state (missing schemaVersion) to v2", async () => {
       const v0State = {
         variables: [
           {
@@ -147,7 +148,10 @@ describe("JsonStore", () => {
       const state = await store.load();
 
       expect(state.schemaVersion).toBe(SCHEMA_VERSION);
-      expect(state.variables).toEqual(v0State.variables);
+      expect(state.variables).toHaveLength(1);
+      expect(state.variables[0]?.name).toBe("Test Var");
+      expect(state.variables[0]?.status).toBe(VARIABLE_STATUSES[0]);
+      expect(state.variables[0]?.node).toEqual(DEFAULT_PERSONAL_NODE);
     });
 
     it("backs up invalid state file and returns seed", async () => {
@@ -168,7 +172,7 @@ describe("JsonStore", () => {
       expect(fs.move).toHaveBeenCalledWith(
         expect.stringContaining("state.json"),
         expect.stringContaining("state.json.corrupt-"),
-        { overwrite: false }
+        { overwrite: false },
       );
     });
   });
@@ -189,7 +193,7 @@ describe("JsonStore", () => {
         variables: [
           {
             id: "var-1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             name: SEED_AGENCY_NAME,
             status: SEED_STATUS,
           },
@@ -197,7 +201,7 @@ describe("JsonStore", () => {
         episodes: [
           {
             id: "ep-1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test objective",
             status: EPISODE_STATUSES[0],
@@ -221,16 +225,16 @@ describe("JsonStore", () => {
       expect(fs.writeJson).toHaveBeenCalledWith(
         expect.stringContaining("state.json.tmp-"),
         state,
-        { spaces: 2 }
+        { spaces: 2 },
       );
       expect(fs.move).toHaveBeenCalledWith(
         expect.stringContaining("state.json.tmp-"),
         expect.stringContaining("state.json"),
-        { overwrite: true }
+        { overwrite: true },
       );
       expect(openFile).toHaveBeenCalledWith(
         expect.stringContaining("state.json.lock"),
-        "wx"
+        "wx",
       );
     });
   });

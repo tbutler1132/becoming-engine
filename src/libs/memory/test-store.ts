@@ -54,7 +54,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
   const agencyVar: Variable | undefined = savedState.variables.find(
-    (v: Variable) => v.name === SEED_AGENCY_NAME
+    (v: Variable) => v.name === SEED_AGENCY_NAME,
   );
 
   if (!agencyVar) {
@@ -65,7 +65,7 @@ async function main(): Promise<void> {
   console.log("\n✓ SUCCESS: Memory organ is operational");
   console.log("\nSeed state contains:");
   for (const v of state.variables) {
-    console.log(`  - [${v.node}] ${v.name}: ${v.status}`);
+    console.log(`  - [${v.node.type}:${v.node.id}] ${v.name}: ${v.status}`);
   }
 }
 

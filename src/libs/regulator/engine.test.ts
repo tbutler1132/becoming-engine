@@ -1,13 +1,18 @@
 import { describe, it, expect, vi } from "vitest";
 import { Regulator } from "./engine.js";
 import type { Logger } from "./engine.js";
+import { DEFAULT_REGULATOR_POLICY } from "./policy.js";
 import {
-  NODE_TYPES,
+  DEFAULT_PERSONAL_NODE,
+  DEFAULT_ORG_NODE,
   VARIABLE_STATUSES,
   EPISODE_TYPES,
   EPISODE_STATUSES,
   SCHEMA_VERSION,
 } from "../memory/index.js";
+
+const ACTIVE_STATUS = EPISODE_STATUSES[0];
+const CLOSED_STATUS = EPISODE_STATUSES[1];
 import type { State } from "../memory/index.js";
 
 describe("Regulator (Class Integration)", () => {
@@ -18,13 +23,13 @@ describe("Regulator (Class Integration)", () => {
         variables: [
           {
             id: "v1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             name: "Agency",
             status: VARIABLE_STATUSES[1],
           },
           {
             id: "v2",
-            node: NODE_TYPES[1],
+            node: DEFAULT_ORG_NODE,
             name: "Capacity",
             status: VARIABLE_STATUSES[1],
           },
@@ -35,7 +40,7 @@ describe("Regulator (Class Integration)", () => {
       };
 
       const regulator = new Regulator();
-      const vars = regulator.getVariables(state, NODE_TYPES[0]);
+      const vars = regulator.getVariables(state, DEFAULT_PERSONAL_NODE);
       expect(vars).toHaveLength(1);
       expect(vars[0]?.name).toBe("Agency");
     });
@@ -52,8 +57,50 @@ describe("Regulator (Class Integration)", () => {
       };
 
       const regulator = new Regulator();
-      const result = regulator.canStartExplore(state, NODE_TYPES[0]);
+      const result = regulator.canStartExplore(state, DEFAULT_PERSONAL_NODE);
       expect(result.ok).toBe(true);
+    });
+
+    it("supports policy overrides (prepared for multi-node networks)", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1],
+            objective: "Test",
+            status: ACTIVE_STATUS,
+          },
+          {
+            id: "e2",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1],
+            objective: "Test",
+            status: ACTIVE_STATUS,
+          },
+        ],
+        actions: [],
+        notes: [],
+      };
+
+      const regulatorDefault = new Regulator();
+      expect(
+        regulatorDefault.canStartExplore(state, DEFAULT_PERSONAL_NODE).ok,
+      ).toBe(false);
+
+      const regulatorOverride = new Regulator({
+        policy: {
+          ...DEFAULT_REGULATOR_POLICY,
+          maxActiveExplorePerNodeByNode: {
+            [`${DEFAULT_PERSONAL_NODE.type}:${DEFAULT_PERSONAL_NODE.id}`]: 3,
+          },
+        },
+      });
+      expect(
+        regulatorOverride.canStartExplore(state, DEFAULT_PERSONAL_NODE).ok,
+      ).toBe(true);
     });
   });
 
@@ -65,10 +112,10 @@ describe("Regulator (Class Integration)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: EPISODE_STATUSES[0],
+            status: ACTIVE_STATUS,
           },
         ],
         actions: [],
@@ -76,7 +123,7 @@ describe("Regulator (Class Integration)", () => {
       };
 
       const regulator = new Regulator();
-      const result = regulator.canAct(state, NODE_TYPES[0]);
+      const result = regulator.canAct(state, DEFAULT_PERSONAL_NODE);
       expect(result.ok).toBe(true);
     });
   });
@@ -93,8 +140,9 @@ describe("Regulator (Class Integration)", () => {
 
       const regulator = new Regulator();
       const result = regulator.openEpisode(state, {
-        node: NODE_TYPES[0],
+        node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
+        variableId: "v1",
         objective: "Test objective",
       });
 
@@ -121,13 +169,14 @@ describe("Regulator (Class Integration)", () => {
 
       const regulator = new Regulator({ logger: mockLogger });
       regulator.openEpisode(state, {
-        node: NODE_TYPES[0],
+        node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
+        variableId: "v1",
         objective: "Test",
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringContaining("Episode opened")
+        expect.stringContaining("Episode opened"),
       );
     });
 
@@ -148,13 +197,14 @@ describe("Regulator (Class Integration)", () => {
 
       const regulator = new Regulator({ logger: mockLogger });
       regulator.openEpisode(state, {
-        node: NODE_TYPES[0],
+        node: DEFAULT_PERSONAL_NODE,
         type: EPISODE_TYPES[0],
+        variableId: "v1",
         objective: "", // Empty objective should fail
       });
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        expect.stringContaining("Episode open failed")
+        expect.stringContaining("Episode open failed"),
       );
     });
   });
@@ -167,10 +217,10 @@ describe("Regulator (Class Integration)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: EPISODE_STATUSES[0],
+            status: ACTIVE_STATUS,
           },
         ],
         actions: [],
@@ -182,7 +232,7 @@ describe("Regulator (Class Integration)", () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.episodes[0]?.status).toBe(EPISODE_STATUSES[1]);
+        expect(result.value.episodes[0]?.status).toBe(CLOSED_STATUS);
       }
     });
 
@@ -198,7 +248,7 @@ describe("Regulator (Class Integration)", () => {
         variables: [
           {
             id: "v1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             name: "Agency",
             status: VARIABLE_STATUSES[0],
           },
@@ -206,10 +256,10 @@ describe("Regulator (Class Integration)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: EPISODE_STATUSES[0],
+            status: ACTIVE_STATUS,
           },
         ],
         actions: [],
@@ -217,13 +267,15 @@ describe("Regulator (Class Integration)", () => {
       };
 
       const regulator = new Regulator({ logger: mockLogger });
-      regulator.closeEpisode(state, "e1", [{ id: "v1", status: "InRange" }]);
+      regulator.closeEpisode(state, "e1", [
+        { id: "v1", status: VARIABLE_STATUSES[1] },
+      ]);
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringContaining("Episode closed")
+        expect.stringContaining("Episode closed"),
       );
       expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringContaining("1 variable(s) updated")
+        expect.stringContaining("1 variable(s) updated"),
       );
     });
 
@@ -234,10 +286,10 @@ describe("Regulator (Class Integration)", () => {
         episodes: [
           {
             id: "e1",
-            node: NODE_TYPES[0],
+            node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: EPISODE_STATUSES[0],
+            status: ACTIVE_STATUS,
           },
         ],
         actions: [],
@@ -251,4 +303,3 @@ describe("Regulator (Class Integration)", () => {
     });
   });
 });
-
