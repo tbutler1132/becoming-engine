@@ -56,6 +56,10 @@ Follow the **Selective Configuration Principle** in `docs/standards.md`:
 
 Prefer explicit policy objects (dependency injection) over environment-driven behavior.
 
+## Subagents (Recommended Setup)
+
+If you’re using subagents, see: `docs/subagents.md`.
+
 ## Adding a New Organ (Checklist)
 
 - `src/libs/<organ>/index.ts` (public API)
