@@ -509,13 +509,6 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 **Concept**: A web visualization that renders the system as a living organism rather than a dashboard. Quiet at baseline, perturbation when pressure emerges, Episodes as temporary scaffolding that dissolves.
 
-**Layers**:
-
-1. **Organism**: Personal/Org nodes with Variables as membrane cells, Episodes as arcs
-2. **Organs**: Memory, Regulator, Sensorium, Cortex with data flow arrows
-3. **Files** (future): Drill into an organ to see its files
-4. **Code Graph** (future): AST visualization showing function-call relationships
-
 **Why it fits the philosophy**:
 
 - "When nothing is wrong, the system disappears" → visual quietness at baseline
@@ -525,7 +518,220 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 **Dependencies**: Works best after MP6 (Models) and MP12 (Cortex UI), but could be built earlier.
 
-**Effort**: Medium (prototype validated the concept)
+---
+
+#### MV1 — Foundation (Server + Shell)
+
+- [ ] **Complete**
+
+**Goal**: Establish the dev environment and real-time data pipeline.
+
+**Scope**
+
+- Add Vite + chokidar + ws as dev dependencies
+- Create `src/apps/membrane/` directory structure
+- WebSocket server that watches `data/state.json` and broadcasts changes
+- Minimal HTML shell with dark background and canvas element
+
+**Acceptance**
+
+- `npm run membrane:server` starts WebSocket relay on port 8081
+- `npm run membrane:dev` starts Vite dev server
+- Browser connects to WebSocket and logs state changes to console
+
+---
+
+#### MV2 — Animation System (Pure Math)
+
+- [ ] **Complete**
+
+**Goal**: Create reusable animation primitives that feel organic.
+
+**Scope**
+
+- Spring physics: `advanceSpring(state, target, config) => newState`
+- Breathing cycle: `breathe(time, period) => 0..1`
+- Pulse decay: `pulseDecay(age, decayMs) => 0..1`
+- Tremor effect: `tremor(time, intensity) => offset`
+- Easing functions: `easeOutCubic`, `easeInOutCubic`
+
+**Acceptance**
+
+- All animation functions are pure (no side effects)
+- Unit tests verify expected curves and decay behavior
+
+---
+
+#### MV3 — Organism Layer (Nodes + Variables)
+
+- [ ] **Complete**
+
+**Goal**: Visualize Personal and Org nodes with Variables as membrane cells.
+
+**Scope**
+
+- Render two node "pools" positioned horizontally
+- Variables appear as glowing cells within each node
+- Visual states: `InRange` (calm pulse), `Low/High` (tremor + color shift)
+- Baseline indicator: nodes contract to minimal size when no episodes
+- Connection line between nodes (subtle, dashed)
+
+**Acceptance**
+
+- Both nodes render with their Variables
+- Breathing animation runs continuously
+- Tension states visibly differ from calm states
+
+---
+
+#### MV4 — Episodes as Scaffolding
+
+- [ ] **Complete**
+
+**Goal**: Visualize active Episodes as temporary structures around nodes.
+
+**Scope**
+
+- Episodes render as arcs around the affected node
+- Stabilize episodes: amber color
+- Explore episodes: teal color
+- Pulsing effect to indicate "active"
+- Episodes should feel "attached" but clearly temporary
+
+**Acceptance**
+
+- Active episodes appear as arcs
+- Closed episodes are not rendered
+- Visual distinction between Stabilize and Explore
+
+---
+
+#### MV5 — Organs Layer (Modules + Data Flow)
+
+- [ ] **Complete**
+
+**Goal**: Visualize the codebase organs with relationships.
+
+**Scope**
+
+- Create `organs.json` metadata: id, name, role, philosophy, description
+- Render organs as cellular structures: Memory, Regulator, Sensorium, Cortex
+- Data flow arrows between organs (Sensorium → Cortex → Regulator → Memory)
+- Hover behavior: show organ description and philosophy quote
+- Focus behavior: click to highlight an organ
+
+**Acceptance**
+
+- All four organs render with icons and labels
+- Data flow arrows pulse subtly
+- Non-technical descriptions appear on hover
+
+---
+
+#### MV6 — Code Change Pulses
+
+- [ ] **Complete**
+
+**Goal**: Make the visualization reactive to source code changes.
+
+**Scope**
+
+- Extend WebSocket server to watch `src/libs/**/*.ts` and `src/apps/cortex/**/*.ts`
+- Map file paths to organ IDs
+- Broadcast `codeChange` events with organ ID and timestamp
+- Organs pulse/glow briefly when their code is edited
+
+**Acceptance**
+
+- Editing a file causes the relevant organ to pulse
+- Pulses decay over ~3 seconds
+- Multiple edits stack (brighter pulse)
+
+---
+
+#### MV7 — Navigation + Interaction
+
+- [ ] **Complete**
+
+**Goal**: Enable exploration through zoom and click.
+
+**Scope**
+
+- Scroll/pinch to transition between Organism ↔ Organs layers
+- Click on nodes (Organism layer) to zoom into Organs
+- Click on organs to focus and show details
+- Esc key to zoom out or clear focus
+- Smooth transitions between layers (fade/scale)
+
+**Acceptance**
+
+- Can navigate between layers with scroll or click
+- Esc returns to previous level
+- Transitions feel organic (eased, not instant)
+
+---
+
+#### MV8 — Philosophy Integration
+
+- [ ] **Complete**
+
+**Goal**: Make the philosophy tangible for non-technical viewers.
+
+**Scope**
+
+- Ambient philosophy fragments rotate at bottom of screen
+- Organ descriptions use plain language, not technical jargon
+- Variable cells show human-readable tooltips on hover
+- Baseline state has explicit visual reward (calm + label)
+
+**Acceptance**
+
+- Philosophy text fades in/out periodically
+- Hovering on Variables shows accessible descriptions
+- Someone unfamiliar with code can understand what they're seeing
+
+---
+
+#### MV9 — Files Layer (Future)
+
+- [ ] **Complete**
+
+**Goal**: Drill into an organ to see its files as smaller cells.
+
+**Scope**
+
+- Click an organ to zoom into its file structure
+- Files rendered as smaller membrane cells
+- Recent file changes cause pulses
+- Internal files (e.g., `internal/`) slightly dimmed
+
+**Acceptance**
+
+- Can navigate: Organism → Organs → Files
+- Files show names and pulse on save
+- Back navigation works (Esc or click outside)
+
+---
+
+#### MV10 — Code Graph Layer (Future)
+
+- [ ] **Complete**
+
+**Goal**: Visualize function-call relationships within a file (AST).
+
+**Scope**
+
+- Parse TypeScript files using compiler API
+- Extract functions, types, imports, and call relationships
+- Render as node-link diagram within the file view
+- Color-code by role: query (read-only), validation, mutation
+- Pure functions marked distinctively
+
+**Acceptance**
+
+- Clicking a file shows its internal call graph
+- Functions connected by "calls" edges
+- Hover shows function signature and first-line comment
 
 ---
 
