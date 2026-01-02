@@ -2,7 +2,7 @@
 // Configure boundaries (constraints), not mechanisms.
 
 import type { NodeRef, NodeType } from "../memory/index.js";
-import { NODE_TYPES } from "../memory/index.js";
+import { formatNodeRef, NODE_TYPES } from "../memory/index.js";
 import {
   MAX_ACTIVE_EXPLORE_PER_NODE,
   MAX_ACTIVE_STABILIZE_PER_VARIABLE,
@@ -41,20 +41,16 @@ export const DEFAULT_REGULATOR_POLICY: RegulatorPolicy = {
   maxActiveStabilizePerVariableByNode: {},
 };
 
-export function toNodeKey(node: NodeRef): string {
-  return `${node.type}:${node.id}`;
-}
-
 export function getRegulatorPolicyForNode(
   policy: RegulatorPolicy,
   node: NodeRef,
 ): RegulatorPolicyForNode {
   const exploreNodeOverride =
-    policy.maxActiveExplorePerNodeByNode[toNodeKey(node)];
+    policy.maxActiveExplorePerNodeByNode[formatNodeRef(node)];
   const exploreTypeOverride = policy.maxActiveExplorePerNodeByType[node.type];
 
   const stabilizeNodeOverride =
-    policy.maxActiveStabilizePerVariableByNode[toNodeKey(node)];
+    policy.maxActiveStabilizePerVariableByNode[formatNodeRef(node)];
   const stabilizeTypeOverride =
     policy.maxActiveStabilizePerVariableByType[node.type];
   return {

@@ -16,7 +16,7 @@ import type {
   NoteTag,
   VariableStatus,
 } from "../memory/index.js";
-import type { Observation, SensoriumResult } from "./types.js";
+import type { Observation, Result } from "./types.js";
 
 export type SensoriumCommand =
   | { kind: "status"; node: NodeRef }
@@ -46,10 +46,6 @@ export type SensoriumCommand =
       noteContent: string;
     };
 
-export type SensoriumParseResult<T> =
-  | { ok: true; value: T }
-  | { ok: false; error: string };
-
 function isNodeType(value: string): value is NodeType {
   return (NODE_TYPES as readonly string[]).includes(value);
 }
@@ -66,7 +62,7 @@ function isVariableStatus(value: string): value is VariableStatus {
   return (VARIABLE_STATUSES as readonly string[]).includes(value);
 }
 
-export function parseNodeRef(input: string): SensoriumParseResult<NodeRef> {
+export function parseNodeRef(input: string): Result<NodeRef> {
   const parts = input.split(":");
   if (parts.length !== 2) {
     return {
@@ -104,9 +100,7 @@ function getFlagValue(
   return value;
 }
 
-export function parseCli(
-  argv: readonly string[],
-): SensoriumParseResult<SensoriumCommand> {
+export function parseCli(argv: readonly string[]): Result<SensoriumCommand> {
   // Expect argv to be process.argv slice starting at the command, e.g. ["status", "--node", ...]
   const [commandRaw] = argv;
   const command = (commandRaw ?? "status").trim();
@@ -253,7 +247,7 @@ export function parseCli(
  * The CLI then interprets these Observations into Regulator mutations.
  *
  * **Contract:**
- * - Returns: SensoriumResult<Observation> with parsed observation or error
+ * - Returns: Result<Observation> with parsed observation or error
  * - Validates: All inputs are validated before producing Observation
  * - Error handling: Invalid input returns error, never silently mutates ontology
  *
@@ -262,9 +256,7 @@ export function parseCli(
  *   observe note --content "Some observation"
  *   observe episode --type Explore --objective "Learn X"
  */
-export function parseObservation(
-  argv: readonly string[],
-): SensoriumResult<Observation> {
+export function parseObservation(argv: readonly string[]): Result<Observation> {
   // Expect argv like ["observe", "signal", "--variableId", "v1", "--status", "InRange"]
   const [commandRaw, subcommandRaw] = argv;
   const command = (commandRaw ?? "").trim();
@@ -308,7 +300,7 @@ export function parseObservation(
 function parseVariableProxySignal(
   argv: readonly string[],
   node: NodeRef,
-): SensoriumResult<Observation> {
+): Result<Observation> {
   const variableId = getFlagValue(argv, "--variableId");
   const statusRaw = getFlagValue(argv, "--status");
 
@@ -342,7 +334,7 @@ function parseVariableProxySignal(
 function parseFreeformNote(
   argv: readonly string[],
   node: NodeRef,
-): SensoriumResult<Observation> {
+): Result<Observation> {
   const content = getFlagValue(argv, "--content");
   const tagsRaw = getFlagValue(argv, "--tags");
 
@@ -381,7 +373,7 @@ function parseFreeformNote(
 function parseEpisodeProposal(
   argv: readonly string[],
   node: NodeRef,
-): SensoriumResult<Observation> {
+): Result<Observation> {
   const typeRaw = getFlagValue(argv, "--type");
   const variableId = getFlagValue(argv, "--variableId");
   const objective = getFlagValue(argv, "--objective");

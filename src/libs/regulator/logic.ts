@@ -5,6 +5,7 @@ import {
   ACTION_STATUSES,
   EPISODE_STATUSES,
   EPISODE_TYPES,
+  formatNodeRef,
   LINK_RELATIONS,
   NOTE_TAGS,
 } from "../memory/index.js";
@@ -58,10 +59,6 @@ type CanCreateActionParams = Pick<CreateActionParams, "node" | "episodeId">;
 
 function nodeRefEquals(a: NodeRef, b: NodeRef): boolean {
   return a.type === b.type && a.id === b.id;
-}
-
-function formatNodeRef(node: NodeRef): string {
-  return `${node.type}:${node.id}`;
 }
 
 /**

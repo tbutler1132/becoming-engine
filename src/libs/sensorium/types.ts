@@ -66,9 +66,5 @@ export interface EpisodeProposalObservation {
   objective: string;
 }
 
-/**
- * Result type for Sensorium parsing operations.
- */
-export type SensoriumResult<T> =
-  | { ok: true; value: T }
-  | { ok: false; error: string };
+// Re-export Result type from shared
+export type { Result } from "../shared/index.js";

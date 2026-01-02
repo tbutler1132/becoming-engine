@@ -1,14 +1,8 @@
 // Pure formatting functions for CLI output
 // All functions are pure: (Data) => String
 
+import { formatNodeRef } from "../../libs/memory/index.js";
 import type { StatusData } from "../../libs/regulator/index.js";
-
-/**
- * Formats a node reference as "Type:Id".
- */
-function formatNodeRef(node: { type: string; id: string }): string {
-  return `${node.type}:${node.id}`;
-}
 
 /**
  * Formats status data for CLI display.
