@@ -1,15 +1,49 @@
-// CLI: interpretive surface that orchestrates Sensorium → Regulator → Memory
+// CLI: interpretive surface that orchestrates Sensorium → Membrane → Regulator → Memory
 // The CLI owns no authority; it never mutates State directly.
 // Observations from Sensorium are interpreted into Regulator mutations here.
+// Episode mutations are gated through the Membrane before reaching the Regulator.
 
 import { JsonStore } from "../../libs/memory/index.js";
-import type { NodeRef, State } from "../../libs/memory/index.js";
+import type { EpisodeType, NodeRef, State } from "../../libs/memory/index.js";
+import { checkEpisodeConstraints } from "../../libs/membrane/index.js";
+import type { MembraneResult } from "../../libs/membrane/index.js";
 import { getStatusData, Regulator } from "../../libs/regulator/index.js";
 import type { Result } from "../../libs/regulator/index.js";
 import { parseCli, parseObservation } from "../../libs/sensorium/index.js";
 import type { Observation } from "../../libs/sensorium/index.js";
 import { formatStatus } from "./format.js";
 import * as crypto from "node:crypto";
+
+/**
+ * Checks Membrane constraints for episode opening.
+ * If blocked, exits with error. If warned, prints warnings.
+ * Returns true if mutation should proceed.
+ */
+function checkMembraneForEpisode(
+  state: State,
+  node: NodeRef,
+  episodeType: EpisodeType,
+): boolean {
+  const result: MembraneResult = checkEpisodeConstraints(state, {
+    node,
+    episodeType,
+  });
+
+  if (result.decision === "block") {
+    console.error(
+      `Blocked by Normative Model [${result.modelId}]: ${result.reason}`,
+    );
+    process.exit(1);
+  }
+
+  if (result.decision === "warn") {
+    for (const warning of result.warnings) {
+      console.warn(`Warning [${warning.modelId}]: ${warning.statement}`);
+    }
+  }
+
+  return true;
+}
 
 function printStatus(state: State, node: NodeRef): void {
   const data = getStatusData(state, node);
@@ -56,6 +90,9 @@ function interpretObservation(
     }
 
     case "episodeProposal": {
+      // Gate through Membrane before opening episode
+      checkMembraneForEpisode(state, observation.node, observation.episodeType);
+
       const episodeId = crypto.randomUUID();
       const openedAt = new Date().toISOString();
 
@@ -178,6 +215,9 @@ async function main(): Promise<void> {
   }
 
   if (command.kind === "open") {
+    // Gate through Membrane before opening episode
+    checkMembraneForEpisode(state, command.node, command.type);
+
     const episodeId = crypto.randomUUID();
     const openedAt = new Date().toISOString();
 
