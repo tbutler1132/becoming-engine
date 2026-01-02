@@ -22,7 +22,7 @@ import {
   countActiveExplores,
   countActiveStabilizesForVariable,
 } from "./logic.js";
-import { isValidStateV4 } from "../memory/internal/validation.js";
+import { isValidState } from "../memory/internal/validation.js";
 import {
   SCHEMA_VERSION,
   VARIABLE_STATUSES,
@@ -264,7 +264,7 @@ describe("Invariant: State Validity Preservation", () => {
 
           if (result.ok) {
             // Success must produce valid state
-            expect(isValidStateV4(result.value)).toBe(true);
+            expect(isValidState(result.value)).toBe(true);
           }
           // Failure is acceptable (constraint violation)
           return true;
@@ -288,7 +288,7 @@ describe("Invariant: State Validity Preservation", () => {
           });
 
           if (result.ok) {
-            expect(isValidStateV4(result.value)).toBe(true);
+            expect(isValidState(result.value)).toBe(true);
           }
           return true;
         },
@@ -325,7 +325,7 @@ describe("Invariant: State Validity Preservation", () => {
           });
 
           if (result.ok) {
-            expect(isValidStateV4(result.value)).toBe(true);
+            expect(isValidState(result.value)).toBe(true);
           }
           return true;
         },
@@ -350,7 +350,7 @@ describe("Invariant: State Validity Preservation", () => {
           });
 
           if (result.ok) {
-            expect(isValidStateV4(result.value)).toBe(true);
+            expect(isValidState(result.value)).toBe(true);
           }
           return true;
         },

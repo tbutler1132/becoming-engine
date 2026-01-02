@@ -24,11 +24,13 @@ import type {
   CreateActionParams,
   CreateModelParams,
   CreateNoteParams,
+  ModelUpdate,
   RemoveNoteTagParams,
   Result,
   OpenEpisodeParams,
   SignalParams,
   UpdateModelParams,
+  VariableUpdate,
 } from "./types.js";
 import type { RegulatorPolicyForNode } from "./policy.js";
 import { MAX_ACTIVE_EXPLORE_PER_NODE } from "./types.js";
@@ -311,6 +313,75 @@ export function validateClosureNote(note: ClosureNote): Result<void> {
 }
 
 /**
+ * Applies variable status updates to a list of variables.
+ * Pure function: returns new array without mutating input.
+ */
+function applyVariableUpdates(
+  variables: Variable[],
+  updates?: VariableUpdate[],
+): Variable[] {
+  if (!updates || updates.length === 0) {
+    return variables;
+  }
+  return variables.map((v) => {
+    const update = updates.find((u) => u.id === v.id);
+    return update ? { ...v, status: update.status as VariableStatus } : v;
+  });
+}
+
+/**
+ * Applies model updates (create or update) to a list of models.
+ * Pure function: returns new array without mutating input.
+ */
+function applyModelUpdates(models: Model[], updates?: ModelUpdate[]): Model[] {
+  if (!updates || updates.length === 0) {
+    return models;
+  }
+
+  const existingModelIds = new Set(models.map((m) => m.id));
+  let result = models;
+  const newModels: Model[] = [];
+
+  for (const update of updates) {
+    if (existingModelIds.has(update.id)) {
+      // Update existing model
+      result = result.map((m) =>
+        m.id === update.id
+          ? {
+              ...m,
+              statement: update.statement,
+              ...(update.confidence !== undefined
+                ? { confidence: update.confidence }
+                : {}),
+              ...(update.scope !== undefined ? { scope: update.scope } : {}),
+              ...(update.enforcement !== undefined
+                ? { enforcement: update.enforcement }
+                : {}),
+            }
+          : m,
+      );
+    } else {
+      // Create new model
+      const newModel: Model = {
+        id: update.id,
+        type: update.type,
+        statement: update.statement,
+        ...(update.confidence !== undefined
+          ? { confidence: update.confidence }
+          : {}),
+        ...(update.scope !== undefined ? { scope: update.scope } : {}),
+        ...(update.enforcement !== undefined
+          ? { enforcement: update.enforcement }
+          : {}),
+      };
+      newModels.push(newModel);
+    }
+  }
+
+  return [...result, ...newModels];
+}
+
+/**
  * Closes an episode and creates a closure note.
  * Returns a new State with the episode closed, timestamps set, note created, variables updated, and models created/updated.
  * Pure function: does not mutate input state.
@@ -358,67 +429,14 @@ export function closeEpisode(
       : e,
   );
 
-  // Update variables if provided
-  let updatedVariables = state.variables;
-  if (variableUpdates && variableUpdates.length > 0) {
-    updatedVariables = state.variables.map((v) => {
-      const update = variableUpdates.find((u) => u.id === v.id);
-      return update ? { ...v, status: update.status as VariableStatus } : v;
-    });
-  }
-
-  // Create or update models if provided
-  let updatedModels = state.models;
-  if (modelUpdates && modelUpdates.length > 0) {
-    const existingModelIds = new Set(state.models.map((m) => m.id));
-    const newModels: Model[] = [];
-
-    for (const update of modelUpdates) {
-      if (existingModelIds.has(update.id)) {
-        // Update existing model
-        updatedModels = updatedModels.map((m) =>
-          m.id === update.id
-            ? {
-                ...m,
-                statement: update.statement,
-                ...(update.confidence !== undefined
-                  ? { confidence: update.confidence }
-                  : {}),
-                ...(update.scope !== undefined ? { scope: update.scope } : {}),
-                ...(update.enforcement !== undefined
-                  ? { enforcement: update.enforcement }
-                  : {}),
-              }
-            : m,
-        );
-      } else {
-        // Create new model
-        const newModel: Model = {
-          id: update.id,
-          type: update.type,
-          statement: update.statement,
-          ...(update.confidence !== undefined
-            ? { confidence: update.confidence }
-            : {}),
-          ...(update.scope !== undefined ? { scope: update.scope } : {}),
-          ...(update.enforcement !== undefined
-            ? { enforcement: update.enforcement }
-            : {}),
-        };
-        newModels.push(newModel);
-      }
-    }
-    updatedModels = [...updatedModels, ...newModels];
-  }
-
   return {
     ok: true,
     value: {
       ...state,
       episodes: updatedEpisodes,
-      variables: updatedVariables,
+      variables: applyVariableUpdates(state.variables, variableUpdates),
       notes: [...state.notes, newNote],
-      models: updatedModels,
+      models: applyModelUpdates(state.models, modelUpdates),
     },
   };
 }

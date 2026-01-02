@@ -10,6 +10,8 @@ import {
   SCHEMA_VERSION,
 } from "./types.js";
 import type { NodeRef, State, Variable, VariableStatus } from "./types.js";
+import { silentLogger } from "../shared/index.js";
+import type { Logger } from "../shared/index.js";
 import {
   isValidLegacyStateV0,
   isValidLegacyStateV1,
@@ -17,7 +19,7 @@ import {
   isValidLegacyStateV3,
   isValidLegacyStateV4,
   isValidLegacyStateV5,
-  isValidStateV4,
+  isValidState,
 } from "./internal/validation.js";
 import {
   migrateLegacyToV4,
@@ -44,17 +46,8 @@ export const SEED_AGENCY_NAME = "Agency";
 export const SEED_EXECUTION_CAPACITY_NAME = "Execution Capacity";
 export const SEED_STATUS: VariableStatus = "InRange";
 
-export interface Logger {
-  info(message: string): void;
-  warn(message: string): void;
-  error(message: string, error?: unknown): void;
-}
-
-const silentLogger: Logger = {
-  info(): void {},
-  warn(): void {},
-  error(): void {},
-};
+// Re-export Logger for API compatibility
+export type { Logger } from "../shared/index.js";
 
 export class JsonStore {
   private filePath: string;
@@ -91,7 +84,7 @@ export class JsonStore {
       }
       const data: unknown = await fs.readJson(this.filePath);
 
-      if (isValidStateV4(data)) {
+      if (isValidState(data)) {
         return data;
       }
 

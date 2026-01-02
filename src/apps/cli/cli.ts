@@ -3,7 +3,6 @@
 
 import { JsonStore } from "../../libs/memory/index.js";
 import {
-  DEFAULT_PERSONAL_NODE,
   EPISODE_STATUSES,
   type NodeRef,
   type State,
@@ -61,7 +60,7 @@ async function main(): Promise<void> {
   const command = parsed.value;
 
   if (command.kind === "status") {
-    printStatus(state, command.node ?? DEFAULT_PERSONAL_NODE, regulator);
+    printStatus(state, command.node, regulator);
     return;
   }
 
