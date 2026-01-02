@@ -62,6 +62,13 @@ export const LINK_RELATIONS = [
   "derived_from",
 ] as const;
 
+/** The valid observation types (what Sensorium senses from input) */
+export const OBSERVATION_TYPES = [
+  "variableProxySignal",
+  "freeformNote",
+  "episodeProposal",
+] as const;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // REGULATORY LIMITS — Constraints that preserve viability
 // ═══════════════════════════════════════════════════════════════════════════
