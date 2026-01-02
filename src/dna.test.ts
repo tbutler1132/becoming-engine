@@ -24,6 +24,7 @@ import {
   NOTE_TAGS,
   LINK_RELATIONS,
   OBSERVATION_TYPES,
+  SIGNAL_EVENT_TYPES,
   MAX_ACTIVE_EXPLORE_PER_NODE,
   MAX_ACTIVE_STABILIZE_PER_VARIABLE,
   SCHEMA_VERSION,
@@ -93,6 +94,10 @@ describe("DNA Integrity (Tripwire)", () => {
         "freeformNote",
         "episodeProposal",
       ]);
+    });
+
+    it("has expected signal event types", () => {
+      expect(SIGNAL_EVENT_TYPES).toEqual(["intent", "status", "completion"]);
     });
   });
 
