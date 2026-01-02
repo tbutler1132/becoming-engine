@@ -226,10 +226,70 @@ These discrepancies between `docs/doctrine.md` Section 12 and `src/dna.ts` are d
 
 **Acceptance criteria:**
 
-- [ ] Every command routes through proper organs
-- [ ] Error handling is consistent
-- [ ] Baseline status is quiet
-- [ ] Command responses are testable
+- [x] Every command routes through proper organs
+- [x] Error handling is consistent
+- [x] Baseline status is quiet
+- [x] Command responses are testable
+
+**Audit completed 2026-01-02. See results below.**
+
+<details>
+<summary>CLI Audit Results</summary>
+
+### Command-to-Organ Mapping Table
+
+| Command           | Sensorium                                    | Membrane                    | Regulator                  | Memory             |
+| ----------------- | -------------------------------------------- | --------------------------- | -------------------------- | ------------------ |
+| `status`          | `parseCli()` → `{kind:"status"}`             | —                           | `getStatusData()`          | `JsonStore.load()` |
+| `signal`          | `parseCli()` → `{kind:"signal"}`             | —                           | `regulator.signal()`       | `JsonStore.save()` |
+| `act`             | `parseCli()` → `{kind:"act"}`                | —                           | `regulator.act()`          | `JsonStore.save()` |
+| `open`            | `parseCli()` → `{kind:"open"}`               | `checkEpisodeConstraints()` | `regulator.openEpisode()`  | `JsonStore.save()` |
+| `close`           | `parseCli()` → `{kind:"close"}`              | —                           | `regulator.closeEpisode()` | `JsonStore.save()` |
+| `observe signal`  | `parseObservation()` → `variableProxySignal` | —                           | `regulator.signal()`       | `JsonStore.save()` |
+| `observe note`    | `parseObservation()` → `freeformNote`        | —                           | `regulator.createNote()`   | `JsonStore.save()` |
+| `observe episode` | `parseObservation()` → `episodeProposal`     | `checkEpisodeConstraints()` | `regulator.openEpisode()`  | `JsonStore.save()` |
+
+### Data Flow Verification
+
+**Flow: `Sensorium → Membrane → Regulator → Memory`**
+
+1. **Sensorium** (`src/libs/sensorium/cli.ts`): Parses CLI args into typed commands or observations
+2. **CLI** (`src/apps/cli/cli.ts`): Orchestrates—owns no authority, never mutates State directly
+3. **Membrane** (`src/libs/membrane/logic.ts`): Gates episode opening with constraint checks
+4. **Regulator** (`src/libs/regulator/engine.ts`): Validates and produces new State
+5. **Memory** (`src/libs/memory/store.ts`): Persists State to disk
+
+### Baseline Quiet Status ✓
+
+Verified output:
+
+```
+becoming status Personal:personal
+Silence is Success (baseline).
+```
+
+### Error Handling ✓
+
+All commands use `Result<T>` types consistently:
+
+- Sensorium returns `Result<SensoriumCommand>` or `Result<Observation>`
+- Regulator returns `Result<State>`
+- CLI exits with code 1 on error, prints message to stderr
+
+Sample error outputs verified:
+
+- Unknown command: `"Unknown command 'foo'. Expected one of: status, signal, act, open, close, observe"`
+- Missing flag: `"Missing required flag: --variableId"`
+- Invalid reference: `"Variable 'nonexistent' not found"`
+- Constraint violation: `"Explore episodes must produce at least one Model update on closure"`
+
+### Testability ✓
+
+- `format.ts` is pure `(StatusData) => string`—10 tests in `format.test.ts`
+- `sensorium/cli.ts` is pure parsing—35 tests in `cli.test.ts`
+- Commands produce deterministic outputs for given inputs
+
+</details>
 
 ---
 
@@ -348,9 +408,9 @@ These discrepancies between `docs/doctrine.md` Section 12 and `src/dna.ts` are d
 
 **Acceptance criteria:**
 
-- [ ] Every completed MP has passing tests for its criteria
-- [ ] No incomplete work is marked as done
-- [ ] MP12 prerequisites are satisfied
+- [x] Every completed MP has passing tests for its criteria (396 tests, all passing)
+- [x] No incomplete work is marked as done (MP6-MP11 verified and marked complete)
+- [x] MP12 prerequisites are satisfied (Phase 1 Regulatory Layer complete)
 
 ---
 

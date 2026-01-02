@@ -2,9 +2,9 @@
 
 The Sensorium organ is responsible for **Input Parsing**: converting raw external signals into typed commands and observations the system can understand.
 
-## 🎯 Role
+## Why Sensorium Exists
 
-Sensorium is the system's sensory layer. It takes unstructured input (CLI arguments) and produces structured, validated commands for the CLI to orchestrate.
+The system needs a clean boundary between messy external input (CLI arguments, future: natural language) and the typed world of the Regulator. Sensorium is that boundary: it parses, validates, and produces structured output. It never executes — that's the CLI's job. This separation keeps parsing testable and the Regulator free of string-handling complexity.
 
 **Doctrine constraint:** Sensorium never triggers Actions directly — it only parses and validates. The CLI interprets observations and calls the Regulator.
 
@@ -21,35 +21,70 @@ The organ exposes its API via `index.ts`.
 
 ### `parseCli(argv)`
 
-Parses a command-line argument array into a `Result<SensoriumCommand>`.
+Parses a command-line argument array into a `Result<SensoriumCommand>`:
+
+```typescript
+import { parseCli } from "./libs/sensorium/index.js";
+
+const result = parseCli([
+  "open",
+  "--type",
+  "Explore",
+  "--objective",
+  "Learn X",
+]);
+if (result.ok) {
+  console.log(result.value.kind); // "open"
+}
+```
 
 ### `parseObservation(argv)`
 
-Parses observation input into a `Result<Observation>`. Used for the structured sensing flow.
+Parses observation input into a `Result<Observation>`:
+
+```typescript
+import { parseObservation } from "./libs/sensorium/index.js";
+
+const result = parseObservation([
+  "observe",
+  "signal",
+  "--variableId",
+  "v1",
+  "--status",
+  "InRange",
+]);
+if (result.ok && result.value.type === "variableProxySignal") {
+  console.log(result.value.status); // "InRange"
+}
+```
 
 ### `parseNodeRef(input)`
 
-Parses a string like `"Personal:personal"` into a `NodeRef`.
+Parses a string like `"Personal:personal"` into a `Result<NodeRef>`:
 
-### `SensoriumCommand`
+```typescript
+import { parseNodeRef } from "./libs/sensorium/index.js";
 
-A discriminated union of supported commands:
+const result = parseNodeRef("Personal:personal");
+if (result.ok) {
+  console.log(result.value.type, result.value.id); // "Personal" "personal"
+}
+```
 
-- `status` — view node dashboard
-- `signal` — update a Variable status
-- `act` — create an Action
-- `open` — open an Episode (Stabilize or Explore)
-- `close` — close an Episode with a closure note
+### Types
 
-### `Observation`
+| Type                             | Purpose                                                                 |
+| -------------------------------- | ----------------------------------------------------------------------- |
+| `SensoriumCommand`               | Discriminated union: status, signal, act, open, close                   |
+| `Observation`                    | Discriminated union: variableProxySignal, freeformNote, episodeProposal |
+| `VariableProxySignalObservation` | Signal about a variable's status                                        |
+| `FreeformNoteObservation`        | Unstructured input to become a Note                                     |
+| `EpisodeProposalObservation`     | Proposal to open an episode                                             |
+| `Result<T>`                      | Success/error discriminated union (re-exported from shared)             |
 
-A discriminated union of observation types (defined in DNA):
+### Constants
 
-- `variableProxySignal` — signal about a variable's status
-- `freeformNote` — unstructured input to become a Note
-- `episodeProposal` — proposal to open an episode
-
-Observations are ephemeral intermediate values that the CLI interprets into Regulator mutations.
+- `OBSERVATION_TYPES`: Valid observation type values (from DNA)
 
 ## 🧪 Testing
 

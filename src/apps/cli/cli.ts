@@ -414,10 +414,22 @@ async function main(): Promise<void> {
     const closedAt = new Date().toISOString();
     const noteId = crypto.randomUUID();
 
+    // Build modelUpdates if model was provided
+    const modelUpdates = command.model
+      ? [
+          {
+            id: crypto.randomUUID(),
+            type: command.model.type,
+            statement: command.model.statement,
+          },
+        ]
+      : undefined;
+
     const result = regulator.closeEpisode(state, {
       episodeId: command.episodeId,
       closedAt,
       closureNote: { id: noteId, content: command.noteContent },
+      ...(modelUpdates ? { modelUpdates } : {}),
     });
 
     if (!result.ok) {

@@ -5,12 +5,14 @@
 import {
   DEFAULT_PERSONAL_NODE,
   EPISODE_TYPES,
+  MODEL_TYPES,
   NODE_TYPES,
   NOTE_TAGS,
   VARIABLE_STATUSES,
 } from "../memory/index.js";
 import type {
   EpisodeType,
+  ModelType,
   NodeRef,
   NodeType,
   NoteTag,
@@ -46,6 +48,8 @@ export type SensoriumCommand =
       node: NodeRef;
       episodeId: string;
       noteContent: string;
+      /** Optional model for Explore episode closure (type + statement) */
+      model?: { type: ModelType; statement: string };
     };
 
 function isNodeType(value: string): value is NodeType {
@@ -62,6 +66,10 @@ function isNoteTag(value: string): value is NoteTag {
 
 function isVariableStatus(value: string): value is VariableStatus {
   return (VARIABLE_STATUSES as readonly string[]).includes(value);
+}
+
+function isModelType(value: string): value is ModelType {
+  return (MODEL_TYPES as readonly string[]).includes(value);
 }
 
 export function parseNodeRef(input: string): Result<NodeRef> {
@@ -217,12 +225,43 @@ export function parseCli(argv: readonly string[]): Result<SensoriumCommand> {
   if (command === "close") {
     const episodeId = getFlagValue(argv, "--episodeId");
     const noteContent = getFlagValue(argv, "--note");
+    const modelTypeRaw = getFlagValue(argv, "--model-type");
+    const modelStatement = getFlagValue(argv, "--model-statement");
 
     if (!episodeId) {
       return { ok: false, error: "Missing required flag: --episodeId" };
     }
     if (!noteContent || noteContent.trim().length === 0) {
       return { ok: false, error: "Missing required flag: --note" };
+    }
+
+    // Validate model flags: both or neither must be provided
+    if (modelTypeRaw && !modelStatement) {
+      return {
+        ok: false,
+        error: "--model-type requires --model-statement",
+      };
+    }
+    if (modelStatement && !modelTypeRaw) {
+      return {
+        ok: false,
+        error: "--model-statement requires --model-type",
+      };
+    }
+
+    // Validate model type if provided
+    let model: { type: ModelType; statement: string } | undefined;
+    if (modelTypeRaw && modelStatement) {
+      if (!isModelType(modelTypeRaw)) {
+        return {
+          ok: false,
+          error: `Invalid model type '${modelTypeRaw}'. Expected one of: ${MODEL_TYPES.join(", ")}`,
+        };
+      }
+      if (modelStatement.trim().length === 0) {
+        return { ok: false, error: "Model statement cannot be empty" };
+      }
+      model = { type: modelTypeRaw, statement: modelStatement };
     }
 
     return {
@@ -232,6 +271,7 @@ export function parseCli(argv: readonly string[]): Result<SensoriumCommand> {
         node,
         episodeId,
         noteContent,
+        ...(model ? { model } : {}),
       },
     };
   }

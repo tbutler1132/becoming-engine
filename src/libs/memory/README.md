@@ -2,9 +2,13 @@
 
 The Memory organ is responsible for the system's **Ontology** (definitions of reality) and **Persistence** (remembrance).
 
+## Why Memory Exists
+
+The system needs a single source of truth for what exists (Variables, Episodes, Actions, Notes, Models, Links) and a way to persist that reality across process restarts. Memory provides both: it defines the shape of reality through types and constants, and it persists state reliably through atomic writes with migration support.
+
 ## 🧠 Responsibilities
 
-- **Ontology**: Defines the core types for Variables, Episodes, Actions, and Notes.
+- **Ontology**: Defines the core types for Variables, Episodes, Actions, Notes, Models, Links, and Exceptions.
 - **Persistence**: Safely saves and loads the system `State` to `data/state.json`.
 - **Genesis**: Seeds the system with initial viability variables (Agency, Execution Capacity) if no state exists.
 
@@ -13,7 +17,7 @@ The Memory organ is responsible for the system's **Ontology** (definitions of re
 - **Atomic Writes**: Uses a temp-and-rename strategy to prevent data corruption if the process dies mid-save.
 - **Concurrency Locking**: Uses a `.lock` file to prevent multiple writers from clobbering the state.
 - **Schema Versioning**: Includes a `schemaVersion` in the state file.
-- **Automated Migration**: Automatically migrates older state files (v0 through v6) to the current version (v7) on load.
+- **Automated Migration**: Automatically migrates older state files (v0 through v7) to the current version (v8) on load.
 - **Corruption Recovery**: If a state file is invalid or corrupt, it is backed up to a `.corrupt` file for inspection before the system falls back to a safe seed state.
 
 ## 🔌 Public API
@@ -24,23 +28,48 @@ The organ exposes its API via `index.ts`.
 
 The primary class for state management.
 
-- `load()`: Returns a `Promise<State>`. Always returns a valid state.
-- `save(state)`: Returns a `Promise<void>`. Persists state atomically.
+```typescript
+import { JsonStore } from "./libs/memory/index.js";
 
-### `State` & `Variable`
+const store = new JsonStore({ basePath: process.cwd() });
+const state = await store.load(); // Always returns valid State
+await store.save(state); // Persists atomically
+```
 
-The core interfaces of the system's current reality.
+### Core Types
 
-### Ontology Constants
+| Type                | Purpose                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| `State`             | The complete system state (variables, episodes, actions, notes, models, links, exceptions) |
+| `Variable`          | A viability variable with status (InRange, AtRisk, Critical)                               |
+| `Episode`           | A temporary intervention (Stabilize or Explore)                                            |
+| `Action`            | A pending task, optionally scoped to an Episode                                            |
+| `Note`              | Timestamped content with semantic tags                                                     |
+| `Model`             | A belief (Descriptive or Normative)                                                        |
+| `Link`              | A relationship between objects                                                             |
+| `MembraneException` | Audit record when a Normative constraint was bypassed                                      |
+| `NodeRef`           | Reference to a node (type + id)                                                            |
 
-Exported constants for valid types/statuses (e.g., `NODE_TYPES`, `VARIABLE_STATUSES`) to avoid "magic strings" in the rest of the application.
+### DNA Constants (re-exported)
 
-### Node Identity (`NodeRef`)
+All ontology constants come from `dna.ts` and are re-exported for convenience:
 
-For multi-organism/network readiness, entities reference a node via `NodeRef`:
+- `NODE_TYPES`, `VARIABLE_STATUSES`, `EPISODE_TYPES`, `EPISODE_STATUSES`
+- `ACTION_STATUSES`, `MODEL_TYPES`, `MODEL_SCOPES`, `ENFORCEMENT_LEVELS`
+- `NOTE_TAGS`, `LINK_RELATIONS`, `MUTATION_TYPES`, `OVERRIDE_DECISIONS`
+- `SCHEMA_VERSION`
 
-- `type`: `NodeType` (e.g., Personal, Org)
-- `id`: stable identifier within that type (defaults exist for single-node-per-type setups)
+### Node Defaults
+
+```typescript
+import {
+  DEFAULT_PERSONAL_NODE,
+  DEFAULT_ORG_NODE,
+  formatNodeRef,
+} from "./libs/memory/index.js";
+
+console.log(formatNodeRef(DEFAULT_PERSONAL_NODE)); // "Personal:personal"
+```
 
 ## 🧪 Testing
 

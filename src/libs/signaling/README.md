@@ -2,45 +2,71 @@
 
 The Signaling organ handles **inter-node communication** through an append-only event log. This is the foundation for federation — enabling nodes to exchange signals without sharing internal state.
 
-## Responsibilities
+## Why Signaling Exists
+
+The system is designed for a future where multiple nodes (organisms) need to coordinate. They can't share internal state (that would violate encapsulation), so they need a neutral communication channel. Signaling provides that: an append-only log where nodes emit events and consume events from others. Even in single-node mode, this architecture is in place — ready for federation without refactoring.
+
+## 🧠 Responsibilities
 
 - **Event Envelope**: Defines the minimal signal format (nodeId, eventId, type, payload, timestamp)
 - **Append-Only Log**: Events are persisted to `data/events.jsonl` in order
 - **Idempotency**: Emitting the same eventId twice is a no-op
 - **Local-Only (v0)**: This version operates locally; network federation is future work
 
-## Public API
+## 🔌 Public API
 
 The organ exposes its API via `index.ts`.
 
-### `EventLog`
+### `EventLog` Class
 
-The primary class for event management.
-
-- `emit(event)`: Appends event to log. Returns `Result<boolean>`:
-  - `ok(true)`: Event was appended (new)
-  - `ok(false)`: Event already exists (idempotent no-op)
-  - `error`: I/O failure
-- `consume(predicate?)`: Returns all events, optionally filtered
-
-### `SignalEvent`
-
-The event envelope interface:
+The primary class for event management:
 
 ```typescript
-interface SignalEvent {
-  eventId: string; // Unique, used for idempotency
-  nodeId: string; // Source node identity
-  type: SignalEventType; // "intent" | "status" | "completion"
-  payload: unknown; // Event-specific data
-  timestamp: string; // ISO-8601
+import { EventLog, createEvent } from "./libs/signaling/index.js";
+
+const log = new EventLog({ basePath: process.cwd() });
+
+// Emit an event
+const event = createEvent({
+  eventId: "evt-123",
+  nodeId: "Personal:personal",
+  type: "intent",
+  payload: { action: "start-episode" },
+  timestamp: new Date().toISOString(),
+});
+
+const result = await log.emit(event);
+if (result.ok) {
+  console.log(result.value ? "Event added" : "Already existed (idempotent)");
 }
+
+// Consume events
+const events = await log.consume((e) => e.type === "intent");
 ```
 
 ### Pure Functions
 
-- `createEvent(params)`: Constructs a valid SignalEvent
-- `isValidEvent(data)`: Type guard for validating unknown data
+- `createEvent(params)`: Constructs a valid SignalEvent from parameters
+- `isValidEvent(data)`: Type guard for validating unknown data as SignalEvent
+
+```typescript
+import { createEvent, isValidEvent } from "./libs/signaling/index.js";
+
+const event = createEvent({ ... });
+const isValid = isValidEvent(someUnknownData); // type guard
+```
+
+### Types
+
+| Type                      | Purpose                                                        |
+| ------------------------- | -------------------------------------------------------------- |
+| `SignalEvent`             | The event envelope (eventId, nodeId, type, payload, timestamp) |
+| `SignalEventType`         | Event type: "intent", "status", "completion"                   |
+| `CreateSignalEventParams` | Parameters for createEvent()                                   |
+
+### Constants
+
+- `SIGNAL_EVENT_TYPES`: Valid event type values (from DNA)
 
 ## Event Types
 
@@ -64,7 +90,7 @@ Events are stored in `data/events.jsonl` (JSON Lines format):
 - **Baseline is Quiet**: Empty event log is the default; no noise
 - **Explicit Over Implicit**: Event types are enumerated, payloads are typed
 
-## Testing
+## 🧪 Testing
 
 - **Unit Tests**: `logic.test.ts` — tests pure functions
 - **Store Tests**: `store.test.ts` — tests emit/consume and proves idempotency

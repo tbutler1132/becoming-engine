@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 8,
   "variables": [
     {
       "id": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
@@ -32,8 +32,29 @@
       "status": "Closed",
       "openedAt": "2026-01-02T03:40:22.874Z",
       "closedAt": "2026-01-02T03:40:28.038Z"
+    },
+    {
+      "id": "64e2ad6a-360a-4223-90b0-311b9cc0f9f8",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Explore",
+      "objective": "Test audit",
+      "status": "Active",
+      "openedAt": "2026-01-02T19:36:51.846Z"
     }
   ],
   "actions": [],
-  "notes": []
+  "notes": [
+    {
+      "id": "18628201-cd56-4d6b-b6e0-49c8b26c5eb9",
+      "content": "Testing observe flow",
+      "createdAt": "2026-01-02T19:37:01.988Z",
+      "tags": []
+    }
+  ],
+  "models": [],
+  "links": [],
+  "exceptions": []
 }
