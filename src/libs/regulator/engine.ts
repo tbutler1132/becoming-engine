@@ -19,18 +19,8 @@ import {
   getRegulatorPolicyForNode,
   validateRegulatorPolicy,
 } from "./policy.js";
-
-export interface Logger {
-  info(message: string): void;
-  warn(message: string): void;
-  error(message: string, error?: unknown): void;
-}
-
-const silentLogger: Logger = {
-  info(): void {},
-  warn(): void {},
-  error(): void {},
-};
+import { silentLogger } from "../shared/index.js";
+import type { Logger } from "../shared/index.js";
 
 /**
  * The Regulator organ: enforces cybernetic homeostasis rules.

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { Regulator } from "./engine.js";
-import type { Logger } from "./engine.js";
+import type { Logger } from "../shared/index.js";
 import { DEFAULT_REGULATOR_POLICY } from "./policy.js";
 import {
   DEFAULT_PERSONAL_NODE,

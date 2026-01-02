@@ -809,9 +809,8 @@ export function isValidLegacyStateV5(data: unknown): data is StateV5 {
 
 /**
  * Validates the current state schema (V6, with notes having createdAt/tags).
- * Note: Named isValidStateV4 for backwards compatibility with existing test imports.
  */
-export function isValidStateV4(data: unknown): data is State {
+export function isValidState(data: unknown): data is State {
   if (typeof data !== "object" || data === null) {
     return false;
   }

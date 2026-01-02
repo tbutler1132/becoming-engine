@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from "vitest";
 import {
-  isValidStateV4,
+  isValidState,
   isValidLegacyStateV3,
   isValidLegacyStateV2,
   isValidLegacyStateV1,
@@ -215,17 +215,17 @@ function createValidStateV0(): unknown {
 }
 
 // ============================================================================
-// isValidStateV4 Tests (Current Schema)
+// isValidState Tests (Current Schema)
 // ============================================================================
 
-describe("isValidStateV4", () => {
+describe("isValidState", () => {
   describe("valid cases", () => {
     it("accepts minimal valid state (empty arrays)", () => {
-      expect(isValidStateV4(createMinimalValidStateV4())).toBe(true);
+      expect(isValidState(createMinimalValidStateV4())).toBe(true);
     });
 
     it("accepts state with all entity types", () => {
-      expect(isValidStateV4(createValidStateV4())).toBe(true);
+      expect(isValidState(createValidStateV4())).toBe(true);
     });
 
     it("accepts state with all optional episode fields", () => {
@@ -249,7 +249,7 @@ describe("isValidStateV4", () => {
         notes: [],
         models: [],
       };
-      expect(isValidStateV4(state)).toBe(true);
+      expect(isValidState(state)).toBe(true);
     });
 
     it("accepts action without episodeId (episode-less action)", () => {
@@ -268,7 +268,7 @@ describe("isValidStateV4", () => {
         notes: [],
         models: [],
       };
-      expect(isValidStateV4(state)).toBe(true);
+      expect(isValidState(state)).toBe(true);
     });
 
     it("accepts state with Org node", () => {
@@ -287,23 +287,23 @@ describe("isValidStateV4", () => {
         notes: [],
         models: [],
       };
-      expect(isValidStateV4(state)).toBe(true);
+      expect(isValidState(state)).toBe(true);
     });
   });
 
   describe("structural rejections", () => {
     it("rejects null", () => {
-      expect(isValidStateV4(null)).toBe(false);
+      expect(isValidState(null)).toBe(false);
     });
 
     it("rejects undefined", () => {
-      expect(isValidStateV4(undefined)).toBe(false);
+      expect(isValidState(undefined)).toBe(false);
     });
 
     it("rejects non-object primitives", () => {
-      expect(isValidStateV4("string")).toBe(false);
-      expect(isValidStateV4(123)).toBe(false);
-      expect(isValidStateV4(true)).toBe(false);
+      expect(isValidState("string")).toBe(false);
+      expect(isValidState(123)).toBe(false);
+      expect(isValidState(true)).toBe(false);
     });
 
     it("rejects missing schemaVersion", () => {
@@ -313,7 +313,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects wrong schemaVersion", () => {
@@ -324,7 +324,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects missing variables array", () => {
@@ -334,7 +334,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects missing episodes array", () => {
@@ -344,7 +344,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects missing actions array", () => {
@@ -354,7 +354,7 @@ describe("isValidStateV4", () => {
         episodes: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects missing notes array", () => {
@@ -364,7 +364,7 @@ describe("isValidStateV4", () => {
         episodes: [],
         actions: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects non-array variables", () => {
@@ -375,7 +375,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
   });
 
@@ -395,7 +395,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects variable with invalid node ref (missing id)", () => {
@@ -413,7 +413,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects variable with invalid node ref (invalid type)", () => {
@@ -431,7 +431,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects variable with empty node id", () => {
@@ -449,7 +449,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects duplicate variable IDs", () => {
@@ -473,7 +473,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects variable without name", () => {
@@ -490,7 +490,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects variable with non-string name", () => {
@@ -508,7 +508,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
   });
 
@@ -530,7 +530,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects episode with invalid type", () => {
@@ -550,7 +550,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects episode with invalid status", () => {
@@ -570,7 +570,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects duplicate episode IDs", () => {
@@ -598,7 +598,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects episode with non-string variableId", () => {
@@ -619,7 +619,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects episode with non-string closedAt", () => {
@@ -640,7 +640,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects episode with non-string closureNoteId", () => {
@@ -662,7 +662,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects episode without objective", () => {
@@ -681,7 +681,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
   });
 
@@ -701,7 +701,7 @@ describe("isValidStateV4", () => {
         ],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects action with invalid status", () => {
@@ -718,7 +718,7 @@ describe("isValidStateV4", () => {
         ],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects duplicate action IDs", () => {
@@ -740,7 +740,7 @@ describe("isValidStateV4", () => {
         ],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects action without description", () => {
@@ -756,7 +756,7 @@ describe("isValidStateV4", () => {
         ],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects action with non-string episodeId", () => {
@@ -783,7 +783,7 @@ describe("isValidStateV4", () => {
         ],
         notes: [],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
   });
 
@@ -796,7 +796,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [{ id: "n1" }],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects note with non-string content", () => {
@@ -807,7 +807,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [{ id: "n1", content: 123 }],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects duplicate note IDs", () => {
@@ -821,7 +821,7 @@ describe("isValidStateV4", () => {
           { id: "n1", content: "Note 2" }, // Duplicate
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects note without id", () => {
@@ -832,7 +832,7 @@ describe("isValidStateV4", () => {
         actions: [],
         notes: [{ content: "No ID" }],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
   });
 });
@@ -1214,7 +1214,7 @@ describe("nodeRefFromLegacy", () => {
 // Model Validation Tests (MP6)
 // ============================================================================
 
-describe("isValidStateV4 - Model Validation", () => {
+describe("isValidState - Model Validation", () => {
   describe("valid model cases", () => {
     it("accepts state with empty models array", () => {
       const state = {
@@ -1225,7 +1225,7 @@ describe("isValidStateV4 - Model Validation", () => {
         notes: [],
         models: [],
       };
-      expect(isValidStateV4(state)).toBe(true);
+      expect(isValidState(state)).toBe(true);
     });
 
     it("accepts minimal model (required fields only)", () => {
@@ -1243,7 +1243,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(true);
+      expect(isValidState(state)).toBe(true);
     });
 
     it("accepts model with all optional fields", () => {
@@ -1264,7 +1264,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(true);
+      expect(isValidState(state)).toBe(true);
     });
 
     it("accepts multiple valid models", () => {
@@ -1294,7 +1294,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(true);
+      expect(isValidState(state)).toBe(true);
     });
 
     it("accepts confidence at boundary values (0.0 and 1.0)", () => {
@@ -1319,7 +1319,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(true);
+      expect(isValidState(state)).toBe(true);
     });
   });
 
@@ -1333,7 +1333,7 @@ describe("isValidStateV4 - Model Validation", () => {
         notes: [],
         // Missing models array
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects model with invalid type", () => {
@@ -1351,7 +1351,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects model missing statement", () => {
@@ -1369,7 +1369,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects model with non-string statement", () => {
@@ -1387,7 +1387,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects model with invalid scope", () => {
@@ -1406,7 +1406,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects model with confidence below 0", () => {
@@ -1425,7 +1425,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects model with confidence above 1", () => {
@@ -1444,7 +1444,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects model with non-number confidence", () => {
@@ -1463,7 +1463,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects model with invalid enforcement level", () => {
@@ -1482,7 +1482,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
 
     it("rejects duplicate model IDs", () => {
@@ -1505,7 +1505,7 @@ describe("isValidStateV4 - Model Validation", () => {
           },
         ],
       };
-      expect(isValidStateV4(state)).toBe(false);
+      expect(isValidState(state)).toBe(false);
     });
   });
 });
@@ -1675,7 +1675,7 @@ describe("migrateV5ToV6", () => {
 
     const v6State = migrateV5ToV6(v5State);
 
-    expect(isValidStateV4(v6State)).toBe(true);
+    expect(isValidState(v6State)).toBe(true);
   });
 
   it("full migration chain V4 -> V5 -> V6 produces valid state", () => {
@@ -1709,6 +1709,6 @@ describe("migrateV5ToV6", () => {
     expect(v6State.models).toEqual([]);
     expect(v6State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
     expect(v6State.notes[0]?.tags).toEqual([]);
-    expect(isValidStateV4(v6State)).toBe(true);
+    expect(isValidState(v6State)).toBe(true);
   });
 });
