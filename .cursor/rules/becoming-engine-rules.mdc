@@ -2,7 +2,64 @@
 alwaysApply: true
 ---
 
+# Becoming Engine — Agent Rules
+
+## Required Reading
+
 1. Read `docs/system_context.md` before proposing any feature.
-2. Follow `docs/standards.md` strictly (pure logic, const assertions, Result types).
-3. Run `npm run check` after every change.
-4. Baseline is quiet; do not add noise.
+2. Follow `docs/standards.md` strictly.
+3. Check `src/dna.ts` for invariants before adding constants elsewhere.
+
+## Finish Line
+
+Run `npm run check` after every change. If it fails, fix it before moving on.
+
+## TypeScript Rules (Non-Negotiable)
+
+- **No `any`**: Use `unknown` with type guards instead.
+- **Explicit return types**: Every function must declare its return type.
+- **Result types for fallible operations**: Return `Result<T>`, never throw.
+  ```typescript
+  type Result<T> = { ok: true; value: T } | { ok: false; error: string };
+  ```
+- **Discriminated unions over boolean flags**: Use `status: 'loading' | 'error' | 'success'`, not `isLoading: boolean`.
+- **Const assertions for fixed values**: Use `as const` or enums, no magic strings.
+
+## Module Boundaries (Strict)
+
+- **Import from public API only**: `../memory/index.js`, never `../memory/store.js`.
+- **Internal folders are private**: Files in `<module>/internal/` are never imported from outside.
+- **DNA is the source of truth**: All invariants, limits, and ontology enums live in `src/dna.ts`. Modules re-export from DNA.
+
+## Architecture Patterns
+
+- **Pure logic separation**: Logic functions are pure `(State, Input) => Result | NewState`. Side effects live in thin wrapper classes.
+- **Unidirectional data flow**: Data flows down; events/signals flow up. No circular dependencies.
+- **Small functions**: If a function exceeds 20 lines, split it. If it does "X and Y", make two functions.
+
+## File Conventions
+
+| File | Purpose |
+|------|---------|
+| `index.ts` | Public API — only this is importable by other modules |
+| `types.ts` | Type definitions, re-exports from DNA |
+| `internal/` | Implementation details, never imported externally |
+| `*.test.ts` | Colocated tests |
+
+## Naming
+
+- **Functions**: verbs (`calculateTotal`, `openEpisode`)
+- **Types/Interfaces**: nouns (`UserProfile`, `EpisodeRequest`)
+- **Booleans**: prefixes (`isActive`, `hasPermission`, `canAct`)
+
+## Testing
+
+- Test behavior, not implementation.
+- Use dependency injection for external services.
+- Colocate tests with source (`logic.test.ts` next to `logic.ts`).
+
+## Doctrine Alignment
+
+- **Baseline is quiet**: Don't add logging, noise, or complexity without explicit need.
+- **Viability first**: Preserve working state. Don't break existing behavior while adding features.
+- **Explicit over implicit**: No magic. If behavior isn't obvious from reading the code, add a comment or refactor.
