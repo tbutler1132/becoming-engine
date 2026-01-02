@@ -241,6 +241,7 @@ describe("Regulator (Class Integration)", () => {
       const result = regulator.closeEpisode(state, {
         episodeId: "e1",
         closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Learned something valuable" },
       });
 
       expect(result.ok).toBe(true);
@@ -249,6 +250,8 @@ describe("Regulator (Class Integration)", () => {
         expect(result.value.episodes[0]?.closedAt).toBe(
           "2025-01-01T12:00:00.000Z",
         );
+        expect(result.value.episodes[0]?.closureNoteId).toBe("note-1");
+        expect(result.value.notes).toHaveLength(1);
       }
     });
 
@@ -287,6 +290,7 @@ describe("Regulator (Class Integration)", () => {
       regulator.closeEpisode(state, {
         episodeId: "e1",
         closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Variable restored" },
         variableUpdates: [{ id: "v1", status: VARIABLE_STATUSES[1] }],
       });
 
@@ -321,6 +325,7 @@ describe("Regulator (Class Integration)", () => {
       const result = regulator.closeEpisode(state, {
         episodeId: "e1",
         closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Learned something" },
       });
       expect(result.ok).toBe(true);
     });

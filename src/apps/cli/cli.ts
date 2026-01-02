@@ -137,10 +137,12 @@ async function main(): Promise<void> {
 
   if (command.kind === "close") {
     const closedAt = new Date().toISOString();
+    const noteId = crypto.randomUUID();
 
     const result = regulator.closeEpisode(state, {
       episodeId: command.episodeId,
       closedAt,
+      closureNote: { id: noteId, content: command.noteContent },
     });
 
     if (!result.ok) {

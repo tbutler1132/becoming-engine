@@ -39,6 +39,7 @@ export type SensoriumCommand =
       kind: "close";
       node: NodeRef;
       episodeId: string;
+      noteContent: string;
     };
 
 export type SensoriumParseResult<T> =
@@ -203,9 +204,13 @@ export function parseCli(
 
   if (command === "close") {
     const episodeId = getFlagValue(argv, "--episodeId");
+    const noteContent = getFlagValue(argv, "--note");
 
     if (!episodeId) {
       return { ok: false, error: "Missing required flag: --episodeId" };
+    }
+    if (!noteContent || noteContent.trim().length === 0) {
+      return { ok: false, error: "Missing required flag: --note" };
     }
 
     return {
@@ -214,6 +219,7 @@ export function parseCli(
         kind: "close",
         node,
         episodeId,
+        noteContent,
       },
     };
   }
