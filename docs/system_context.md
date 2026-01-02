@@ -165,6 +165,26 @@ Change emerges through finite experiments, not self-coercion.
 
 When stability holds, the system goes quiet.
 
+12. Two-Layer Ontology (Future Vision)
+
+The system distinguishes between two ontological layers:
+
+Regulatory Layer (Fixed)
+
+Variables, Episodes, Actions — how the organism regulates itself.
+
+This layer is closed and minimal. Its constraints are hard-coded.
+
+World Model Layer (Dynamic)
+
+Entities, Schemas, Links, Models, Notes — what the organism believes about reality.
+
+This layer is open and extensible. Users may define new object types (Schemas) and create instances (Entities) to model their external environment: people, projects, domains, concepts.
+
+The regulatory layer references the world model layer. Variables may be affected by specific entities. Episodes may be scoped to domains. Models describe beliefs about entities.
+
+This separation preserves regulatory simplicity while enabling rich, structured knowledge representation.
+
 One-Line Agent Summary
 
 The Becoming Engine is a cybernetic doctrine for preserving viability, enabling learning, and allowing ambition without identity collapse through temporary, bounded interventions.

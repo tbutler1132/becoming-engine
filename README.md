@@ -72,6 +72,16 @@ Refer to the `docs/` directory for the core principles:
 - [Operating Manual](./docs/becoming-engine.md): Core objects, rules, and workflow.
 - [Roadmap](./docs/roadmap.md): A non-binding sequence of next micro-projects.
 
+## 🔮 Vision: Two-Layer Ontology
+
+The system evolves in two phases:
+
+1. **Phase 1 (Current)**: Regulatory Layer — Variables, Episodes, Actions. How the organism regulates itself. Closed, minimal ontology.
+
+2. **Phase 2 (Future)**: World Model Layer — Schemas, Entities, Links, Models. How the organism represents its environment. Open, extensible ontology with user-defined object types.
+
+See the [Roadmap](./docs/roadmap.md) for details on both phases.
+
 ## 🤖 For AI Agents
 
 Starting a fresh session? Read these in order:
