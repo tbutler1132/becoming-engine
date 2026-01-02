@@ -1144,8 +1144,18 @@ describe("isValidLegacyStateV0", () => {
   it("rejects duplicate IDs", () => {
     const state = {
       variables: [
-        { id: "same", node: "Personal", name: "V1", status: VARIABLE_STATUSES[0] },
-        { id: "same", node: "Personal", name: "V2", status: VARIABLE_STATUSES[0] },
+        {
+          id: "same",
+          node: "Personal",
+          name: "V1",
+          status: VARIABLE_STATUSES[0],
+        },
+        {
+          id: "same",
+          node: "Personal",
+          name: "V2",
+          status: VARIABLE_STATUSES[0],
+        },
       ],
       episodes: [],
       actions: [],
@@ -1182,4 +1192,3 @@ describe("nodeRefFromLegacy", () => {
     expect(result).toEqual({ type: "Org", id: "org" });
   });
 });
-
