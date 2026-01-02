@@ -3,8 +3,11 @@
 
 import type { State, Variable, NodeRef } from "../memory/index.js";
 import type {
+  AddNoteTagParams,
   CloseEpisodeParams,
   CreateActionParams,
+  CreateNoteParams,
+  RemoveNoteTagParams,
   Result,
   OpenEpisodeParams,
   SignalParams,
@@ -163,6 +166,69 @@ export class Regulator {
       );
     } else {
       this.logger.warn(`Action failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Creates a new note.
+   *
+   * **Intent:** Creates an unstructured context note with timestamp and optional tags.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with new state if successful
+   * - Parameters: CreateNoteParams (noteId, content, createdAt, optional tags, optional linkedObjects)
+   * - Side effects: Logs note creation (if logger provided)
+   * - Error handling: Returns error if content empty or duplicate ID
+   */
+  createNote(state: State, params: CreateNoteParams): Result<State> {
+    const result = logic.createNote(state, params);
+    if (result.ok) {
+      this.logger.info(`Note created: ${params.noteId}`);
+    } else {
+      this.logger.warn(`Note creation failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Adds a tag to an existing note.
+   *
+   * **Intent:** Tags a note for workflow categorization (inbox, processed, etc.).
+   *
+   * **Contract:**
+   * - Returns: Result<State> with updated state if successful
+   * - Idempotent: if tag already exists, returns success with unchanged state
+   * - Error handling: Returns error if note not found or invalid tag
+   */
+  addNoteTag(state: State, params: AddNoteTagParams): Result<State> {
+    const result = logic.addNoteTag(state, params);
+    if (result.ok) {
+      this.logger.info(`Tag '${params.tag}' added to note ${params.noteId}`);
+    } else {
+      this.logger.warn(`Add tag failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Removes a tag from an existing note.
+   *
+   * **Intent:** Untags a note when it transitions workflow states.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with updated state if successful
+   * - Idempotent: if tag doesn't exist, returns success with unchanged state
+   * - Error handling: Returns error if note not found or invalid tag
+   */
+  removeNoteTag(state: State, params: RemoveNoteTagParams): Result<State> {
+    const result = logic.removeNoteTag(state, params);
+    if (result.ok) {
+      this.logger.info(
+        `Tag '${params.tag}' removed from note ${params.noteId}`,
+      );
+    } else {
+      this.logger.warn(`Remove tag failed: ${result.error}`);
     }
     return result;
   }

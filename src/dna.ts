@@ -45,6 +45,14 @@ export const MODEL_SCOPES = ["personal", "org", "domain"] as const;
 /** The valid enforcement levels (for Normative models) */
 export const ENFORCEMENT_LEVELS = ["none", "warn", "block"] as const;
 
+/** The valid semantic tags for Notes (inbox/processed workflow) */
+export const NOTE_TAGS = [
+  "inbox",
+  "pending_approval",
+  "processed",
+  "closure_note",
+] as const;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // REGULATORY LIMITS — Constraints that preserve viability
 // ═══════════════════════════════════════════════════════════════════════════
@@ -60,4 +68,4 @@ export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Current schema version — increment when State shape changes */
-export const SCHEMA_VERSION = 5 as const;
+export const SCHEMA_VERSION = 6 as const;

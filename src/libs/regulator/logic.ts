@@ -5,6 +5,7 @@ import {
   ACTION_STATUSES,
   EPISODE_STATUSES,
   EPISODE_TYPES,
+  NOTE_TAGS,
 } from "../memory/index.js";
 import type {
   Action,
@@ -12,13 +13,18 @@ import type {
   Variable,
   Episode,
   NodeRef,
+  Note,
+  NoteTag,
   VariableStatus,
 } from "../memory/index.js";
 import type {
+  AddNoteTagParams,
   CloseEpisodeParams,
   ClosureNote,
   CreateActionParams,
   CreateModelParams,
+  CreateNoteParams,
+  RemoveNoteTagParams,
   Result,
   OpenEpisodeParams,
   SignalParams,
@@ -32,6 +38,8 @@ import {
   ENFORCEMENT_LEVELS,
 } from "../memory/index.js";
 import type { Model } from "../memory/index.js";
+
+const CLOSURE_NOTE_TAG: NoteTag = "closure_note";
 
 const ACTIVE_STATUS = EPISODE_STATUSES[0];
 const CLOSED_STATUS = EPISODE_STATUSES[1];
@@ -330,10 +338,12 @@ export function closeEpisode(
     return { ok: false, error: `Episode '${episodeId}' is already closed` };
   }
 
-  // Create the closure note
-  const newNote = {
+  // Create the closure note with timestamp and closure_note tag
+  const newNote: Note = {
     id: closureNote.id,
     content: closureNote.content,
+    createdAt: closedAt,
+    tags: [CLOSURE_NOTE_TAG],
   };
 
   // Close the episode with timestamp and closureNoteId
@@ -560,6 +570,134 @@ export function updateModel(
     value: {
       ...state,
       models: updatedModels,
+    },
+  };
+}
+
+/**
+ * Creates a new note.
+ * Returns a new State with the note added.
+ * Pure function: does not mutate input state.
+ */
+export function createNote(
+  state: State,
+  params: CreateNoteParams,
+): Result<State> {
+  // Validate content
+  if (!params.content || params.content.trim().length === 0) {
+    return { ok: false, error: "Note content cannot be empty" };
+  }
+
+  // Check for duplicate ID
+  if (state.notes.some((n) => n.id === params.noteId)) {
+    return {
+      ok: false,
+      error: `Note with id '${params.noteId}' already exists`,
+    };
+  }
+
+  // Validate tags if provided
+  if (params.tags) {
+    for (const tag of params.tags) {
+      if (!(NOTE_TAGS as readonly string[]).includes(tag)) {
+        return { ok: false, error: `Invalid note tag: ${tag}` };
+      }
+    }
+  }
+
+  const newNote: Note = {
+    id: params.noteId,
+    content: params.content,
+    createdAt: params.createdAt,
+    tags: params.tags ?? [],
+    ...(params.linkedObjects ? { linkedObjects: params.linkedObjects } : {}),
+  };
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      notes: [...state.notes, newNote],
+    },
+  };
+}
+
+/**
+ * Adds a tag to an existing note.
+ * Idempotent: if tag already exists, returns success with unchanged state.
+ * Pure function: does not mutate input state.
+ */
+export function addNoteTag(
+  state: State,
+  params: AddNoteTagParams,
+): Result<State> {
+  // Find the note
+  const note = state.notes.find((n) => n.id === params.noteId);
+  if (!note) {
+    return { ok: false, error: `Note with id '${params.noteId}' not found` };
+  }
+
+  // Validate tag
+  if (!(NOTE_TAGS as readonly string[]).includes(params.tag)) {
+    return { ok: false, error: `Invalid note tag: ${params.tag}` };
+  }
+
+  // Idempotent: if tag already exists, return success with same state
+  if (note.tags.includes(params.tag)) {
+    return { ok: true, value: state };
+  }
+
+  // Add the tag
+  const updatedNotes = state.notes.map((n) =>
+    n.id === params.noteId ? { ...n, tags: [...n.tags, params.tag] } : n,
+  );
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      notes: updatedNotes,
+    },
+  };
+}
+
+/**
+ * Removes a tag from an existing note.
+ * Idempotent: if tag doesn't exist, returns success with unchanged state.
+ * Pure function: does not mutate input state.
+ */
+export function removeNoteTag(
+  state: State,
+  params: RemoveNoteTagParams,
+): Result<State> {
+  // Find the note
+  const note = state.notes.find((n) => n.id === params.noteId);
+  if (!note) {
+    return { ok: false, error: `Note with id '${params.noteId}' not found` };
+  }
+
+  // Validate tag
+  if (!(NOTE_TAGS as readonly string[]).includes(params.tag)) {
+    return { ok: false, error: `Invalid note tag: ${params.tag}` };
+  }
+
+  // Idempotent: if tag doesn't exist, return success with same state
+  if (!note.tags.includes(params.tag)) {
+    return { ok: true, value: state };
+  }
+
+  // Remove the tag
+  const updatedNotes = state.notes.map((n) =>
+    n.id === params.noteId
+      ? { ...n, tags: n.tags.filter((t) => t !== params.tag) }
+      : n,
+  );
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      notes: updatedNotes,
     },
   };
 }

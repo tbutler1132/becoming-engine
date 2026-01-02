@@ -217,7 +217,14 @@ describe("JsonStore", () => {
             episodeId: "ep-1",
           },
         ],
-        notes: [{ id: "note-1", content: "Test note" }],
+        notes: [
+          {
+            id: "note-1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+          },
+        ],
         models: [],
       };
 

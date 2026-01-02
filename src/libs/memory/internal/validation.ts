@@ -8,6 +8,7 @@ import {
   MODEL_SCOPES,
   MODEL_TYPES,
   NODE_TYPES,
+  NOTE_TAGS,
   SCHEMA_VERSION,
   VARIABLE_STATUSES,
 } from "../types.js";
@@ -20,6 +21,7 @@ import type {
   ModelType,
   NodeRef,
   NodeType,
+  NoteTag,
   SchemaVersion,
   State,
   VariableStatus,
@@ -29,14 +31,31 @@ const LEGACY_SCHEMA_VERSION_V1 = 1 as const;
 const LEGACY_SCHEMA_VERSION_V2 = 2 as const;
 const LEGACY_SCHEMA_VERSION_V3 = 3 as const;
 const LEGACY_SCHEMA_VERSION_V4 = 4 as const;
+const LEGACY_SCHEMA_VERSION_V5 = 5 as const;
 
 export type StateV2 = Omit<State, "schemaVersion" | "models"> & {
   schemaVersion: typeof LEGACY_SCHEMA_VERSION_V2;
 };
 
 /** V4 State without models array */
-export type StateV4 = Omit<State, "schemaVersion" | "models"> & {
+export type StateV4 = Omit<State, "schemaVersion" | "models" | "notes"> & {
   schemaVersion: typeof LEGACY_SCHEMA_VERSION_V4;
+  notes: Array<{
+    id: string;
+    content: string;
+  }>;
+};
+
+/** V5 Note without createdAt/tags fields */
+export type NoteV5 = {
+  id: string;
+  content: string;
+};
+
+/** V5 State with old Note structure (before createdAt/tags) */
+export type StateV5 = Omit<State, "schemaVersion" | "notes"> & {
+  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V5;
+  notes: NoteV5[];
 };
 
 /** V3 Episode without timestamp fields */
@@ -187,10 +206,20 @@ function isEnforcementLevel(value: unknown): value is EnforcementLevel {
   return typeof value === "string" && isMember(ENFORCEMENT_LEVELS, value);
 }
 
+function isNoteTag(value: unknown): value is NoteTag {
+  return typeof value === "string" && isMember(NOTE_TAGS, value);
+}
+
 function isLegacySchemaVersionV4(
   value: unknown,
 ): value is typeof LEGACY_SCHEMA_VERSION_V4 {
   return value === LEGACY_SCHEMA_VERSION_V4;
+}
+
+function isLegacySchemaVersionV5(
+  value: unknown,
+): value is typeof LEGACY_SCHEMA_VERSION_V5 {
+  return value === LEGACY_SCHEMA_VERSION_V5;
 }
 
 function hasUniqueIds(items: readonly unknown[]): boolean {
@@ -643,7 +672,143 @@ export function isValidLegacyStateV4(data: unknown): data is StateV4 {
 }
 
 /**
- * Validates the current state schema (V5, with models array).
+ * Validates a V5 state (schema version 5, notes without createdAt/tags).
+ * Used for migration from V5 to V6.
+ */
+export function isValidLegacyStateV5(data: unknown): data is StateV5 {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+  const obj = data as Record<string, unknown>;
+  if (!isLegacySchemaVersionV5(obj.schemaVersion)) {
+    return false;
+  }
+  if (
+    !Array.isArray(obj.variables) ||
+    !Array.isArray(obj.episodes) ||
+    !Array.isArray(obj.actions) ||
+    !Array.isArray(obj.notes) ||
+    !Array.isArray(obj.models)
+  ) {
+    return false;
+  }
+
+  if (
+    !hasUniqueIds(obj.variables) ||
+    !hasUniqueIds(obj.episodes) ||
+    !hasUniqueIds(obj.actions) ||
+    !hasUniqueIds(obj.notes) ||
+    !hasUniqueIds(obj.models) ||
+    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
+  ) {
+    return false;
+  }
+
+  for (const variable of obj.variables) {
+    if (
+      typeof variable !== "object" ||
+      variable === null ||
+      typeof (variable as Record<string, unknown>).id !== "string" ||
+      !isNodeRef((variable as Record<string, unknown>).node) ||
+      typeof (variable as Record<string, unknown>).name !== "string" ||
+      !isVariableStatus((variable as Record<string, unknown>).status)
+    ) {
+      return false;
+    }
+  }
+
+  for (const episode of obj.episodes) {
+    if (typeof episode !== "object" || episode === null) {
+      return false;
+    }
+    const e = episode as Record<string, unknown>;
+    if (
+      typeof e.id !== "string" ||
+      !isNodeRef(e.node) ||
+      !isEpisodeType(e.type) ||
+      typeof e.objective !== "string" ||
+      !isEpisodeStatus(e.status)
+    ) {
+      return false;
+    }
+    if (e.variableId !== undefined && typeof e.variableId !== "string") {
+      return false;
+    }
+    if (typeof e.openedAt !== "string") {
+      return false;
+    }
+    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
+      return false;
+    }
+    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
+      return false;
+    }
+  }
+
+  for (const action of obj.actions) {
+    if (typeof action !== "object" || action === null) {
+      return false;
+    }
+    const a = action as Record<string, unknown>;
+    if (
+      typeof a.id !== "string" ||
+      typeof a.description !== "string" ||
+      !isActionStatus(a.status)
+    ) {
+      return false;
+    }
+    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
+      return false;
+    }
+  }
+
+  // V5 notes only have id and content (no createdAt/tags)
+  for (const note of obj.notes) {
+    if (
+      typeof note !== "object" ||
+      note === null ||
+      typeof (note as Record<string, unknown>).id !== "string" ||
+      typeof (note as Record<string, unknown>).content !== "string"
+    ) {
+      return false;
+    }
+  }
+
+  // Validate models
+  for (const model of obj.models) {
+    if (typeof model !== "object" || model === null) {
+      return false;
+    }
+    const m = model as Record<string, unknown>;
+    if (
+      typeof m.id !== "string" ||
+      !isModelType(m.type) ||
+      typeof m.statement !== "string"
+    ) {
+      return false;
+    }
+    if (m.confidence !== undefined) {
+      if (
+        typeof m.confidence !== "number" ||
+        m.confidence < 0 ||
+        m.confidence > 1
+      ) {
+        return false;
+      }
+    }
+    if (m.scope !== undefined && !isModelScope(m.scope)) {
+      return false;
+    }
+    if (m.enforcement !== undefined && !isEnforcementLevel(m.enforcement)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Validates the current state schema (V6, with notes having createdAt/tags).
  * Note: Named isValidStateV4 for backwards compatibility with existing test imports.
  */
 export function isValidStateV4(data: unknown): data is State {
@@ -738,14 +903,37 @@ export function isValidStateV4(data: unknown): data is State {
     }
   }
 
+  // Validate notes (V6: createdAt and tags required)
   for (const note of obj.notes) {
+    if (typeof note !== "object" || note === null) {
+      return false;
+    }
+    const n = note as Record<string, unknown>;
+    // Required fields: id, content, createdAt, tags
     if (
-      typeof note !== "object" ||
-      note === null ||
-      typeof (note as Record<string, unknown>).id !== "string" ||
-      typeof (note as Record<string, unknown>).content !== "string"
+      typeof n.id !== "string" ||
+      typeof n.content !== "string" ||
+      typeof n.createdAt !== "string" ||
+      !Array.isArray(n.tags)
     ) {
       return false;
+    }
+    // Validate each tag is a valid NoteTag
+    for (const tag of n.tags) {
+      if (!isNoteTag(tag)) {
+        return false;
+      }
+    }
+    // linkedObjects is optional, must be string array if present
+    if (n.linkedObjects !== undefined) {
+      if (!Array.isArray(n.linkedObjects)) {
+        return false;
+      }
+      for (const linked of n.linkedObjects) {
+        if (typeof linked !== "string") {
+          return false;
+        }
+      }
     }
   }
 
