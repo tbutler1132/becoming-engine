@@ -125,6 +125,8 @@ This roadmap describes **small, composable micro-projects** that move the system
 - CLI routes mutations through Membrane
 - Tests cover: blocked action, allowed action with explicit exception
 
+> **Checkpoint**: With the organ metaphor complete (Memory, Regulator, Sensorium, Membrane), this is a good moment to consider starting the [Membrane Visualization](decisions/0002-membrane-visualization.md).
+
 ---
 
 ### MP11 — Signaling v0 (Federation Skeleton)
