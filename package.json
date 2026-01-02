@@ -9,6 +9,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:memory": "tsx src/libs/memory/test-store.ts",
     "lint": "eslint .",
     "format": "prettier -w .",
@@ -16,7 +17,8 @@
     "check": "npm test && npx tsc --noEmit && npm run lint && npm run format:check",
     "becoming:dev": "tsx src/apps/cli/cli.ts",
     "becoming:status": "tsx src/apps/cli/cli.ts status",
-    "viewer": "npx --yes serve . -l 3000 --config src/apps/viewer/serve.json"
+    "viewer": "npx --yes serve . -l 3000 --config src/apps/viewer/serve.json",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -26,10 +28,13 @@
     "@eslint/js": "^9.39.2",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^25.0.3",
+    "@vitest/coverage-v8": "^4.0.16",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "fast-check": "^4.5.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
@@ -38,5 +43,14 @@
   },
   "dependencies": {
     "fs-extra": "^11.3.3"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }
