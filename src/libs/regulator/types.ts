@@ -22,10 +22,8 @@ export {
   MAX_ACTIVE_STABILIZE_PER_VARIABLE,
 } from "../../dna.js";
 
-// Result type for operations that can fail
-export type Result<T, E = string> =
-  | { ok: true; value: T }
-  | { ok: false; error: E };
+// Re-export Result type from shared
+export type { Result } from "../shared/index.js";
 
 type StabilizeEpisodeType = (typeof EPISODE_TYPES)[0];
 type ExploreEpisodeType = (typeof EPISODE_TYPES)[1];

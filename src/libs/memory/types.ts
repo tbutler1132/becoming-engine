@@ -66,6 +66,14 @@ export const DEFAULT_ORG_NODE: NodeRef = {
   id: DEFAULT_ORG_NODE_ID,
 };
 
+/**
+ * Formats a NodeRef as "Type:Id" string.
+ * Used for display and as map keys.
+ */
+export function formatNodeRef(node: NodeRef): string {
+  return `${node.type}:${node.id}`;
+}
+
 export interface Variable {
   id: string;
   node: NodeRef;
