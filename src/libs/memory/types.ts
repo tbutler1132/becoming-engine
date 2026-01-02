@@ -14,6 +14,7 @@ export {
   MODEL_TYPES,
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
+  NOTE_TAGS,
   SCHEMA_VERSION,
 } from "../../dna.js";
 
@@ -29,6 +30,7 @@ import {
   MODEL_TYPES,
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
+  NOTE_TAGS,
   SCHEMA_VERSION,
 } from "../../dna.js";
 
@@ -41,6 +43,7 @@ export type ActionStatus = (typeof ACTION_STATUSES)[number];
 export type ModelType = (typeof MODEL_TYPES)[number];
 export type ModelScope = (typeof MODEL_SCOPES)[number];
 export type EnforcementLevel = (typeof ENFORCEMENT_LEVELS)[number];
+export type NoteTag = (typeof NOTE_TAGS)[number];
 export type SchemaVersion = typeof SCHEMA_VERSION;
 
 export type NodeId = string;
@@ -100,6 +103,12 @@ export interface Action {
 export interface Note {
   id: string;
   content: string;
+  /** ISO timestamp when note was created */
+  createdAt: string;
+  /** Semantic tags for workflow distinction (inbox, processed, etc.) */
+  tags: NoteTag[];
+  /** Optional array of object IDs this note is linked to */
+  linkedObjects?: string[];
 }
 
 export interface Model {

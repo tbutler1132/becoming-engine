@@ -29,6 +29,7 @@ import {
   EPISODE_TYPES,
   EPISODE_STATUSES,
   NODE_TYPES,
+  NOTE_TAGS,
   DEFAULT_PERSONAL_NODE,
   DEFAULT_ORG_NODE,
 } from "../memory/index.js";
@@ -93,6 +94,8 @@ const closedEpisodeArb = (node: NodeRef): fc.Arbitrary<Episode> =>
 const noteArb: fc.Arbitrary<Note> = fc.record({
   id: fc.uuid(),
   content: fc.string({ minLength: 1, maxLength: 500 }),
+  createdAt: isoTimestampArb,
+  tags: fc.array(fc.constantFrom(...NOTE_TAGS), { minLength: 0, maxLength: 2 }),
 });
 
 /** Generate a valid closure note for closeEpisode */

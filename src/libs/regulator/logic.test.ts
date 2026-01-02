@@ -12,6 +12,9 @@ import {
   closeEpisode,
   createModel,
   updateModel,
+  createNote,
+  addNoteTag,
+  removeNoteTag,
 } from "./logic.js";
 import {
   DEFAULT_PERSONAL_NODE,
@@ -23,6 +26,7 @@ import {
   MODEL_TYPES,
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
+  NOTE_TAGS,
   SCHEMA_VERSION,
 } from "../memory/index.js";
 
@@ -505,12 +509,14 @@ describe("Regulator Logic (Pure Functions)", () => {
         expect(result.value.episodes[0]?.status).toBe(CLOSED_STATUS);
         expect(result.value.episodes[0]?.closedAt).toBe(closedAt);
         expect(result.value.episodes[0]?.closureNoteId).toBe("note-1");
-        // Note was created
+        // Note was created with timestamp and closure_note tag
         expect(result.value.notes).toHaveLength(1);
         expect(result.value.notes[0]?.id).toBe("note-1");
         expect(result.value.notes[0]?.content).toBe(
           "Learned something valuable",
         );
+        expect(result.value.notes[0]?.createdAt).toBe(closedAt);
+        expect(result.value.notes[0]?.tags).toEqual(["closure_note"]);
         // Original state unchanged (pure function)
         expect(state.episodes[0]?.status).toBe(ACTIVE_STATUS);
         expect(state.episodes[0]?.closedAt).toBeUndefined();
@@ -1171,6 +1177,303 @@ describe("Regulator Logic (Pure Functions)", () => {
       });
 
       expect(result.ok).toBe(false);
+    });
+  });
+
+  describe("createNote", () => {
+    it("creates a note with timestamp and empty tags", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const createdAt = "2025-01-01T12:00:00.000Z";
+      const result = createNote(state, {
+        noteId: "n1",
+        content: "Test note content",
+        createdAt,
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes).toHaveLength(1);
+        expect(result.value.notes[0]?.id).toBe("n1");
+        expect(result.value.notes[0]?.content).toBe("Test note content");
+        expect(result.value.notes[0]?.createdAt).toBe(createdAt);
+        expect(result.value.notes[0]?.tags).toEqual([]);
+        // Original state unchanged
+        expect(state.notes).toHaveLength(0);
+      }
+    });
+
+    it("creates a note with initial tags", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = createNote(state, {
+        noteId: "n1",
+        content: "Inbox note",
+        createdAt: "2025-01-01T12:00:00.000Z",
+        tags: [NOTE_TAGS[0]], // "inbox"
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes[0]?.tags).toEqual(["inbox"]);
+      }
+    });
+
+    it("creates a note with linkedObjects", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = createNote(state, {
+        noteId: "n1",
+        content: "Linked note",
+        createdAt: "2025-01-01T12:00:00.000Z",
+        linkedObjects: ["obj-1", "obj-2"],
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes[0]?.linkedObjects).toEqual([
+          "obj-1",
+          "obj-2",
+        ]);
+      }
+    });
+
+    it("fails on empty content", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = createNote(state, {
+        noteId: "n1",
+        content: "",
+        createdAt: "2025-01-01T12:00:00.000Z",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("content");
+      }
+    });
+
+    it("fails on duplicate note ID", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Existing",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+          },
+        ],
+        models: [],
+      };
+
+      const result = createNote(state, {
+        noteId: "n1",
+        content: "New note",
+        createdAt: "2025-01-01T12:00:00.000Z",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("already exists");
+      }
+    });
+  });
+
+  describe("addNoteTag", () => {
+    it("adds a tag to an existing note", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+          },
+        ],
+        models: [],
+      };
+
+      const result = addNoteTag(state, {
+        noteId: "n1",
+        tag: NOTE_TAGS[0], // "inbox"
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes[0]?.tags).toEqual(["inbox"]);
+        // Original state unchanged
+        expect(state.notes[0]?.tags).toEqual([]);
+      }
+    });
+
+    it("is idempotent - adding existing tag returns success", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: ["inbox"],
+          },
+        ],
+        models: [],
+      };
+
+      const result = addNoteTag(state, {
+        noteId: "n1",
+        tag: "inbox",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // State unchanged
+        expect(result.value).toBe(state);
+        expect(result.value.notes[0]?.tags).toEqual(["inbox"]);
+      }
+    });
+
+    it("fails on non-existent note", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = addNoteTag(state, {
+        noteId: "nonexistent",
+        tag: "inbox",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("not found");
+      }
+    });
+  });
+
+  describe("removeNoteTag", () => {
+    it("removes a tag from an existing note", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: ["inbox", "processed"],
+          },
+        ],
+        models: [],
+      };
+
+      const result = removeNoteTag(state, {
+        noteId: "n1",
+        tag: "inbox",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes[0]?.tags).toEqual(["processed"]);
+        // Original state unchanged
+        expect(state.notes[0]?.tags).toEqual(["inbox", "processed"]);
+      }
+    });
+
+    it("is idempotent - removing non-existent tag returns success", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: ["processed"],
+          },
+        ],
+        models: [],
+      };
+
+      const result = removeNoteTag(state, {
+        noteId: "n1",
+        tag: "inbox",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // State unchanged
+        expect(result.value).toBe(state);
+        expect(result.value.notes[0]?.tags).toEqual(["processed"]);
+      }
+    });
+
+    it("fails on non-existent note", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = removeNoteTag(state, {
+        noteId: "nonexistent",
+        tag: "inbox",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("not found");
+      }
     });
   });
 });

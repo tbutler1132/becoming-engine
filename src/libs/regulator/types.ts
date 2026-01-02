@@ -8,6 +8,7 @@ import type {
   ModelScope,
   ModelType,
   NodeRef,
+  NoteTag,
   VariableStatus,
 } from "../memory/index.js";
 
@@ -100,4 +101,25 @@ export interface ModelUpdate {
   confidence?: number;
   scope?: ModelScope;
   enforcement?: EnforcementLevel;
+}
+
+/** Params for creating a new note */
+export interface CreateNoteParams {
+  noteId: string;
+  content: string;
+  createdAt: string;
+  tags?: NoteTag[];
+  linkedObjects?: string[];
+}
+
+/** Params for adding a tag to an existing note */
+export interface AddNoteTagParams {
+  noteId: string;
+  tag: NoteTag;
+}
+
+/** Params for removing a tag from an existing note */
+export interface RemoveNoteTagParams {
+  noteId: string;
+  tag: NoteTag;
 }

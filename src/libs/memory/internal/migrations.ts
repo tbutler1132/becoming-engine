@@ -6,6 +6,7 @@ import type {
   StateV2,
   StateV3,
   StateV4,
+  StateV5,
 } from "./validation.js";
 import { nodeRefFromLegacy } from "./validation.js";
 
@@ -65,10 +66,27 @@ export function migrateV3ToV4(v3: StateV3): StateV4 {
 /**
  * Migrates v4 state to v5 by adding an empty models array.
  */
-export function migrateV4ToV5(v4: StateV4): State {
+export function migrateV4ToV5(v4: StateV4): StateV5 {
   return {
     ...v4,
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: 5,
     models: [],
+  };
+}
+
+/**
+ * Migrates v5 state to v6 by adding createdAt and tags to notes.
+ * - createdAt is set to epoch placeholder for existing notes
+ * - tags is set to empty array for existing notes
+ */
+export function migrateV5ToV6(v5: StateV5): State {
+  return {
+    ...v5,
+    schemaVersion: SCHEMA_VERSION,
+    notes: v5.notes.map((n) => ({
+      ...n,
+      createdAt: LEGACY_EPOCH_TIMESTAMP,
+      tags: [],
+    })),
   };
 }

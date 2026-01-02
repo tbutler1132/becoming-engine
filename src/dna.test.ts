@@ -21,6 +21,7 @@ import {
   MODEL_TYPES,
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
+  NOTE_TAGS,
   MAX_ACTIVE_EXPLORE_PER_NODE,
   MAX_ACTIVE_STABILIZE_PER_VARIABLE,
   SCHEMA_VERSION,
@@ -64,6 +65,15 @@ describe("DNA Integrity (Tripwire)", () => {
     it("has expected enforcement levels", () => {
       expect(ENFORCEMENT_LEVELS).toEqual(["none", "warn", "block"]);
     });
+
+    it("has expected note tags", () => {
+      expect(NOTE_TAGS).toEqual([
+        "inbox",
+        "pending_approval",
+        "processed",
+        "closure_note",
+      ]);
+    });
   });
 
   describe("Regulatory Limits", () => {
@@ -78,7 +88,7 @@ describe("DNA Integrity (Tripwire)", () => {
 
   describe("Schema Version", () => {
     it("has expected schema version", () => {
-      expect(SCHEMA_VERSION).toBe(5);
+      expect(SCHEMA_VERSION).toBe(6);
     });
   });
 });

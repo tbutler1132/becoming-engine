@@ -15,7 +15,7 @@ import {
   isValidLegacyStateV4,
   nodeRefFromLegacy,
 } from "./validation.js";
-import { migrateV4ToV5 } from "./migrations.js";
+import { migrateV4ToV5, migrateV5ToV6 } from "./migrations.js";
 import {
   SCHEMA_VERSION,
   ACTION_STATUSES,
@@ -62,7 +62,14 @@ function createValidStateV4(): unknown {
         episodeId: "e1",
       },
     ],
-    notes: [{ id: "n1", content: "Test note" }],
+    notes: [
+      {
+        id: "n1",
+        content: "Test note",
+        createdAt: "2025-01-01T00:00:00.000Z",
+        tags: [],
+      },
+    ],
     models: [],
   };
 }
@@ -1548,7 +1555,7 @@ describe("isValidLegacyStateV4", () => {
 // ============================================================================
 
 describe("migrateV4ToV5", () => {
-  it("adds empty models array to existing state", () => {
+  it("adds empty models array and sets schemaVersion to 5", () => {
     const v4State = {
       schemaVersion: 4 as const,
       variables: [
@@ -1575,7 +1582,7 @@ describe("migrateV4ToV5", () => {
 
     const v5State = migrateV4ToV5(v4State);
 
-    expect(v5State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v5State.schemaVersion).toBe(5);
     expect(v5State.models).toEqual([]);
     // Preserves existing data
     expect(v5State.variables).toEqual(v4State.variables);
@@ -1617,6 +1624,91 @@ describe("migrateV4ToV5", () => {
     expect(v5State.variables).toHaveLength(2);
     expect(v5State.actions).toHaveLength(1);
     expect(v5State.models).toEqual([]);
-    expect(isValidStateV4(v5State)).toBe(true);
+    expect(v5State.schemaVersion).toBe(5);
+  });
+});
+
+// ============================================================================
+// migrateV5ToV6 Tests
+// ============================================================================
+
+describe("migrateV5ToV6", () => {
+  it("adds createdAt and tags to notes", () => {
+    const v5State = {
+      schemaVersion: 5 as const,
+      variables: [],
+      episodes: [],
+      actions: [],
+      notes: [
+        { id: "n1", content: "Test note" },
+        { id: "n2", content: "Another note" },
+      ],
+      models: [],
+    };
+
+    const v6State = migrateV5ToV6(v5State);
+
+    expect(v6State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v6State.notes).toHaveLength(2);
+    expect(v6State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
+    expect(v6State.notes[0]?.tags).toEqual([]);
+    expect(v6State.notes[1]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
+    expect(v6State.notes[1]?.tags).toEqual([]);
+  });
+
+  it("produces valid current state", () => {
+    const v5State = {
+      schemaVersion: 5 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [{ id: "n1", content: "Note" }],
+      models: [],
+    };
+
+    const v6State = migrateV5ToV6(v5State);
+
+    expect(isValidStateV4(v6State)).toBe(true);
+  });
+
+  it("full migration chain V4 -> V5 -> V6 produces valid state", () => {
+    const v4State = {
+      schemaVersion: 4 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [
+        {
+          id: "e1",
+          node: DEFAULT_PERSONAL_NODE,
+          type: EPISODE_TYPES[0],
+          objective: "Test",
+          status: EPISODE_STATUSES[0],
+          openedAt: "2025-01-01T00:00:00.000Z",
+        },
+      ],
+      actions: [],
+      notes: [{ id: "n1", content: "Note" }],
+    };
+
+    const v6State = migrateV5ToV6(migrateV4ToV5(v4State));
+
+    expect(v6State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v6State.models).toEqual([]);
+    expect(v6State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
+    expect(v6State.notes[0]?.tags).toEqual([]);
+    expect(isValidStateV4(v6State)).toBe(true);
   });
 });
