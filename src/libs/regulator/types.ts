@@ -80,6 +80,11 @@ export interface CreateActionParams {
   description: string;
 }
 
+/** Params for completing (marking as Done) an existing action */
+export interface CompleteActionParams {
+  actionId: string;
+}
+
 export interface CreateModelParams {
   modelId: string;
   type: ModelType;

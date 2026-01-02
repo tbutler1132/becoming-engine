@@ -5,6 +5,7 @@ import type { State, Variable, NodeRef } from "../memory/index.js";
 import type {
   AddNoteTagParams,
   CloseEpisodeParams,
+  CompleteActionParams,
   CreateActionParams,
   CreateNoteParams,
   LogExceptionParams,
@@ -157,6 +158,26 @@ export class Regulator {
       );
     } else {
       this.logger.warn(`Action failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Completes an Action by marking it as Done.
+   *
+   * **Intent:** Marks a pending action as completed.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with updated state if successful
+   * - Idempotent: completing an already-done action returns success
+   * - Error handling: Returns error if action not found
+   */
+  completeAction(state: State, params: CompleteActionParams): Result<State> {
+    const result = logic.completeAction(state, params);
+    if (result.ok) {
+      this.logger.info(`Action completed: ${params.actionId}`);
+    } else {
+      this.logger.warn(`Action completion failed: ${result.error}`);
     }
     return result;
   }

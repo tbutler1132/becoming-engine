@@ -24,6 +24,7 @@ import type {
   AddNoteTagParams,
   CloseEpisodeParams,
   ClosureNote,
+  CompleteActionParams,
   CreateActionParams,
   CreateLinkParams,
   CreateModelParams,
@@ -56,6 +57,7 @@ const CLOSED_STATUS = EPISODE_STATUSES[1];
 const STABILIZE_TYPE = EPISODE_TYPES[0];
 const EXPLORE_TYPE = EPISODE_TYPES[1];
 const ACTION_PENDING_STATUS = ACTION_STATUSES[0];
+const ACTION_DONE_STATUS = ACTION_STATUSES[1];
 
 type CanCreateActionParams = Pick<CreateActionParams, "node" | "episodeId">;
 
@@ -259,6 +261,52 @@ export function createAction(
     value: {
       ...state,
       actions: [...state.actions, action],
+    },
+  };
+}
+
+/**
+ * Completes an Action by transitioning its status from Pending to Done.
+ *
+ * **Intent:** Marks an action as completed. Actions are disposable execution units
+ * that disappear when complete (per doctrine).
+ *
+ * **Contract:**
+ * - Returns: Result<State> with updated state if successful
+ * - Validates: action exists and is currently Pending
+ * - Error handling: Returns error if action not found or already Done
+ */
+export function completeAction(
+  state: State,
+  params: CompleteActionParams,
+): Result<State> {
+  const action = state.actions.find((a) => a.id === params.actionId);
+
+  if (!action) {
+    return { ok: false, error: `Action '${params.actionId}' not found` };
+  }
+
+  if (action.status === ACTION_DONE_STATUS) {
+    // Idempotent: already done is success
+    return { ok: true, value: state };
+  }
+
+  if (action.status !== ACTION_PENDING_STATUS) {
+    return {
+      ok: false,
+      error: `Action '${params.actionId}' has unexpected status: ${action.status}`,
+    };
+  }
+
+  const updatedActions = state.actions.map((a) =>
+    a.id === params.actionId ? { ...a, status: ACTION_DONE_STATUS } : a,
+  );
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      actions: updatedActions,
     },
   };
 }
