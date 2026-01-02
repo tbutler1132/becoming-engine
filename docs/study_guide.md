@@ -26,11 +26,24 @@ Before touching code, internalize the _why_:
 
 Start with the **data shapes** — everything else is transformations on these:
 
+### 2a. The DNA (source of truth)
+
+**Read:** `src/dna.ts`
+
+This is the "genetic code" of the organism — the single source of truth for all fundamental constants:
+
+- Ontology enums (`NODE_TYPES`, `EPISODE_TYPES`, `VARIABLE_STATUSES`, etc.)
+- Regulatory limits (`MAX_ACTIVE_EXPLORE_PER_NODE`, `MAX_ACTIVE_STABILIZE_PER_VARIABLE`)
+- Schema version (`SCHEMA_VERSION`)
+
+All other modules import from here.
+
+### 2b. The types
+
 **Read:** `src/libs/memory/types.ts`
 
-Focus on:
+This imports constants from DNA and defines the type derivations and interfaces:
 
-- The `const` assertions (`NODE_TYPES`, `EPISODE_TYPES`, etc.)
 - How types are derived from const arrays (`NodeType = (typeof NODE_TYPES)[number]`)
 - The four core interfaces: `Variable`, `Episode`, `Action`, `Note`
 - The `State` interface that holds everything
@@ -214,16 +227,17 @@ See how schema evolution works:
 
 ## Quick Reference Card
 
-| Layer         | File                  | Responsibility           |
-| ------------- | --------------------- | ------------------------ |
-| Ontology      | `memory/types.ts`     | Data shapes              |
-| Persistence   | `memory/store.ts`     | JSON I/O                 |
-| Constraints   | `regulator/types.ts`  | Rules as constants       |
-| Pure Logic    | `regulator/logic.ts`  | State transformations    |
-| Policy        | `regulator/policy.ts` | Configurable boundaries  |
-| Facade        | `regulator/engine.ts` | Public interface         |
-| Input         | `sensorium/cli.ts`    | Parse CLI → Commands     |
-| Orchestration | `cortex/cli.ts`       | Wire everything together |
+| Layer         | File                  | Responsibility                        |
+| ------------- | --------------------- | ------------------------------------- |
+| DNA           | `dna.ts`              | Source of truth for all invariants    |
+| Ontology      | `memory/types.ts`     | Data shapes (imports from DNA)        |
+| Persistence   | `memory/store.ts`     | JSON I/O                              |
+| Constraints   | `regulator/types.ts`  | Rules as constants (imports from DNA) |
+| Pure Logic    | `regulator/logic.ts`  | State transformations                 |
+| Policy        | `regulator/policy.ts` | Configurable boundaries               |
+| Facade        | `regulator/engine.ts` | Public interface                      |
+| Input         | `sensorium/cli.ts`    | Parse CLI → Commands                  |
+| Orchestration | `cortex/cli.ts`       | Wire everything together              |
 
 ---
 

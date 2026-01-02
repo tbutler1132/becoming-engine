@@ -75,7 +75,33 @@ These are **implementation details**. Making them configurable adds complexity w
 - **Test Behavior, Not Implementation:** Tests should describe _what_ the module does, not _how_.
 - **Dependency Injection:** If a class relies on an external service (like a database), inject the interface, not the concrete class. This allows easy mocking and swapping.
 
-## 7. AI Agent Behavior Protocol
+## 7. DNA: Single Source of Truth for Invariants
+
+The file `src/dna.ts` is the **canonical source** for all fundamental constants and regulatory invariants. This is the "genetic code" of the Becoming Engine.
+
+### What Belongs in DNA
+
+| Category           | Examples                                                           |
+| ------------------ | ------------------------------------------------------------------ |
+| Ontology enums     | `NODE_TYPES`, `EPISODE_TYPES`, `VARIABLE_STATUSES`                 |
+| Default identities | `DEFAULT_PERSONAL_NODE_ID`, `DEFAULT_ORG_NODE_ID`                  |
+| Regulatory limits  | `MAX_ACTIVE_EXPLORE_PER_NODE`, `MAX_ACTIVE_STABILIZE_PER_VARIABLE` |
+| Schema versioning  | `SCHEMA_VERSION`                                                   |
+
+### Rules
+
+1. **All invariants must be defined in DNA.** No magic numbers or duplicated constants elsewhere.
+2. **Modules import from DNA and re-export.** Consumers import from `memory/index` or `regulator/types` as usual — those modules re-export DNA values.
+3. **The tripwire test catches changes.** `src/dna.test.ts` hardcodes expected values. If you change DNA, you must update the test — forcing explicit acknowledgment.
+
+### Why This Pattern?
+
+- **Single source of truth:** One place to see all fundamental rules.
+- **Consistency:** All organs derive from the same source.
+- **Visibility:** Changes to DNA appear clearly in Git history.
+- **Safety:** The tripwire test prevents accidental modifications.
+
+## 8. AI Agent Behavior Protocol
 
 When generating code, follow this loop:
 

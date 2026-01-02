@@ -1,12 +1,15 @@
 // Regulator types and constraints
 // The Regulator organ enforces cybernetic homeostasis rules
+// Constraint constants are imported from DNA (the source of truth) and re-exported
 
 import { EPISODE_TYPES } from "../memory/index.js";
 import type { NodeRef, VariableStatus } from "../memory/index.js";
 
-// Constraint constants (no magic numbers)
-export const MAX_ACTIVE_EXPLORE_PER_NODE = 1;
-export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
+// Re-export DNA constraint constants for consumers
+export {
+  MAX_ACTIVE_EXPLORE_PER_NODE,
+  MAX_ACTIVE_STABILIZE_PER_VARIABLE,
+} from "../../dna.js";
 
 // Result type for operations that can fail
 export type Result<T, E = string> =
