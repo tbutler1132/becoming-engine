@@ -408,9 +408,9 @@ Sample error outputs verified:
 
 **Acceptance criteria:**
 
-- [ ] Every completed MP has passing tests for its criteria
-- [ ] No incomplete work is marked as done
-- [ ] MP12 prerequisites are satisfied
+- [x] Every completed MP has passing tests for its criteria (396 tests, all passing)
+- [x] No incomplete work is marked as done (MP6-MP11 verified and marked complete)
+- [x] MP12 prerequisites are satisfied (Phase 1 Regulatory Layer complete)
 
 ---
 

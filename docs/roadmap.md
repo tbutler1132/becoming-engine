@@ -15,120 +15,26 @@ This roadmap describes **small, composable micro-projects** that move the system
 
 ## Completed
 
+### Phase 1: Regulatory Layer ✅
+
 - [x] **MP1**: Memory (ontology + persistence)
 - [x] **MP2**: Regulator (policy + constraints + mutations)
 - [x] **MP3**: CLI + Sensorium stub (orchestration + status/signal/act)
 - [x] **MP4**: Episode Lifecycle (Open/Close Commands + Timestamps)
 - [x] **MP5**: Episode Closure Produces Learning (Notes as Closure Artifacts)
+- [x] **MP6**: Models v0 (Descriptive/Procedural/Normative)
+- [x] **MP6.5**: Notes v1 (Tags + Timestamps)
+- [x] **MP7**: Links v0 (Typed Relationships)
+- [x] **MP8**: CLI Status v1
 - [x] **MP9**: Sensorium v1 (Observations)
+- [x] **MP10**: Membrane v0 (Validation Gates)
+- [x] **MP11**: Signaling v0 (Federation Skeleton)
+
+> **Checkpoint**: With the organ metaphor complete (Memory, Regulator, Sensorium, Membrane, Signaling), the regulatory layer is stable. Ready for UI and automation.
 
 ---
 
-## Phase 1: Regulatory Layer (Current)
-
-### MP6 — Models v0 (Descriptive/Procedural/Normative)
-
-**Goal**: Introduce **Models** as explicit artifacts so learning is queryable.
-
-**Scope**
-
-- Add `Model` to the ontology with `type: Descriptive | Procedural | Normative`
-- Include fields: `statement`, `confidence`, `scope`
-- Add minimal Regulator mutations: create model, update model, attach to Episode closure
-- Normative Models may include `enforcement` field (prep for Membrane)
-
-**Acceptance**
-
-- `State` supports models; JSON store migrates; tests pass
-- At least one Regulator test proves "closing an Explore can create/update a Model"
-- Models include confidence and scope fields
-
----
-
-### MP6.5 — Notes v1 (Tags + Timestamps)
-
-**Goal**: Enrich Notes with fields needed for inbox/processed distinction.
-
-**Scope**
-
-- Extend `Note` with: `createdAt`, `tags`, `linkedObjects`
-- Define semantic tags: `inbox`, `pending_approval`, `processed`, `closure_note`
-
-**Acceptance**
-
-- Notes include `createdAt` on creation
-- Tags can be added/removed via Regulator mutations
-- Tests cover: note creation with timestamp, tag filtering
-
----
-
-### MP7 — Links v0 (Typed Relationships)
-
-**Goal**: Move toward graph-relational memory without switching storage.
-
-**Scope**
-
-- Introduce `Link` object: `id`, `sourceId`, `targetId`, `relation`, `weight`
-- Add minimal validation: links must reference existing objects
-
-**Acceptance**
-
-- Links can be created and persisted
-- Tests prove referential integrity
-- Relation types are validated (const assertion)
-
----
-
-### MP8 — CLI Status v1
-
-**Goal**: Make the non-baseline dashboard useful while remaining boring at baseline.
-
-**Scope**
-
-- Surface: Variables, Active Episodes, Episode-scoped Actions
-- Baseline output remains minimal
-
-**Acceptance**
-
-- Baseline output is quiet
-- Non-baseline output is structured and testable
-
----
-
-### MP10 — Membrane v0 (Validation Gates)
-
-**Goal**: Add a boundary organ that enforces constraints.
-
-**Scope**
-
-- Create `src/libs/membrane/*` with validation gates
-- Integrate with Normative Models (`enforcement: "none" | "warn" | "block"`)
-- Membrane checks Normative Models before allowing mutations
-
-**Acceptance**
-
-- CLI routes mutations through Membrane
-- Tests cover: blocked action, allowed action with explicit exception
-
-> **Checkpoint**: With the organ metaphor complete (Memory, Regulator, Sensorium, Membrane), this is a good moment to consider starting the [Membrane Visualization](decisions/0002-membrane-visualization.md).
-
----
-
-### MP11 — Signaling v0 (Federation Skeleton)
-
-**Goal**: Prepare for multi-node coordination.
-
-**Scope**
-
-- Define minimal event envelope (Node identity, event id, type, payload, timestamp)
-- Implement local append-only events (file-based)
-
-**Acceptance**
-
-- Events can be emitted/consumed locally
-- Tests prove idempotency
-
----
+## Current
 
 ### MP12 — Web UI
 
