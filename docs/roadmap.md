@@ -10,6 +10,9 @@ This roadmap describes **small, composable micro-projects** that move the system
 - **Regulation over optimization**: we add regulation primitives, not planning features.
 - **Configure boundaries, not mechanisms**: policy is explicit; the machinery stays simple.
 - **Baseline is the goal**: "nothing happening" is success.
+- **Avoid capture mechanics**: no hidden scoring, coercive metrics, or attention traps. (More context in `docs/vision.md`.)
+- **Keep humans in the loop**: assistance can suggest, but changes are explicit and reviewable (start pull-based, draft artifacts).
+- **Build for community**: features should support shared stewardship and coordination without turning into "productivity pressure."
 
 ---
 
@@ -36,21 +39,136 @@ This roadmap describes **small, composable micro-projects** that move the system
 
 ## Current
 
-### MP12 — Web UI
+### MP12 — Web UI (Minimum Viable Loop)
 
-**Goal**: Add a UI only after the underlying organism is stable.
+**Goal**: Build the first usable loop — see state, see focus, complete actions.
 
-**Vision context**: See `docs/vision.md` (anti-capture, baseline quiet, no authority creep).
+**Vision context**: See `docs/vision.md` (anti-capture, baseline quiet, assistance without authority creep).
+
+**Product intent**
+
+- Make the system feel tangible and beautiful from day one (mythic aesthetic, not generic dashboard)
+- Deliver immediate pragmatic value: "what's stable, what needs attention, what should I do?"
+- Close the loop: users can actually _use_ the UI, not just look at it
 
 **Scope**
 
-- Build a read-only interpretive surface
-- Preserve baseline quiet; no planning affordances
+- Variables view (color-coded by status: InRange/Low/High)
+- Active Episodes + pending Actions
+- **One write-path: mark Action as Done** (minimum authority to close the loop)
+- Baseline quiet: when stable, the UI feels calm and minimal
+- Mobile-friendly: day-to-day usage often happens on phones
 
 **Acceptance**
 
-- UI can visualize Status semantics
-- No new authority is introduced
+- UI visualizes Variables → Episodes → Actions without planning gravity
+- User can mark an Action as Done from the UI
+- Baseline is quiet (no nags; calm when stable)
+- Looks beautiful — aesthetic is first-class, not an afterthought
+
+---
+
+### MP12.5 — Inbox + Quick Actions
+
+**Goal**: Make thought capture and action creation frictionless.
+
+**Product intent**
+
+- Reduce friction for day-to-day capture (so people actually use the system)
+- Let users add Actions to active Episodes without leaving the UI
+- Provide a simple ritual for review/processing without creating a backlog machine
+
+**Scope**
+
+- Inbox view: create and review Notes (fast single input)
+- Quick Action creation: add an Action to an active Episode from the UI
+- Simple review ritual (tag/process Notes), not a workflow engine
+
+**Invariants**
+
+- ❌ Notes do not imply action (they're inert until reviewed)
+- ✅ Actions can only be added to _active_ Episodes (no orphan action creation)
+- ✅ Capture is explicit and reversible
+- ✅ If assistance is added later, it is pull-based and creates draft artifacts (human approves)
+
+**Acceptance**
+
+- Create a Note into `inbox` quickly
+- Create an Action within an active Episode from the UI
+- Review Inbox list and mark Notes as processed/tagged
+- No automatic episode opening or action creation from Inbox
+
+---
+
+### MP12.75 — Episode Management
+
+**Goal**: Complete the intervention loop — open and close Episodes from the UI.
+
+**Product intent**
+
+- When a Variable drifts, you can start an intervention without leaving the UI
+- When you're done, you can close with a note + learning (Model update for Explore)
+
+**Scope**
+
+- Open Episode (Stabilize or Explore) from the UI
+- Close Episode with closure note
+- For Explore: prompt for Model update on closure (required by doctrine)
+- Membrane constraints enforced (e.g., max 1 active Explore per node)
+
+**Acceptance**
+
+- Open a Stabilize Episode linked to a Variable
+- Open an Explore Episode with objective
+- Close Episode with closure note
+- Explore closure requires at least one Model update
+- Membrane blocks shown clearly when constraints violated
+
+---
+
+### MP13 — Models View
+
+**Goal**: Make learning tangible — see your accumulated beliefs, procedures, and boundaries.
+
+**Product intent**
+
+- Learning should feel real: "here's what I've learned over time"
+- Normative Models (constraints) become visible as "the rules I live by"
+
+**Scope**
+
+- Read-only view of all Models (Descriptive, Procedural, Normative)
+- Filter/group by type or scope
+- See which Episodes produced which Models (lineage)
+
+**Acceptance**
+
+- View all Models with type, statement, confidence
+- See linked Episode (where did this learning come from?)
+- Normative Models show enforcement level
+
+---
+
+### MP14 — Variable Proxies
+
+**Goal**: Make Variables feel alive by connecting them to real data sources.
+
+**Product intent**
+
+- Manual variable updates feel like homework; automatic signals feel alive
+- This is where the system becomes genuinely useful for day-to-day life
+
+**Scope**
+
+- Define proxy sources for Variables (e.g., sleep tracker, calendar, mood log)
+- Automatic or semi-automatic status updates based on proxy data
+- Start simple: manual proxy entry, then expand to integrations
+
+**Acceptance**
+
+- Add a proxy to a Variable
+- Proxy data influences Variable status (with user confirmation or auto)
+- Clear audit trail of what changed the Variable
 
 ---
 
