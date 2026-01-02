@@ -69,6 +69,13 @@ export const OBSERVATION_TYPES = [
   "episodeProposal",
 ] as const;
 
+/** The valid signal event types for federation (inter-node communication) */
+export const SIGNAL_EVENT_TYPES = [
+  "intent", // Node signals intent to act
+  "status", // Node shares current status
+  "completion", // Node signals task completion
+] as const;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // REGULATORY LIMITS — Constraints that preserve viability
 // ═══════════════════════════════════════════════════════════════════════════
