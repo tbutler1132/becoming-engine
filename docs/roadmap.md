@@ -958,3 +958,33 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 **Why it fits**: "Baseline quiet" — if nothing is wrong, the app shows almost nothing.
 
 **Dependencies**: MP12 (Web UI) or an API layer
+
+---
+
+### Templates & Extensions (Community Sharing)
+
+**Concept**: Enable users to create, share, and import reusable configurations and custom proxy pipelines.
+
+**Two layers**:
+
+1. **Templates** — Shareable bundles of Variable definitions (with preferred ranges, proxies) and related Models. A user who discovers that tracking "Creative Output Momentum" with specific ranges and proxies works well for solo creative work can export that as a template for others to import and adapt.
+
+2. **Custom Proxy Pipelines** — User-defined Sensorium extensions that connect non-native data sources (Garmin, Oura, Notion, custom APIs) to the system. A pipeline defines:
+   - A data source connector (API, file watcher, webhook)
+   - A transform function (raw data → normalized proxy signal)
+   - Metadata (what Variable types it suits, confidence weighting)
+
+**Why it fits**:
+
+- Procedural Models already encode "methods that work" — templates extend this to Variable configurations
+- Sensorium is the sensing boundary — plugins extend what it can sense, not what it decides
+- Federation supports artifact sharing — templates are just a specialized artifact type
+- All imported templates become the user's own objects, immediately subject to revision
+
+**Design constraints**:
+
+- Templates are _starting points for convergence_, not "optimal configurations"
+- Custom proxies only provide _sensing_, never _decision-making_ — the Regulator still decides what matters
+- Community curation over marketplace proliferation to avoid optimization culture
+
+**Dependencies**: MP9 (Sensorium v1), MP6 (Models), Phase 2 (for richer Entity-based templates)
