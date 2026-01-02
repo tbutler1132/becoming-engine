@@ -70,12 +70,18 @@ Principles:
 **Scope**
 
 - Add `Model` to the ontology with `type: Descriptive | Procedural | Normative`
+- Include fields from tech-spec:
+  - `statement: string` — the belief content
+  - `confidence?: number` — 0.0 to 1.0, how certain
+  - `scope?: "personal" | "org" | "domain"` — where the belief applies
 - Add minimal Regulator mutations: create model, update model, attach model updates to an Episode closure
+- Normative Models may include `enforcement` field (prep for Membrane in MP10)
 
 **Acceptance**
 
 - `State` supports models; JSON store migrates; tests pass
 - At least one Regulator test proves "closing an Explore can create/update a Model"
+- Models include confidence and scope fields
 
 ---
 
@@ -87,13 +93,19 @@ Principles:
 
 **Scope**
 
-- Introduce a `Link` object: `{ id, source, target, relation }` where source/target are object refs
+- Introduce a `Link` object with fields from tech-spec:
+  - `id: string`
+  - `sourceId: string` — object reference
+  - `targetId: string` — object reference
+  - `relation: string` — e.g., `"supports" | "tests" | "blocks" | "responds_to"`
+  - `weight?: number` — optional strength/confidence of relationship
 - Add minimal validation: links must reference existing objects
 
 **Acceptance**
 
 - Links can be created and persisted
 - Tests prove referential integrity and "no silent mutation"
+- Relation types are validated (const assertion for known types)
 
 ---
 
@@ -145,12 +157,17 @@ Principles:
 **Scope**
 
 - Create `src/libs/membrane/*` with explicit validation gates (start simple: synchronous rules)
+- Integrate with Normative Models from MP6:
+  - `enforcement: "none" | "warn" | "block"` — how strictly to enforce
+  - `exceptionsAllowed: boolean` — whether exceptions can be logged
 - Introduce "exception required" behavior as explicit artifacts (notes/models), not hidden flags
+- Membrane checks Normative Models before allowing mutations
 
 **Acceptance**
 
 - Cortex routes mutations through Membrane before Regulator mutation (as policy)
 - Tests cover: blocked action, allowed action with explicit exception note
+- Normative Models with `enforcement: "block"` prevent actions unless exception logged
 
 ---
 
@@ -332,3 +349,149 @@ The regulatory layer remains **minimal and fixed**. The world model layer is **e
 - **Temporal modeling**: Track entity state over time
 - **External sync**: Import/export entities from external systems (Notion, Obsidian, etc.)
 - **AI-assisted modeling**: Suggest schemas and entities from unstructured notes
+
+---
+
+## Phase 3: Autonomous Regulator (Future)
+
+Phase 1 builds the core regulatory machinery (command-driven). Phase 2 adds the world model. Phase 3 upgrades the Regulator to be **autonomous** — it can evaluate pressure, propose interventions, and manage episodes without explicit user commands.
+
+### Motivation
+
+The tech-spec describes a Regulator that:
+- Evaluates Variable states against thresholds
+- Detects pressure and uncertainty
+- Selects candidate Episodes automatically
+- Operates as an explicit state machine
+
+Phase 1's Regulator is reactive (user calls `openEpisode`). Phase 3 makes it proactive.
+
+---
+
+### MP18 — Variable Thresholds (Pressure Detection)
+
+- [ ] **Complete**
+
+**Goal**: Enrich Variables with numeric thresholds so the system can detect pressure automatically.
+
+**Scope**
+
+- Extend `Variable` with fields from tech-spec:
+  - `preferredRange?: { min: number, max: number }` — target bounds
+  - `stability?: number` — 0.0 to 1.0, how stable over time
+  - `confidence?: number` — 0.0 to 1.0, how confident in the reading
+  - `proxies?: ProxyRef[]` — what signals inform this variable
+- Add `"unknown"` as a valid status (in addition to Low/InRange/High)
+- Add pressure scoring function: `calculatePressure(variable) => number`
+
+**Acceptance**
+
+- Variables can define preferred ranges
+- Tests demonstrate pressure calculation based on status vs. range
+- Migration preserves existing variables (new fields optional)
+
+---
+
+### MP19 — Episode Timebox and Closure Conditions
+
+- [ ] **Complete**
+
+**Goal**: Make Episodes self-expiring with explicit closure conditions.
+
+**Scope**
+
+- Extend `Episode` with fields from tech-spec:
+  - `timeboxDays?: number` — how long before episode expires
+  - `closureConditions?: string[]` — what must be true to close
+  - `linkedModelIds?: string[]` — models this episode should update
+  - `linkedConstraintIds?: string[]` — normative models that apply
+- Add Episode status: `"abandoned"` (for expired/failed episodes)
+- Regulator can flag overdue episodes
+
+**Acceptance**
+
+- Episodes can have timebox; status shows overdue state
+- Closure conditions are tracked (human-evaluated for now)
+- Tests cover: timebox expiration, closure condition tracking
+
+---
+
+### MP20 — Regulator State Machine
+
+- [ ] **Complete**
+
+**Goal**: Implement the Regulator as an explicit state machine per the tech-spec.
+
+**Scope**
+
+- Define Regulator states:
+  - `IDLE` — baseline, no active evaluation
+  - `EVALUATING` — scanning Variables for pressure
+  - `ASSESSING` — deciding whether to intervene
+  - `OPENING_EPISODE` — creating a new Episode
+  - `MONITORING` — tracking active Episodes
+  - `CLOSING_EPISODE` — completing an Episode
+  - `DEFERRING` — choosing not to intervene (with reason)
+- State transitions are event-driven and review-driven
+- Regulator emits events for each transition (integrates with MP11 Signaling)
+
+**Acceptance**
+
+- Regulator has explicit state that persists
+- Transitions are logged/auditable
+- Tests cover: full state machine traversal
+
+---
+
+### MP21 — Candidate Episode Selection
+
+- [ ] **Complete**
+
+**Goal**: Regulator can propose Episodes based on system state.
+
+**Scope**
+
+- Implement candidate selection algorithm from tech-spec:
+  - Input: Variable pressure scores, uncertainty density, active Episodes, capacity estimates
+  - Output: `stabilize` candidate, `explore` candidate, `none`, or `defer(reason)`
+- Rules:
+  - Critical Stabilize preempts Explore
+  - Explore requires surplus capacity
+  - `"none"` is a valid and common outcome
+- Proposals are surfaced to user (not auto-opened initially)
+
+**Acceptance**
+
+- Regulator can propose candidate Episodes
+- Proposals include rationale
+- Tests cover: pressure-based selection, capacity constraints, "none" outcome
+
+---
+
+### MP22 — Autonomous Intervention (Optional)
+
+- [ ] **Complete**
+
+**Goal**: Allow Regulator to open Episodes automatically (with user consent).
+
+**Scope**
+
+- Add policy flag: `autoOpenEpisodes: boolean`
+- When enabled, Regulator can open Episodes without explicit command
+- All auto-opened Episodes are logged with rationale
+- User can always close or override
+
+**Acceptance**
+
+- Auto-open can be enabled/disabled per Node
+- Auto-opened Episodes include `autoOpened: true` flag
+- Tests cover: auto-open respects concurrency limits
+
+---
+
+### Future Considerations (Beyond MP22)
+
+- **Learning velocity tracking**: How fast are Models being updated?
+- **Regulator meta-learning**: Adjust thresholds based on Episode outcomes
+- **Multi-node coordination**: Regulators signal each other about pressure
+- **Predictive intervention**: Anticipate pressure before it arrives

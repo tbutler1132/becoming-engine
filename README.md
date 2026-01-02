@@ -72,15 +72,17 @@ Refer to the `docs/` directory for the core principles:
 - [Operating Manual](./docs/becoming-engine.md): Core objects, rules, and workflow.
 - [Roadmap](./docs/roadmap.md): A non-binding sequence of next micro-projects.
 
-## 🔮 Vision: Two-Layer Ontology
+## 🔮 Vision: Three-Phase Evolution
 
-The system evolves in two phases:
+The system evolves in three phases:
 
-1. **Phase 1 (Current)**: Regulatory Layer — Variables, Episodes, Actions. How the organism regulates itself. Closed, minimal ontology.
+1. **Phase 1 (Current)**: Regulatory Layer — Variables, Episodes, Actions, Models, Links. How the organism regulates itself. Closed, minimal ontology. Command-driven.
 
-2. **Phase 2 (Future)**: World Model Layer — Schemas, Entities, Links, Models. How the organism represents its environment. Open, extensible ontology with user-defined object types.
+2. **Phase 2 (Future)**: World Model Layer — Schemas, Entities. How the organism represents its environment. Open, extensible ontology with user-defined object types.
 
-See the [Roadmap](./docs/roadmap.md) for details on both phases.
+3. **Phase 3 (Future)**: Autonomous Regulator — Variable thresholds, pressure detection, Episode timebox, Regulator state machine. The system proposes and manages interventions automatically.
+
+See the [Roadmap](./docs/roadmap.md) for details on all phases, and the [Tech Spec](./docs/tech-spec.md) for the complete technical vision.
 
 ## 🤖 For AI Agents
 

@@ -165,7 +165,102 @@ Change emerges through finite experiments, not self-coercion.
 
 When stability holds, the system goes quiet.
 
-12. Two-Layer Ontology (Future Vision)
+12. Core Object Specifications
+
+Variables
+
+A Variable is a regulated dimension of viability.
+
+Fields:
+- id, name, status (Low / InRange / High / Unknown)
+- preferredRange (min, max) — target bounds
+- stability — how stable over time (0.0 to 1.0)
+- confidence — how confident in the reading (0.0 to 1.0)
+- proxies — what signals inform this variable
+
+Invariants:
+- Variables are not optimized
+- Variables may be "unknown"
+- "High" is not automatically bad
+- Stability matters more than instantaneous value
+
+Episodes
+
+An Episode is a temporary intervention.
+
+Types: Stabilize (restore viability) or Explore (reduce uncertainty through learning)
+
+Fields:
+- id, type, status (Active / Closing / Closed / Abandoned)
+- variableId — what Variable this addresses (Stabilize only)
+- objective — the hypothesis or goal
+- openedAt, closedAt — timestamps
+- timeboxDays — how long before episode expires
+- closureConditions — what must be true to close
+- linkedModelIds — models this episode should update
+- closureNoteId — artifact produced on close
+
+Invariants:
+- Episodes are finite and must be closeable
+- At most 1 active Explore Episode per Node
+- At most 1 active Stabilize Episode per Variable
+- Explore Episodes require Model updates to close
+
+Models
+
+A Model is an explicit belief.
+
+Types: Descriptive (how reality behaves), Procedural (methods that work), Normative (constraints)
+
+Fields:
+- id, type, statement (the belief content)
+- confidence — how certain (0.0 to 1.0)
+- scope — personal, org, or domain
+- enforcement — none, warn, or block (for Normative)
+- exceptionsAllowed — whether exceptions can be logged
+
+Invariants:
+- Models must be explicit
+- Models are revisable
+- Normative Models may block actions or episodes
+
+Actions
+
+An Action is a disposable execution unit.
+
+Fields:
+- id, description, status (Pending / Done)
+- episodeId — optional; only episode-scoped actions carry authority
+
+Invariants:
+- Actions carry no intrinsic meaning
+- Actions may be orphaned
+- Actions disappear when complete
+- Only Actions from active Episodes are surfaced by default
+
+Links
+
+A Link defines a typed relationship between objects.
+
+Fields:
+- sourceId, targetId — object references
+- relation — supports, tests, blocks, responds_to, etc.
+- weight — optional strength/confidence
+
+Notes
+
+A Note is unstructured context.
+
+Fields:
+- id, content, createdAt
+- tags, linkedObjects
+
+Invariants:
+- Notes do not imply action
+- Notes are inert until reviewed
+- Notes may later be promoted to Models
+
+13. Two-Layer Ontology (Future Vision)
 
 The system distinguishes between two ontological layers:
 
@@ -184,6 +279,28 @@ This layer is open and extensible. Users may define new object types (Schemas) a
 The regulatory layer references the world model layer. Variables may be affected by specific entities. Episodes may be scoped to domains. Models describe beliefs about entities.
 
 This separation preserves regulatory simplicity while enabling rich, structured knowledge representation.
+
+14. Autonomous Regulator (Future Vision)
+
+The Regulator operates as a state machine:
+
+States: IDLE, EVALUATING, ASSESSING, OPENING_EPISODE, MONITORING, CLOSING_EPISODE, DEFERRING
+
+The Regulator:
+- Evaluates Variable states against thresholds
+- Detects pressure and uncertainty
+- Selects candidate Episodes (or "none")
+- Enforces concurrency and constraints
+- Monitors active Episodes
+- Validates closure conditions
+- Integrates learning into Models
+
+The Regulator does NOT:
+- Schedule Actions
+- Assign work
+- Manage execution order
+
+"None" is a valid and common outcome. The system is successful when it is mostly inactive.
 
 One-Line Agent Summary
 
