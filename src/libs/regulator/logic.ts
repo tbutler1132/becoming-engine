@@ -16,6 +16,7 @@ import type {
 } from "../memory/index.js";
 import type {
   CloseEpisodeParams,
+  ClosureNote,
   CreateActionParams,
   Result,
   OpenEpisodeParams,
@@ -284,15 +285,31 @@ export function openEpisode(
 }
 
 /**
- * Closes an episode and optionally updates variables.
- * Returns a new State with the episode closed, timestamps set, and variables updated.
+ * Validates closure note content.
+ */
+export function validateClosureNote(note: ClosureNote): Result<void> {
+  if (!note.content || note.content.trim().length === 0) {
+    return { ok: false, error: "Closure note content cannot be empty" };
+  }
+  return { ok: true, value: undefined };
+}
+
+/**
+ * Closes an episode and creates a closure note.
+ * Returns a new State with the episode closed, timestamps set, note created, and variables updated.
  * Pure function: does not mutate input state.
  */
 export function closeEpisode(
   state: State,
   params: CloseEpisodeParams,
 ): Result<State> {
-  const { episodeId, closedAt, closureNoteId, variableUpdates } = params;
+  const { episodeId, closedAt, closureNote, variableUpdates } = params;
+
+  // Validate closure note
+  const noteValidation = validateClosureNote(closureNote);
+  if (!noteValidation.ok) {
+    return noteValidation;
+  }
 
   // Find the episode
   const episode = state.episodes.find((e) => e.id === episodeId);
@@ -304,14 +321,20 @@ export function closeEpisode(
     return { ok: false, error: `Episode '${episodeId}' is already closed` };
   }
 
-  // Close the episode with timestamp and optional closureNoteId
+  // Create the closure note
+  const newNote = {
+    id: closureNote.id,
+    content: closureNote.content,
+  };
+
+  // Close the episode with timestamp and closureNoteId
   const updatedEpisodes = state.episodes.map((e) =>
     e.id === episodeId
       ? {
           ...e,
           status: CLOSED_STATUS,
           closedAt,
-          ...(closureNoteId ? { closureNoteId } : {}),
+          closureNoteId: closureNote.id,
         }
       : e,
   );
@@ -331,6 +354,7 @@ export function closeEpisode(
       ...state,
       episodes: updatedEpisodes,
       variables: updatedVariables,
+      notes: [...state.notes, newNote],
     },
   };
 }

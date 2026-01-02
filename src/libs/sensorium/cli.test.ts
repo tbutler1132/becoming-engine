@@ -185,19 +185,44 @@ describe("Sensorium CLI parsing", () => {
         "Personal:personal",
         "--episodeId",
         "ep-123",
+        "--note",
+        "What I learned from this episode",
       ]);
       expect(result.ok).toBe(true);
       if (result.ok && result.value.kind === "close") {
         expect(result.value.node).toEqual(DEFAULT_PERSONAL_NODE);
         expect(result.value.episodeId).toBe("ep-123");
+        expect(result.value.noteContent).toBe(
+          "What I learned from this episode",
+        );
       }
     });
 
     it("fails close without episodeId", () => {
-      const result = parseCli(["close", "--node", "Personal:personal"]);
+      const result = parseCli([
+        "close",
+        "--node",
+        "Personal:personal",
+        "--note",
+        "Some learning",
+      ]);
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain("--episodeId");
+      }
+    });
+
+    it("fails close without note", () => {
+      const result = parseCli([
+        "close",
+        "--node",
+        "Personal:personal",
+        "--episodeId",
+        "ep-123",
+      ]);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("--note");
       }
     });
   });

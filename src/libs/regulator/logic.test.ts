@@ -457,37 +457,7 @@ describe("Regulator Logic (Pure Functions)", () => {
   });
 
   describe("closeEpisode", () => {
-    it("marks episode as closed and sets closedAt", () => {
-      const state: State = {
-        schemaVersion: SCHEMA_VERSION,
-        variables: [],
-        episodes: [
-          {
-            id: "e1",
-            node: DEFAULT_PERSONAL_NODE,
-            type: EPISODE_TYPES[0],
-            objective: "Test",
-            status: ACTIVE_STATUS, // Active
-            openedAt: "2025-01-01T00:00:00.000Z",
-          },
-        ],
-        actions: [],
-        notes: [],
-      };
-
-      const closedAt = "2025-01-01T12:00:00.000Z";
-      const result = closeEpisode(state, { episodeId: "e1", closedAt });
-      expect(result.ok).toBe(true);
-      if (result.ok) {
-        expect(result.value.episodes[0]?.status).toBe(CLOSED_STATUS);
-        expect(result.value.episodes[0]?.closedAt).toBe(closedAt);
-        // Original state unchanged (pure function)
-        expect(state.episodes[0]?.status).toBe(ACTIVE_STATUS);
-        expect(state.episodes[0]?.closedAt).toBeUndefined();
-      }
-    });
-
-    it("sets closureNoteId when provided", () => {
+    it("marks episode as closed, sets closedAt, and creates closure note", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
         variables: [],
@@ -505,14 +475,27 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
       };
 
+      const closedAt = "2025-01-01T12:00:00.000Z";
       const result = closeEpisode(state, {
         episodeId: "e1",
-        closedAt: "2025-01-01T12:00:00.000Z",
-        closureNoteId: "note-1",
+        closedAt,
+        closureNote: { id: "note-1", content: "Learned something valuable" },
       });
       expect(result.ok).toBe(true);
       if (result.ok) {
+        expect(result.value.episodes[0]?.status).toBe(CLOSED_STATUS);
+        expect(result.value.episodes[0]?.closedAt).toBe(closedAt);
         expect(result.value.episodes[0]?.closureNoteId).toBe("note-1");
+        // Note was created
+        expect(result.value.notes).toHaveLength(1);
+        expect(result.value.notes[0]?.id).toBe("note-1");
+        expect(result.value.notes[0]?.content).toBe(
+          "Learned something valuable",
+        );
+        // Original state unchanged (pure function)
+        expect(state.episodes[0]?.status).toBe(ACTIVE_STATUS);
+        expect(state.episodes[0]?.closedAt).toBeUndefined();
+        expect(state.notes).toHaveLength(0);
       }
     });
 
@@ -533,7 +516,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             node: DEFAULT_PERSONAL_NODE,
             type: EPISODE_TYPES[0],
             objective: "Test",
-            status: ACTIVE_STATUS, // Active
+            status: ACTIVE_STATUS,
             openedAt: "2025-01-01T00:00:00.000Z",
           },
         ],
@@ -544,6 +527,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       const result = closeEpisode(state, {
         episodeId: "e1",
         closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Variable restored" },
         variableUpdates: [{ id: "v1", status: VARIABLE_STATUSES[1] }],
       });
       expect(result.ok).toBe(true);
@@ -566,6 +550,7 @@ describe("Regulator Logic (Pure Functions)", () => {
       const result = closeEpisode(state, {
         episodeId: "nonexistent",
         closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Some learning" },
       });
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -595,10 +580,69 @@ describe("Regulator Logic (Pure Functions)", () => {
       const result = closeEpisode(state, {
         episodeId: "e1",
         closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Some learning" },
       });
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain("already closed");
+      }
+    });
+
+    it("fails on empty closure note content", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+      };
+
+      const result = closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "" },
+      });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("Closure note content cannot be empty");
+      }
+    });
+
+    it("fails on whitespace-only closure note content", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+      };
+
+      const result = closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "   " },
+      });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("Closure note content cannot be empty");
       }
     });
   });

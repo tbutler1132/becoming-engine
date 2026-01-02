@@ -42,10 +42,16 @@ export interface VariableUpdate {
   status: VariableStatus;
 }
 
+/** Note to be created and attached on episode closure */
+export interface ClosureNote {
+  id: string;
+  content: string;
+}
+
 export interface CloseEpisodeParams {
   episodeId: string;
   closedAt: string;
-  closureNoteId?: string;
+  closureNote: ClosureNote;
   variableUpdates?: VariableUpdate[];
 }
 

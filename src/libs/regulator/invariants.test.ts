@@ -95,6 +95,14 @@ const noteArb: fc.Arbitrary<Note> = fc.record({
   content: fc.string({ minLength: 1, maxLength: 500 }),
 });
 
+/** Generate a valid closure note for closeEpisode */
+const closureNoteArb = fc.record({
+  id: fc.uuid(),
+  content: fc
+    .string({ minLength: 1, maxLength: 200 })
+    .filter((s) => s.trim().length > 0),
+});
+
 /** Generate a minimal valid State (empty arrays) */
 const minimalStateArb: fc.Arbitrary<State> = fc.constant({
   schemaVersion: SCHEMA_VERSION,
@@ -263,10 +271,12 @@ describe("Invariant: State Validity Preservation", () => {
       fc.property(
         stateWithActiveEpisodeArb,
         isoTimestampArb,
-        ({ state, episodeId }, closedAt) => {
+        closureNoteArb,
+        ({ state, episodeId }, closedAt, closureNote) => {
           const result = closeEpisode(state, {
             episodeId,
-            closedAt: closedAt,
+            closedAt,
+            closureNote,
           });
 
           if (result.ok) {
@@ -481,10 +491,12 @@ describe("Invariant: Episode Lifecycle Consistency", () => {
       fc.property(
         stateWithActiveEpisodeArb,
         isoTimestampArb,
-        ({ state, episodeId }, closedAt) => {
+        closureNoteArb,
+        ({ state, episodeId }, closedAt, closureNote) => {
           const result = closeEpisode(state, {
             episodeId,
-            closedAt: closedAt,
+            closedAt,
+            closureNote,
           });
 
           expect(result.ok).toBe(true);
@@ -495,6 +507,7 @@ describe("Invariant: Episode Lifecycle Consistency", () => {
             expect(closedEpisode).toBeDefined();
             expect(closedEpisode?.status).toBe(EPISODE_STATUSES[1]); // Closed
             expect(closedEpisode?.closedAt).toBe(closedAt);
+            expect(closedEpisode?.closureNoteId).toBe(closureNote.id);
           }
           return true;
         },
@@ -509,10 +522,12 @@ describe("Invariant: Episode Lifecycle Consistency", () => {
         minimalStateArb,
         fc.uuid(),
         isoTimestampArb,
-        (state, episodeId, closedAt) => {
+        closureNoteArb,
+        (state, episodeId, closedAt, closureNote) => {
           const result = closeEpisode(state, {
             episodeId,
-            closedAt: closedAt,
+            closedAt,
+            closureNote,
           });
 
           expect(result.ok).toBe(false);
@@ -534,7 +549,8 @@ describe("Invariant: Episode Lifecycle Consistency", () => {
         isoTimestampArb,
         isoTimestampArb,
         isoTimestampArb,
-        (node, episodeId, openedAt, firstClose, secondClose) => {
+        closureNoteArb,
+        (node, episodeId, openedAt, firstClose, secondClose, closureNote) => {
           const state: State = {
             schemaVersion: SCHEMA_VERSION,
             variables: [],
@@ -556,6 +572,7 @@ describe("Invariant: Episode Lifecycle Consistency", () => {
           const result = closeEpisode(state, {
             episodeId,
             closedAt: secondClose,
+            closureNote,
           });
 
           expect(result.ok).toBe(false);
@@ -650,12 +667,14 @@ describe("Invariant: Pure Functions Don't Mutate Input", () => {
       fc.property(
         stateWithActiveEpisodeArb,
         isoTimestampArb,
-        ({ state, episodeId }, closedAt) => {
+        closureNoteArb,
+        ({ state, episodeId }, closedAt, closureNote) => {
           const originalJson = JSON.stringify(state);
 
           closeEpisode(state, {
             episodeId,
-            closedAt: closedAt,
+            closedAt,
+            closureNote,
           });
 
           expect(JSON.stringify(state)).toBe(originalJson);
