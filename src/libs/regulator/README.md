@@ -2,6 +2,10 @@
 
 The Regulator organ is responsible for the **Cybernetic Control Loop**: enforcing homeostasis rules and managing temporary interventions (Episodes).
 
+## Why Regulator Exists
+
+The system needs a gatekeeper that ensures state transitions obey invariants. Without the Regulator, unlimited Episodes could be opened, orphaned Actions created, or variables updated without ownership checks. The Regulator is the single point where these rules are enforced, separating policy (what's allowed) from mechanism (how it's done).
+
 ## 🎯 Responsibilities
 
 - **Constraint Enforcement**: Validates and enforces system rules (Max 1 Explore per node, Max 1 Stabilize per variable).
@@ -21,24 +25,15 @@ The Regulator organ is responsible for the **Cybernetic Control Loop**: enforcin
 
 The Regulator supports a **policy layer** so boundaries can vary per node without changing the mechanism.
 
-- **Default policy**: `DEFAULT_REGULATOR_POLICY` (uses `MAX_ACTIVE_EXPLORE_PER_NODE`)
-- **Overrides**:
-  - `maxActiveExplorePerNodeByType` lets you set limits per `NodeType`
-  - `maxActiveExplorePerNodeByNode` lets you set limits per specific node (keyed by `"${node.type}:${node.id}"`)
-  - `maxActiveStabilizePerVariableByType` lets you set Stabilize limits per `NodeType`
-  - `maxActiveStabilizePerVariableByNode` lets you set Stabilize limits per specific node (keyed by `"${node.type}:${node.id}"`)
-
-Example:
-
 ```typescript
-import { Regulator, DEFAULT_REGULATOR_POLICY } from "./index.js";
-import { DEFAULT_PERSONAL_NODE } from "../memory/index.js";
+import { Regulator, DEFAULT_REGULATOR_POLICY } from "./libs/regulator/index.js";
+import { DEFAULT_PERSONAL_NODE } from "./libs/memory/index.js";
 
 const regulator = new Regulator({
   policy: {
     ...DEFAULT_REGULATOR_POLICY,
     maxActiveExplorePerNodeByNode: {
-      [`${DEFAULT_PERSONAL_NODE.type}:${DEFAULT_PERSONAL_NODE.id}`]: 3, // This specific node can have 3 active Explore episodes
+      [`${DEFAULT_PERSONAL_NODE.type}:${DEFAULT_PERSONAL_NODE.id}`]: 3,
     },
   },
 });
@@ -46,39 +41,34 @@ const regulator = new Regulator({
 
 ## 🏗 Architecture: Pure Logic First
 
-The Regulator follows the **Pure Logic Separation** principle from the engineering standards:
-
 - **`logic.ts`**: Pure functions `(State, Input) => Result | NewState`. Easily testable without mocks.
 - **`engine.ts`**: Thin class wrapper that composes pure functions and provides logging integration.
 - **`types.ts`**: Result types and constraint constants (no magic numbers).
-
-This design makes the core control loop logic universally testable and the class layer disposable if needed.
 
 ## 🔌 Public API
 
 The organ exposes its API via `index.ts`.
 
-### `Regulator`
+### `Regulator` Class
 
-The primary class for cybernetic control.
+The primary class for cybernetic control:
 
 ```typescript
-const regulator = new Regulator({ logger: optionalLogger });
+import { Regulator } from "./libs/regulator/index.js";
+import { DEFAULT_PERSONAL_NODE, EPISODE_TYPES } from "./libs/memory/index.js";
+
+const regulator = new Regulator();
 
 // Query methods
-import { DEFAULT_PERSONAL_NODE } from "../memory/index.js";
-
-const variables = regulator.getVariables(state, DEFAULT_PERSONAL_NODE);
 const canExplore = regulator.canStartExplore(state, DEFAULT_PERSONAL_NODE);
-const canAct = regulator.canAct(state, DEFAULT_PERSONAL_NODE);
 
-// Mutation methods (return new State)
+// Mutation methods (return Result<State>)
 const result = regulator.openEpisode(state, {
   episodeId: "episode-1",
   node: DEFAULT_PERSONAL_NODE,
-  type: EPISODE_TYPES[0],
-  variableId: "var-1",
-  objective: "Restore agency",
+  type: "Explore",
+  objective: "Learn new skill",
+  openedAt: new Date().toISOString(),
 });
 
 if (result.ok) {
@@ -86,17 +76,38 @@ if (result.ok) {
 }
 ```
 
-### `Result<T>`
+### `getStatusData(state, node)`
 
-Operations return `Result<T>` instead of throwing, making errors explicit and composable:
+Returns status data for CLI display (baseline mode vs active mode with details):
 
 ```typescript
-type Result<T> = { ok: true; value: T } | { ok: false; error: string };
+import { getStatusData } from "./libs/regulator/index.js";
+
+const status = getStatusData(state, DEFAULT_PERSONAL_NODE);
+if (status.mode === "baseline") {
+  console.log("System at baseline");
+} else {
+  console.log(`Active episodes: ${status.episodes.length}`);
+}
 ```
+
+### Types
+
+| Type                 | Purpose                                    |
+| -------------------- | ------------------------------------------ |
+| `Result<T>`          | Success/error discriminated union          |
+| `StatusData`         | CLI display data (baseline or active mode) |
+| `OpenEpisodeParams`  | Parameters for opening an episode          |
+| `CloseEpisodeParams` | Parameters for closing an episode          |
+| `SignalParams`       | Parameters for signaling variable status   |
+| `CreateActionParams` | Parameters for creating an action          |
+| `RegulatorPolicy`    | Policy configuration interface             |
 
 ### Constants
 
-- `MAX_ACTIVE_EXPLORE_PER_NODE`: The explore episode limit per node (exported for transparency).
+- `MAX_ACTIVE_EXPLORE_PER_NODE`: Explore episode limit per node (default: 1)
+- `MAX_ACTIVE_STABILIZE_PER_VARIABLE`: Stabilize episode limit per variable (default: 1)
+- `DEFAULT_REGULATOR_POLICY`: Default policy configuration
 
 ## 🧪 Testing
 
