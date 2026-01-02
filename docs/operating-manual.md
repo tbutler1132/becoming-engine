@@ -1,10 +1,10 @@
-# THE BECOMING ENGINE
+# Operating Manual
 
-## Practical Operating Manual (Personal + Org Nodes)
+> Practical day-to-day usage guide for Personal and Org nodes.
 
 ---
 
-## 0. What This System Is (in one paragraph)
+## 0. What This System Is
 
 This is a **cybernetic regulation system**, not a productivity or planning system.
 
@@ -25,7 +25,7 @@ If the system is "busy," something is off.
 
 ---
 
-## 1. Core Objects (Non-Negotiable)
+## 1. Core Objects
 
 The system recognizes **only** these concepts:
 
@@ -33,21 +33,19 @@ The system recognizes **only** these concepts:
 
 Dimensions of viability. Not optimized. Regulated only when drifting.
 
-Personal examples:
+**Personal examples:**
 
 - Continuity
 - Agency
 - Optionality
 - Social Embeddedness
 
-Org examples:
+**Org examples:**
 
 - Execution Capacity
 - Coherence
 - Runway
 - Learning Velocity
-
----
 
 ### Episodes
 
@@ -65,8 +63,6 @@ Episodes:
 - must be closeable
 - never define identity
 
----
-
 ### Actions
 
 Concrete behaviors.
@@ -76,11 +72,11 @@ Two kinds:
 - **Episode-scoped Actions**: linked to an Episode (carry temporary authority while the Episode is active)
 - **Unscoped Actions**: allowed without an Episode (carry **zero authority**; never become a backlog)
 
+Rules:
+
 - 1–3 per Episode (for episode-scoped actions)
 - Disposable
-- Unscoped actions are never treated as “next actions” or used to generate plans
-
----
+- Unscoped actions are never treated as "next actions" or used to generate plans
 
 ### Notes
 
@@ -138,8 +134,6 @@ Should feel:
 - quiet
 - boring
 
----
-
 ### Org Board (≈ 3×4 ft or larger)
 
 Purpose: _What is the Org doing or learning?_
@@ -158,7 +152,7 @@ Allowed to be:
 
 ---
 
-## 4. Rules for Episodes (Very Important)
+## 4. Rules for Episodes
 
 ### Explore Episodes
 
@@ -168,8 +162,6 @@ Allowed to be:
 - Must end with a belief update
 
 If learning does not occur → Episode failed → close it.
-
----
 
 ### Stabilize Episodes
 
@@ -183,21 +175,20 @@ If it requires success to work → it is NOT stabilizing.
 
 ---
 
-## 5. What Goes on a Whiteboard (Exactly)
+## 5. What Goes on a Whiteboard
 
 ### A valid Episode must fit in 6–10 handwritten lines.
 
 Structure:
 
 ```
-TYPE –Variable(s)
+TYPE – Variable(s)
 Hypothesis (1 sentence)
 Actions (1–3 max)
 Ends when: (clear condition)
-
 ```
 
-If it doesn’t fit → it’s not a valid Episode.
+If it doesn't fit → it's not a valid Episode.
 
 ---
 
@@ -205,9 +196,9 @@ If it doesn’t fit → it’s not a valid Episode.
 
 - ❌ No standalone action lists
 - ❌ No backlogs
-- ❌ No “next action” logic
+- ❌ No "next action" logic
 - ✅ Episode-scoped Actions only exist inside Episodes
-- ✅ Episode-scoped Actions disappear when Episodes close (they stop being authoritative/surfaced)
+- ✅ Episode-scoped Actions disappear when Episodes close
 - ✅ Unscoped Actions may exist, but they must remain low-authority and non-surfaced
 
 If you feel the urge to track actions → pressure is rising.
@@ -242,7 +233,7 @@ Response:
 
 ---
 
-## 8. Continuity Work (Clarified)
+## 8. Continuity Work
 
 **Continuity work is allowed background activity with zero authority.**
 
@@ -259,14 +250,12 @@ Examples:
 - organizing archives
 - documentation
 
-**Test:**
-
-If you stopped for two weeks and nothing breaks → it qualifies.
+**Test:** If you stopped for two weeks and nothing breaks → it qualifies.
 
 Continuity work:
 
 - does NOT go on whiteboards as Episodes
-- may be noted briefly as “allowed background activity”
+- may be noted briefly as "allowed background activity"
 
 ---
 
@@ -283,15 +272,13 @@ You may NOT:
 - use Org success as personal stabilization
 - treat Org failure as personal failure
 
-**Test:**
-
-“If the Org stalls, am I still okay?”
+**Test:** "If the Org stalls, am I still okay?"
 
 If no → boundary violation → pause Org exploration.
 
 ---
 
-## 10. Crisis Protocol (Read This Carefully)
+## 10. Crisis Protocol
 
 ### True crisis = loss of basic functioning or safety.
 
@@ -302,62 +289,46 @@ In crisis:
 - **Block irreversible decisions**
 - **Seek external support immediately**
 
-This is not system failure.
+This is not system failure. This is correct escalation.
 
-This is correct escalation.
-
-If you are in the U.S., you can call or text **988** for immediate support. If elsewhere, ask and I’ll help find resources.
+If you are in the U.S., you can call or text **988** for immediate support.
 
 ---
 
-## 11. Common Situations & What To Do
+## 11. Common Situations
 
-### “I feel pressure to optimize or choose the right path”
+### "I feel pressure to optimize or choose the right path"
 
 → You are out of baseline
-
 → Open Stabilize Episode
-
 → Shorten horizon
-
 → Remove authority
 
----
-
-### “I want to work on music/org while unstable”
+### "I want to work on music/org while unstable"
 
 → Allowed as **interface actions or continuity work**
-
 → Not allowed as stabilizers
 
----
-
-### “My board feels crowded”
+### "My board feels crowded"
 
 → Too many Episodes
-
 → Merge or close
+→ Erase, don't reorganize
 
-→ Erase, don’t reorganize
-
----
-
-### “I want to build software”
+### "I want to build software"
 
 → Only after whiteboards feel boring
-
 → Software removes friction, never adds authority
-
-→ If you could throw it away tomorrow, it’s okay
+→ If you could throw it away tomorrow, it's okay
 
 ---
 
-## 12. Weekly / Daily Use (Lightweight)
+## 12. Weekly / Daily Use
 
 ### Daily (1 minute)
 
 - Glance at Personal Variables
-- Ask: “Am I in baseline?”
+- Ask: "Am I in baseline?"
 - If yes → ignore system
 - If no → minimal stabilization
 
@@ -365,7 +336,7 @@ If you are in the U.S., you can call or text **988** for immediate support. If e
 
 - Close any Episodes that can close
 - Erase Notes
-- Ask: “Is anything leaking?”
+- Ask: "Is anything leaking?"
 
 No reviews. No planning.
 
@@ -383,7 +354,7 @@ No reviews. No planning.
 
 ---
 
-## Final Instruction (This Matters)
+## Final Instruction
 
 If you ever feel confused using the system, apply this rule:
 

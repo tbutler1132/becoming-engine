@@ -8,7 +8,7 @@ A structured guide to understanding the Becoming Engine codebase.
 
 Before touching code, internalize the _why_:
 
-1. **`docs/system_context.md`** — The philosophy in 171 lines. Read it slowly. The code implements this literally.
+1. **`docs/doctrine.md`** — The philosophical foundation. Read it slowly. The code implements this literally.
 
 2. **`docs/standards.md`** — The engineering rules. Pay attention to:
    - Result types over exceptions
@@ -16,7 +16,7 @@ Before touching code, internalize the _why_:
    - Module boundaries
    - "Configure boundaries, not mechanisms"
 
-3. **`docs/becoming-engine.md`** — The operating manual. Understand Variables, Episodes, Actions, and the baseline concept.
+3. **`docs/operating-manual.md`** — Practical usage guide. Understand Variables, Episodes, Actions, and the baseline concept.
 
 **Checkpoint:** Can you explain why "idleness is success" to someone?
 
@@ -258,7 +258,7 @@ Once you're comfortable with the current codebase, read about the **Two-Layer On
 - **Regulatory Layer** (Phase 1, current): Variables, Episodes, Actions — fixed, minimal
 - **World Model Layer** (Phase 2, future): Schemas, Entities, Links, Models — extensible, user-defined
 
-See `docs/roadmap.md` (Phase 2 section) and `docs/system_context.md` (section 12) for details.
+See `docs/roadmap.md` (Future Vision section) and `docs/doctrine.md` (section 13) for details.
 
 ---
 
