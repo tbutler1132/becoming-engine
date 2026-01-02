@@ -15,7 +15,7 @@ Principles:
 
 - [x] **MP1**: Memory (ontology + persistence)
 - [x] **MP2**: Regulator (policy + constraints + mutations)
-- [x] **MP3**: Cortex CLI + Sensorium stub (orchestration + status/signal/act)
+- [x] **MP3**: CLI + Sensorium stub (orchestration + status/signal/act)
 
 ---
 
@@ -31,7 +31,7 @@ Principles:
 
 - Add CLI commands: `becoming open` and `becoming close`
 - Add minimal fields to `Episode`: `openedAt`, optional `closedAt`, optional `closureNoteId`
-- Cortex generates `episodeId` and passes to Regulator
+- CLI generates `episodeId` and passes to Regulator
 - Keep status machine small and explicit (const assertions, narrow transitions)
 
 **Acceptance**
@@ -109,7 +109,7 @@ Principles:
 
 ---
 
-### MP8 — Cortex Status v1 (Still Quiet, More Legible When Not Baseline)
+### MP8 — CLI Status v1 (Still Quiet, More Legible When Not Baseline)
 
 - [ ] **Complete**
 
@@ -139,7 +139,7 @@ Principles:
 **Scope**
 
 - Add an `Observation` type (e.g., `variableProxySignal`, `freeformNote`, `episodeProposal`)
-- Cortex converts Observations into explicit Regulator mutations (no implicit state changes)
+- CLI converts Observations into explicit Regulator mutations (no implicit state changes)
 
 **Acceptance**
 
@@ -165,7 +165,7 @@ Principles:
 
 **Acceptance**
 
-- Cortex routes mutations through Membrane before Regulator mutation (as policy)
+- CLI routes mutations through Membrane before Regulator mutation (as policy)
 - Tests cover: blocked action, allowed action with explicit exception note
 - Normative Models with `enforcement: "block"` prevent actions unless exception logged
 
@@ -189,7 +189,7 @@ Principles:
 
 ---
 
-### MP12 — Cortex UI (Only After the Data and Rules Are Honest)
+### MP12 — Web UI (Only After the Data and Rules Are Honest)
 
 - [ ] **Complete**
 
@@ -705,7 +705,7 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 **Concept**: A web visualization that renders the **codebase itself** as a living organism. Self-discovering, zero configuration, grows automatically as the codebase evolves.
 
-**Key Insight**: This is about **code structure**, not application state. State visualization (Variables, Episodes) belongs in Cortex UI. Membrane visualizes the code itself.
+**Key Insight**: This is about **code structure**, not application state. State visualization (Variables, Episodes) belongs in Web UI. Membrane visualizes the code itself.
 
 **What It Shows**:
 
@@ -957,4 +957,4 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 **Why it fits**: "Baseline quiet" — if nothing is wrong, the app shows almost nothing.
 
-**Dependencies**: MP12 (Cortex UI) or an API layer
+**Dependencies**: MP12 (Web UI) or an API layer

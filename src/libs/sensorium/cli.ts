@@ -1,5 +1,5 @@
 // Sensorium organ: minimal CLI input parsing
-// Converts raw argv into typed commands for the Cortex to orchestrate.
+// Converts raw argv into typed commands for the CLI to orchestrate.
 
 import {
   DEFAULT_PERSONAL_NODE,

@@ -13,7 +13,7 @@ When you can run **exactly 4** subagents, the most effective setup is **not** â€
 **Responsibilities**
 
 - Define the sliceâ€™s acceptance criteria (observable behavior + tests).
-- Decide where logic lives (Regulator vs Cortex vs Memory).
+- Decide where logic lives (Regulator vs CLI vs Memory).
 - Make cross-organ API decisions (types, public APIs, boundaries).
 - Integrate and resolve conflicts between parallel changes.
 
@@ -76,5 +76,5 @@ When you can run **exactly 4** subagents, the most effective setup is **not** â€
 
 ## When to Swap Roles
 
-- If the next week is CLI/UX heavy, swap **MemoryOwner** for a **CortexOwner** (owns `src/apps/cortex/*`), keeping FeatureLead + RegulatorOwner + QualityGate.
+- If the next week is CLI/UX heavy, swap **MemoryOwner** for a **CLIOwner** (owns `src/apps/cli/*`), keeping FeatureLead + RegulatorOwner + QualityGate.
 - If the next week is persistence/schema heavy, keep the lineup as-is.

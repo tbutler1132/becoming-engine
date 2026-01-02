@@ -14,7 +14,7 @@ The system is organized into discrete "organs" (modules) with strict boundaries 
 
 ### `/src/apps` (Applications)
 
-- **`cortex`**: The interface (CLI). Orchestrates `Sensorium → Regulator → Memory`.
+- **`cli`**: The command-line interface. Orchestrates `Sensorium → Regulator → Memory`.
 
 ## 🛠 Tech Stack
 
@@ -45,7 +45,7 @@ npm run test:watch
 npm run test:memory
 ```
 
-## 🧠 Cortex CLI
+## 🧠 CLI Usage
 
 ```bash
 # Status dashboard (quiet on baseline)

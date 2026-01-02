@@ -4,7 +4,7 @@ The Sensorium organ is responsible for **Input Parsing**: converting raw externa
 
 ## 🎯 Role
 
-Sensorium is the system's sensory layer. It takes unstructured input (CLI arguments) and produces structured, validated commands for the Cortex to orchestrate.
+Sensorium is the system's sensory layer. It takes unstructured input (CLI arguments) and produces structured, validated commands for the CLI to orchestrate.
 
 ## 🧠 Responsibilities
 

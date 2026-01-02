@@ -1,5 +1,5 @@
-// Cortex CLI: interpretive surface that orchestrates Sensorium → Regulator → Memory
-// Cortex owns no authority; it never mutates State directly.
+// CLI: interpretive surface that orchestrates Sensorium → Regulator → Memory
+// The CLI owns no authority; it never mutates State directly.
 
 import { JsonStore } from "../../libs/memory/index.js";
 import {
@@ -155,6 +155,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err: unknown) => {
-  console.error("Cortex CLI error:", err);
+  console.error("CLI error:", err);
   process.exit(1);
 });

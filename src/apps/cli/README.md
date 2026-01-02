@@ -1,6 +1,6 @@
-# Cortex (CLI App)
+# CLI App
 
-The Cortex is the **interpretive surface** of the system. It owns no authority.
+The CLI is the **command-line interface** of the system. It owns no authority.
 
 ## Role
 
@@ -24,7 +24,7 @@ npm run becoming:status
 
 #### `status`
 
-Shows a minimal dashboard for a node. If a node is in baseline (no active episodes), output is intentionally quiet (“Silence is Success”).
+Shows a minimal dashboard for a node. If a node is in baseline (no active episodes), output is intentionally quiet ("Silence is Success").
 
 ```bash
 npm run becoming:dev -- status --node Personal:personal

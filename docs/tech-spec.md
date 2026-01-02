@@ -325,11 +325,11 @@ Normative Models may:
 
 ---
 
-## 6. Cortex (UI Layer)
+## 6. UI Layer
 
 ### 6.1 Responsibilities
 
-The Cortex:
+The UI:
 
 - visualizes Variable states
 - shows active Episodes

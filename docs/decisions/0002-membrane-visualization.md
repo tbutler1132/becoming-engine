@@ -8,7 +8,7 @@ Proposed (not yet implemented)
 
 Codebases are opaque. You either read the code or you don't understand it. Traditional documentation goes stale. Architecture diagrams are static and disconnected from reality.
 
-The Becoming Engine uses an **organ metaphor**: Memory, Regulator, Sensorium, Cortex. Each is a module with clear responsibilities and boundaries. This metaphor is powerful for understanding—but currently it only exists in documentation.
+The Becoming Engine uses an **organ metaphor**: Memory, Regulator, Sensorium. Each is a module with clear responsibilities and boundaries. This metaphor is powerful for understanding—but currently it only exists in documentation.
 
 We want a **living visualization** that:
 
@@ -24,7 +24,7 @@ Propose a web-based visualization called **Membrane** that renders the codebase 
 ### Core Principles
 
 1. **Self-Discovering**: Scans directories, parses READMEs, infers imports—no manual configuration
-2. **Code-Focused**: Visualizes code structure, not application state (that's Cortex's job)
+2. **Code-Focused**: Visualizes code structure, not application state (that's the UI's job)
 3. **Generic**: Works for any TypeScript codebase with the same conventions
 4. **Accessible**: Non-technical viewers understand what modules do through plain language
 
@@ -38,7 +38,7 @@ Propose a web-based visualization called **Membrane** that renders the codebase 
 
 ### What It Does NOT Visualize
 
-- Application state (Variables, Episodes, Actions) → belongs in Cortex UI
+- Application state (Variables, Episodes, Actions) → belongs in Web UI
 - Runtime behavior → this is static code structure
 - Performance metrics → not a dashboard
 

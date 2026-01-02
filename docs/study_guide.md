@@ -137,7 +137,7 @@ Now see how data flows end-to-end:
 
 ### 4c. Orchestration
 
-**Read:** `src/apps/cortex/cli.ts`
+**Read:** `src/apps/cli/cli.ts`
 
 This ties everything together:
 
@@ -237,7 +237,7 @@ See how schema evolution works:
 | Policy        | `regulator/policy.ts` | Configurable boundaries               |
 | Facade        | `regulator/engine.ts` | Public interface                      |
 | Input         | `sensorium/cli.ts`    | Parse CLI → Commands                  |
-| Orchestration | `cortex/cli.ts`       | Wire everything together              |
+| Orchestration | `cli/cli.ts`          | Wire everything together              |
 
 ---
 
