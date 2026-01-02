@@ -465,16 +465,3 @@ The Becoming Engine is a regulation-first system that formalizes:
 - structure over pressure
 
 Its technical design enforces restraint as a first-class property.
-
----
-
-If you want next, I can:
-
-- map this spec directly to **API endpoints**
-- produce **database schemas**
-- draft a **reference implementation outline**
-- or write **acceptance tests** that encode the philosophy
-
-Just say where you want to go.
-
-[Tech Spec](https://www.notion.so/Tech-Spec-2d91d9b6dd6780f3aaa3d32af587fbf3?pvs=21)

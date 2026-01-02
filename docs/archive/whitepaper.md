@@ -1,12 +1,8 @@
-Below is a **technical whitepaper** version of the project.
-
-This is written in a style suitable for engineers, researchers, advanced users, and technically literate investors.
-
-It is intentionally formal, precise, and implementation-oriented — but still faithful to the philosophical core we developed.
+> **📦 ARCHIVED**: This document has been superseded by `docs/doctrine.md` (philosophy) and `docs/tech-spec.md` (implementation). Retained for historical reference.
 
 ---
 
-# **The Becoming Engine**
+# **The Becoming Engine** (Whitepaper — Archived)
 
 ## A Cybernetic Regulation System for Individuals and Organizations
 
@@ -436,14 +432,3 @@ By intervening only when something is leaking, the system remains light, adaptiv
 When nothing is wrong, it disappears.
 
 That is its success condition.
-
----
-
-If you want next, I can:
-
-- compress this into a **short academic-style paper**
-- adapt it into a **technical spec**
-- translate it into a **product-facing explanation**
-- or map it directly to **code modules and interfaces**
-
-Just tell me where to go next.
