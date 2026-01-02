@@ -7,6 +7,7 @@ import {
   canCreateAction,
   applySignal,
   createAction,
+  completeAction,
   validateEpisodeParams,
   openEpisode,
   closeEpisode,
@@ -989,6 +990,112 @@ describe("Regulator Logic (Pure Functions)", () => {
         expect(result.value.actions).toHaveLength(1);
         expect(result.value.actions[0]?.episodeId).toBe("e1");
         expect(result.value.actions[0]?.status).toBe(ACTION_STATUSES[0]);
+      }
+    });
+  });
+
+  describe("completeAction", () => {
+    it("marks a pending action as done", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [
+          {
+            id: "a1",
+            description: "Do the thing",
+            status: ACTION_STATUSES[0], // Pending
+          },
+        ],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = completeAction(state, { actionId: "a1" });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.actions[0]?.status).toBe(ACTION_STATUSES[1]); // Done
+        // Original state unchanged (pure function)
+        expect(state.actions[0]?.status).toBe(ACTION_STATUSES[0]);
+      }
+    });
+
+    it("fails if action not found", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = completeAction(state, { actionId: "nonexistent" });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("not found");
+      }
+    });
+
+    it("is idempotent - completing already-done action returns success", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [
+          {
+            id: "a1",
+            description: "Already done",
+            status: ACTION_STATUSES[1], // Done
+          },
+        ],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = completeAction(state, { actionId: "a1" });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // State unchanged (already done)
+        expect(result.value.actions[0]?.status).toBe(ACTION_STATUSES[1]);
+      }
+    });
+
+    it("preserves other actions when completing one", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [
+          {
+            id: "a1",
+            description: "First action",
+            status: ACTION_STATUSES[0], // Pending
+          },
+          {
+            id: "a2",
+            description: "Second action",
+            status: ACTION_STATUSES[0], // Pending
+          },
+        ],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = completeAction(state, { actionId: "a1" });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.actions).toHaveLength(2);
+        expect(result.value.actions[0]?.status).toBe(ACTION_STATUSES[1]); // Done
+        expect(result.value.actions[1]?.status).toBe(ACTION_STATUSES[0]); // Still Pending
       }
     });
   });
