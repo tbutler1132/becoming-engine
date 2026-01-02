@@ -1,6 +1,6 @@
 # Becoming Engine
 
-[![CI](https://github.com/timbutler/becoming-engine-v/actions/workflows/ci.yml/badge.svg)](https://github.com/timbutler/becoming-engine-v/actions/workflows/ci.yml)
+[![CI](https://github.com/tbutler1132/becoming-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/tbutler1132/becoming-engine/actions/workflows/ci.yml)
 
 A cybernetic doctrine for preserving viability, enabling learning, and allowing ambition without identity collapse through temporary, bounded interventions.
 
