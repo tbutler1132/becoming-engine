@@ -1,5 +1,7 @@
 # Roadmap (Non-Binding)
 
+<!-- Last reviewed: 2026-01-02 -->
+
 This roadmap is intentionally lightweight. It describes **small, composable micro-projects** that move the system toward the doctrine and tech design without committing to a brittle plan.
 
 Principles:
