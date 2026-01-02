@@ -13,7 +13,7 @@ The Memory organ is responsible for the system's **Ontology** (definitions of re
 - **Atomic Writes**: Uses a temp-and-rename strategy to prevent data corruption if the process dies mid-save.
 - **Concurrency Locking**: Uses a `.lock` file to prevent multiple writers from clobbering the state.
 - **Schema Versioning**: Includes a `schemaVersion` in the state file.
-- **Automated Migration**: Automatically migrates older state files (v0/v1) to the current version (v2) on load.
+- **Automated Migration**: Automatically migrates older state files (v0 through v6) to the current version (v7) on load.
 - **Corruption Recovery**: If a state file is invalid or corrupt, it is backed up to a `.corrupt` file for inspection before the system falls back to a safe seed state.
 
 ## 🔌 Public API

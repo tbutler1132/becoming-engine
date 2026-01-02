@@ -10,8 +10,10 @@ import type {
   LinkRelation,
   ModelScope,
   ModelType,
+  MutationType,
   NodeRef,
   NoteTag,
+  OverrideDecision,
   Variable,
   VariableStatus,
 } from "../memory/index.js";
@@ -138,6 +140,17 @@ export interface CreateLinkParams {
 /** Params for deleting a link */
 export interface DeleteLinkParams {
   linkId: string;
+}
+
+/** Params for logging a Membrane exception */
+export interface LogExceptionParams {
+  exceptionId: string;
+  modelId: string;
+  originalDecision: OverrideDecision;
+  justification: string;
+  mutationType: MutationType;
+  mutationId: string;
+  createdAt: string;
 }
 
 /**

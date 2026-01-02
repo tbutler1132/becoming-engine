@@ -6,7 +6,10 @@
 import { JsonStore } from "../../libs/memory/index.js";
 import type { EpisodeType, NodeRef, State } from "../../libs/memory/index.js";
 import { checkEpisodeConstraints } from "../../libs/membrane/index.js";
-import type { MembraneResult } from "../../libs/membrane/index.js";
+import type {
+  MembraneResult,
+  MembraneWarning,
+} from "../../libs/membrane/index.js";
 import { getStatusData, Regulator } from "../../libs/regulator/index.js";
 import type { Result } from "../../libs/regulator/index.js";
 import { parseCli, parseObservation } from "../../libs/sensorium/index.js";
@@ -15,39 +18,151 @@ import { formatStatus } from "./format.js";
 import * as crypto from "node:crypto";
 
 /**
+ * Result of checking Membrane constraints for episode opening.
+ * Contains the decision and any warnings/exceptions to log.
+ */
+interface MembraneCheckResult {
+  proceed: boolean;
+  /** Warnings to log as exceptions after mutation succeeds */
+  warningsToLog: MembraneWarning[];
+  /** Block override to log as exception after mutation succeeds */
+  blockOverride?: { modelId: string; justification: string };
+}
+
+/**
  * Checks Membrane constraints for episode opening.
- * If blocked, exits with error. If warned, prints warnings.
- * Returns true if mutation should proceed.
+ *
+ * @param state Current state
+ * @param node Node to check
+ * @param episodeType Type of episode being opened
+ * @param override Optional justification for overriding a block
+ * @returns MembraneCheckResult indicating whether to proceed and what to log
  */
 function checkMembraneForEpisode(
   state: State,
   node: NodeRef,
   episodeType: EpisodeType,
-): boolean {
+  override?: string,
+): MembraneCheckResult {
   const result: MembraneResult = checkEpisodeConstraints(state, {
     node,
     episodeType,
   });
 
   if (result.decision === "block") {
+    // Check if override is provided and allowed
+    if (override && override.trim().length > 0) {
+      if (result.exceptionAllowed) {
+        console.warn(
+          `Override applied for [${result.modelId}]: ${result.reason}`,
+        );
+        console.warn(`Justification: ${override}`);
+        return {
+          proceed: true,
+          warningsToLog: [],
+          blockOverride: { modelId: result.modelId, justification: override },
+        };
+      } else {
+        console.error(
+          `Blocked by Normative Model [${result.modelId}]: ${result.reason}`,
+        );
+        console.error("This constraint does not allow exceptions.");
+        process.exit(1);
+      }
+    }
+
+    // No override provided, show how to override if allowed
     console.error(
       `Blocked by Normative Model [${result.modelId}]: ${result.reason}`,
     );
+    if (result.exceptionAllowed) {
+      console.error(
+        'To override, add: --override "Your justification for proceeding"',
+      );
+    }
     process.exit(1);
   }
 
   if (result.decision === "warn") {
+    // Collect warnings that allow exceptions
+    const warningsToLog = result.warnings.filter((w) => w.exceptionAllowed);
+
     for (const warning of result.warnings) {
       console.warn(`Warning [${warning.modelId}]: ${warning.statement}`);
     }
+
+    return { proceed: true, warningsToLog };
   }
 
-  return true;
+  return { proceed: true, warningsToLog: [] };
+}
+
+/**
+ * Logs membrane exceptions after a mutation succeeds.
+ */
+async function logMembraneExceptions(
+  state: State,
+  regulator: Regulator,
+  store: JsonStore,
+  mutationId: string,
+  checkResult: MembraneCheckResult,
+): Promise<State> {
+  let currentState = state;
+
+  // Log block override if present
+  if (checkResult.blockOverride) {
+    const exceptionId = crypto.randomUUID();
+    const result = regulator.logException(currentState, {
+      exceptionId,
+      modelId: checkResult.blockOverride.modelId,
+      originalDecision: "block",
+      justification: checkResult.blockOverride.justification,
+      mutationType: "episode",
+      mutationId,
+      createdAt: new Date().toISOString(),
+    });
+    if (result.ok) {
+      currentState = result.value;
+    }
+  }
+
+  // Log warnings as exceptions
+  for (const warning of checkResult.warningsToLog) {
+    const exceptionId = crypto.randomUUID();
+    const result = regulator.logException(currentState, {
+      exceptionId,
+      modelId: warning.modelId,
+      originalDecision: "warn",
+      justification: "Acknowledged warning and proceeded",
+      mutationType: "episode",
+      mutationId,
+      createdAt: new Date().toISOString(),
+    });
+    if (result.ok) {
+      currentState = result.value;
+    }
+  }
+
+  // Save if any exceptions were logged
+  if (checkResult.blockOverride || checkResult.warningsToLog.length > 0) {
+    await store.save(currentState);
+  }
+
+  return currentState;
 }
 
 function printStatus(state: State, node: NodeRef): void {
   const data = getStatusData(state, node);
   console.log(formatStatus(data));
+}
+
+/**
+ * Result of interpreting an observation, includes both state and membrane context.
+ */
+interface InterpretResult {
+  result: Result<State>;
+  episodeId?: string;
+  membraneCheck?: MembraneCheckResult;
 }
 
 /**
@@ -58,7 +173,7 @@ function printStatus(state: State, node: NodeRef): void {
  * "Sensorium never triggers Actions directly" — the CLI does.
  *
  * **Contract:**
- * - Returns: Result<State> with new state if mutation succeeds
+ * - Returns: InterpretResult with mutation result and membrane context
  * - Parameters: observation (what was sensed), state (current), regulator
  * - Maps observation types to Regulator methods:
  *   - variableProxySignal → signal()
@@ -69,51 +184,67 @@ function interpretObservation(
   observation: Observation,
   state: State,
   regulator: Regulator,
-): Result<State> {
+): InterpretResult {
   switch (observation.type) {
     case "variableProxySignal":
-      return regulator.signal(state, {
-        node: observation.node,
-        variableId: observation.variableId,
-        status: observation.status,
-      });
+      return {
+        result: regulator.signal(state, {
+          node: observation.node,
+          variableId: observation.variableId,
+          status: observation.status,
+        }),
+      };
 
     case "freeformNote": {
       const noteId = crypto.randomUUID();
       const createdAt = new Date().toISOString();
-      return regulator.createNote(state, {
-        noteId,
-        content: observation.content,
-        createdAt,
-        ...(observation.tags ? { tags: observation.tags } : {}),
-      });
+      return {
+        result: regulator.createNote(state, {
+          noteId,
+          content: observation.content,
+          createdAt,
+          ...(observation.tags ? { tags: observation.tags } : {}),
+        }),
+      };
     }
 
     case "episodeProposal": {
-      // Gate through Membrane before opening episode
-      checkMembraneForEpisode(state, observation.node, observation.episodeType);
+      // Gate through Membrane before opening episode (observe flow has no override)
+      const membraneCheck = checkMembraneForEpisode(
+        state,
+        observation.node,
+        observation.episodeType,
+      );
 
       const episodeId = crypto.randomUUID();
       const openedAt = new Date().toISOString();
 
       if (observation.episodeType === "Stabilize") {
-        return regulator.openEpisode(state, {
+        return {
+          result: regulator.openEpisode(state, {
+            episodeId,
+            node: observation.node,
+            type: observation.episodeType,
+            variableId: observation.variableId as string,
+            objective: observation.objective,
+            openedAt,
+          }),
+          episodeId,
+          membraneCheck,
+        };
+      }
+
+      return {
+        result: regulator.openEpisode(state, {
           episodeId,
           node: observation.node,
           type: observation.episodeType,
-          variableId: observation.variableId as string,
           objective: observation.objective,
           openedAt,
-        });
-      }
-
-      return regulator.openEpisode(state, {
+        }),
         episodeId,
-        node: observation.node,
-        type: observation.episodeType,
-        objective: observation.objective,
-        openedAt,
-      });
+        membraneCheck,
+      };
     }
   }
 }
@@ -136,14 +267,26 @@ async function main(): Promise<void> {
     }
 
     const observation = observationResult.value;
-    const result = interpretObservation(observation, state, regulator);
+    const interpreted = interpretObservation(observation, state, regulator);
 
-    if (!result.ok) {
-      console.error(result.error);
+    if (!interpreted.result.ok) {
+      console.error(interpreted.result.error);
       process.exit(1);
     }
 
-    await store.save(result.value);
+    let finalState = interpreted.result.value;
+    await store.save(finalState);
+
+    // Log membrane exceptions if this was an episode proposal
+    if (interpreted.membraneCheck && interpreted.episodeId) {
+      finalState = await logMembraneExceptions(
+        finalState,
+        regulator,
+        store,
+        interpreted.episodeId,
+        interpreted.membraneCheck,
+      );
+    }
 
     // Confirmation message based on observation type
     switch (observation.type) {
@@ -215,8 +358,13 @@ async function main(): Promise<void> {
   }
 
   if (command.kind === "open") {
-    // Gate through Membrane before opening episode
-    checkMembraneForEpisode(state, command.node, command.type);
+    // Gate through Membrane before opening episode (with optional override)
+    const membraneCheck = checkMembraneForEpisode(
+      state,
+      command.node,
+      command.type,
+      command.override,
+    );
 
     const episodeId = crypto.randomUUID();
     const openedAt = new Date().toISOString();
@@ -246,7 +394,18 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    await store.save(result.value);
+    let finalState = result.value;
+    await store.save(finalState);
+
+    // Log membrane exceptions after successful mutation
+    finalState = await logMembraneExceptions(
+      finalState,
+      regulator,
+      store,
+      episodeId,
+      membraneCheck,
+    );
+
     console.log(`Episode opened: ${episodeId}`);
     return;
   }

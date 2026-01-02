@@ -25,6 +25,8 @@ import {
   LINK_RELATIONS,
   OBSERVATION_TYPES,
   SIGNAL_EVENT_TYPES,
+  MUTATION_TYPES,
+  OVERRIDE_DECISIONS,
   MAX_ACTIVE_EXPLORE_PER_NODE,
   MAX_ACTIVE_STABILIZE_PER_VARIABLE,
   SCHEMA_VERSION,
@@ -99,6 +101,14 @@ describe("DNA Integrity (Tripwire)", () => {
     it("has expected signal event types", () => {
       expect(SIGNAL_EVENT_TYPES).toEqual(["intent", "status", "completion"]);
     });
+
+    it("has expected mutation types", () => {
+      expect(MUTATION_TYPES).toEqual(["episode", "action", "signal"]);
+    });
+
+    it("has expected override decisions", () => {
+      expect(OVERRIDE_DECISIONS).toEqual(["warn", "block"]);
+    });
   });
 
   describe("Regulatory Limits", () => {
@@ -113,7 +123,7 @@ describe("DNA Integrity (Tripwire)", () => {
 
   describe("Schema Version", () => {
     it("has expected schema version", () => {
-      expect(SCHEMA_VERSION).toBe(7);
+      expect(SCHEMA_VERSION).toBe(8);
     });
   });
 });

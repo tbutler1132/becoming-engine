@@ -16,7 +16,12 @@ import {
   isValidLegacyStateV6,
   nodeRefFromLegacy,
 } from "./validation.js";
-import { migrateV4ToV5, migrateV5ToV6, migrateV6ToV7 } from "./migrations.js";
+import {
+  migrateV4ToV5,
+  migrateV5ToV6,
+  migrateV6ToV7,
+  migrateV7ToV8,
+} from "./migrations.js";
 import {
   SCHEMA_VERSION,
   ACTION_STATUSES,
@@ -74,6 +79,7 @@ function createValidStateV7(): unknown {
     ],
     models: [],
     links: [],
+    exceptions: [],
   };
 }
 
@@ -86,6 +92,7 @@ function createMinimalValidStateV7(): unknown {
     notes: [],
     models: [],
     links: [],
+    exceptions: [],
   };
 }
 
@@ -332,6 +339,7 @@ describe("isValidState", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -352,6 +360,7 @@ describe("isValidState", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -372,6 +381,7 @@ describe("isValidState", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1311,6 +1321,7 @@ describe("isValidState - Model Validation", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1330,6 +1341,7 @@ describe("isValidState - Model Validation", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1352,6 +1364,7 @@ describe("isValidState - Model Validation", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1383,6 +1396,7 @@ describe("isValidState - Model Validation", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1409,6 +1423,7 @@ describe("isValidState - Model Validation", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1802,14 +1817,14 @@ describe("migrateV6ToV7", () => {
 
     const v7State = migrateV6ToV7(v6State);
 
-    expect(v7State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v7State.schemaVersion).toBe(7);
     expect(v7State.links).toEqual([]);
     // Preserves existing data
     expect(v7State.variables).toEqual(v6State.variables);
     expect(v7State.notes).toEqual(v6State.notes);
   });
 
-  it("produces valid current state", () => {
+  it("produces valid V7 state (for further migration)", () => {
     const v6State = {
       schemaVersion: 6 as const,
       variables: [
@@ -1834,11 +1849,12 @@ describe("migrateV6ToV7", () => {
     };
 
     const v7State = migrateV6ToV7(v6State);
+    const v8State = migrateV7ToV8(v7State);
 
-    expect(isValidState(v7State)).toBe(true);
+    expect(isValidState(v8State)).toBe(true);
   });
 
-  it("full migration chain V4 -> V5 -> V6 -> V7 produces valid state", () => {
+  it("full migration chain V4 -> V5 -> V6 -> V7 -> V8 produces valid state", () => {
     const v4State = {
       schemaVersion: 4 as const,
       variables: [
@@ -1863,14 +1879,88 @@ describe("migrateV6ToV7", () => {
       notes: [{ id: "n1", content: "Note" }],
     };
 
-    const v7State = migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State)));
+    const v8State = migrateV7ToV8(
+      migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State))),
+    );
 
-    expect(v7State.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(v7State.models).toEqual([]);
-    expect(v7State.links).toEqual([]);
-    expect(v7State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
-    expect(v7State.notes[0]?.tags).toEqual([]);
-    expect(isValidState(v7State)).toBe(true);
+    expect(v8State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v8State.models).toEqual([]);
+    expect(v8State.links).toEqual([]);
+    expect(v8State.exceptions).toEqual([]);
+    expect(v8State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
+    expect(v8State.notes[0]?.tags).toEqual([]);
+    expect(isValidState(v8State)).toBe(true);
+  });
+});
+
+// ============================================================================
+// migrateV7ToV8 Tests
+// ============================================================================
+
+describe("migrateV7ToV8", () => {
+  it("adds empty exceptions array and sets schemaVersion to 8", () => {
+    const v7State = {
+      schemaVersion: 7 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+      links: [],
+    };
+
+    const v8State = migrateV7ToV8(v7State);
+
+    expect(v8State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v8State.exceptions).toEqual([]);
+    // Preserves existing data
+    expect(v8State.variables).toEqual(v7State.variables);
+    expect(v8State.notes).toEqual(v7State.notes);
+    expect(v8State.links).toEqual(v7State.links);
+  });
+
+  it("produces valid current state", () => {
+    const v7State = {
+      schemaVersion: 7 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+      links: [],
+    };
+
+    const v8State = migrateV7ToV8(v7State);
+
+    expect(isValidState(v8State)).toBe(true);
   });
 });
 
@@ -1915,6 +2005,7 @@ describe("isValidState - Link Validation", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1948,6 +2039,7 @@ describe("isValidState - Link Validation", () => {
             relation: LINK_RELATIONS[0], // "supports"
           },
         ],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1976,6 +2068,7 @@ describe("isValidState - Link Validation", () => {
             weight: 0.75,
           },
         ],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -2011,6 +2104,7 @@ describe("isValidState - Link Validation", () => {
             weight: 1.0,
           },
         ],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -2036,6 +2130,7 @@ describe("isValidState - Link Validation", () => {
           targetId: "v1",
           relation,
         })),
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(true);
     });

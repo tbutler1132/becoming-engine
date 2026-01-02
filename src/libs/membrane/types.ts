@@ -18,6 +18,8 @@ export type { Result } from "../shared/index.js";
 export interface MembraneWarning {
   modelId: string;
   statement: string;
+  /** Whether an exception can be logged for this warning */
+  exceptionAllowed: boolean;
 }
 
 /**
@@ -25,13 +27,18 @@ export interface MembraneWarning {
  * Discriminated union: allow | warn | block
  *
  * - allow: No blocking constraints, proceed with mutation
- * - warn: Proceed but surface warnings to user
- * - block: Mutation is forbidden by a Normative Model
+ * - warn: Proceed but surface warnings to user (exceptionAllowed indicates if exceptions can be logged)
+ * - block: Mutation is forbidden by a Normative Model (exceptionAllowed indicates if override is possible)
  */
 export type MembraneResult =
   | { decision: "allow" }
   | { decision: "warn"; warnings: MembraneWarning[] }
-  | { decision: "block"; reason: string; modelId: string };
+  | {
+      decision: "block";
+      reason: string;
+      modelId: string;
+      exceptionAllowed: boolean;
+    };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CHECK CONTEXTS — Input for different mutation types
