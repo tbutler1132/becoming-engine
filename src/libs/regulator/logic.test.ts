@@ -15,6 +15,8 @@ import {
   createNote,
   addNoteTag,
   removeNoteTag,
+  createLink,
+  deleteLink,
 } from "./logic.js";
 import {
   DEFAULT_PERSONAL_NODE,
@@ -26,6 +28,7 @@ import {
   MODEL_TYPES,
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
+  LINK_RELATIONS,
   NOTE_TAGS,
   SCHEMA_VERSION,
 } from "../memory/index.js";
@@ -59,6 +62,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const personalVars = getVariablesByNode(state, DEFAULT_PERSONAL_NODE);
@@ -106,6 +110,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const personalActive = getActiveEpisodesByNode(
@@ -152,6 +157,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const count = countActiveExplores(state, DEFAULT_PERSONAL_NODE);
@@ -168,6 +174,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
@@ -191,6 +198,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
@@ -219,6 +227,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = canStartExplore(state, DEFAULT_ORG_NODE);
@@ -250,6 +259,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const policyTwo: RegulatorPolicyForNode = {
@@ -285,6 +295,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = canCreateAction(state, {
@@ -310,6 +321,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = canCreateAction(state, {
@@ -357,6 +369,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const openedAt = "2025-01-01T12:00:00.000Z";
@@ -390,6 +403,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const params = {
@@ -422,6 +436,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const params = {
@@ -454,6 +469,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const sameVariable = openEpisode(state, {
@@ -496,6 +512,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const closedAt = "2025-01-01T12:00:00.000Z";
@@ -548,6 +565,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = closeEpisode(state, {
@@ -572,6 +590,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = closeEpisode(state, {
@@ -603,6 +622,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = closeEpisode(state, {
@@ -633,6 +653,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = closeEpisode(state, {
@@ -663,6 +684,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = closeEpisode(state, {
@@ -699,6 +721,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = applySignal(state, {
@@ -727,6 +750,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createAction(state, {
@@ -749,6 +773,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createAction(state, {
@@ -777,6 +802,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const wrongNode = createAction(state, {
@@ -806,6 +832,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createAction(state, {
@@ -834,6 +861,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createAction(state, {
@@ -860,6 +888,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createModel(state, {
@@ -889,6 +918,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createModel(state, {
@@ -916,6 +946,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createModel(state, {
@@ -938,6 +969,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createModel(state, {
@@ -957,6 +989,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createModel(state, {
@@ -980,6 +1013,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createModel(state, {
@@ -1006,6 +1040,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             statement: "Existing model",
           },
         ],
+        links: [],
       };
 
       const result = createModel(state, {
@@ -1036,6 +1071,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             statement: "Original statement",
           },
         ],
+        links: [],
       };
 
       const result = updateModel(state, {
@@ -1066,6 +1102,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             confidence: 0.5,
           },
         ],
+        links: [],
       };
 
       const result = updateModel(state, {
@@ -1093,6 +1130,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             statement: "Original",
           },
         ],
+        links: [],
       };
 
       const result = updateModel(state, {
@@ -1118,6 +1156,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = updateModel(state, {
@@ -1145,6 +1184,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             statement: "Original",
           },
         ],
+        links: [],
       };
 
       const result = updateModel(state, {
@@ -1169,6 +1209,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             statement: "Test",
           },
         ],
+        links: [],
       };
 
       const result = updateModel(state, {
@@ -1189,6 +1230,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const createdAt = "2025-01-01T12:00:00.000Z";
@@ -1218,6 +1260,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createNote(state, {
@@ -1241,6 +1284,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createNote(state, {
@@ -1267,6 +1311,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = createNote(state, {
@@ -1296,6 +1341,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         models: [],
+        links: [],
       };
 
       const result = createNote(state, {
@@ -1327,6 +1373,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         models: [],
+        links: [],
       };
 
       const result = addNoteTag(state, {
@@ -1357,6 +1404,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         models: [],
+        links: [],
       };
 
       const result = addNoteTag(state, {
@@ -1380,6 +1428,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = addNoteTag(state, {
@@ -1410,6 +1459,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         models: [],
+        links: [],
       };
 
       const result = removeNoteTag(state, {
@@ -1440,6 +1490,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         models: [],
+        links: [],
       };
 
       const result = removeNoteTag(state, {
@@ -1463,12 +1514,474 @@ describe("Regulator Logic (Pure Functions)", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
 
       const result = removeNoteTag(state, {
         noteId: "nonexistent",
         tag: "inbox",
       });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("not found");
+      }
+    });
+  });
+
+  describe("createLink", () => {
+    it("creates a link between two existing objects", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+          },
+        ],
+        models: [],
+        links: [],
+      };
+
+      const result = createLink(state, {
+        linkId: "l1",
+        sourceId: "v1",
+        targetId: "n1",
+        relation: LINK_RELATIONS[0], // "supports"
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.links).toHaveLength(1);
+        expect(result.value.links[0]).toEqual({
+          id: "l1",
+          sourceId: "v1",
+          targetId: "n1",
+          relation: "supports",
+        });
+        // Original state unchanged
+        expect(state.links).toHaveLength(0);
+      }
+    });
+
+    it("creates a link with optional weight", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: VARIABLE_STATUSES[1],
+          },
+          {
+            id: "v2",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Continuity",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      const result = createLink(state, {
+        linkId: "l1",
+        sourceId: "v1",
+        targetId: "v2",
+        relation: "supports",
+        weight: 0.75,
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.links[0]?.weight).toBe(0.75);
+      }
+    });
+
+    it("accepts weight at boundary values (0.0 and 1.0)", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+          {
+            id: "v2",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V2",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      const result1 = createLink(state, {
+        linkId: "l1",
+        sourceId: "v1",
+        targetId: "v2",
+        relation: "supports",
+        weight: 0.0,
+      });
+      expect(result1.ok).toBe(true);
+
+      const result2 = createLink(state, {
+        linkId: "l2",
+        sourceId: "v1",
+        targetId: "v2",
+        relation: "supports",
+        weight: 1.0,
+      });
+      expect(result2.ok).toBe(true);
+    });
+
+    it("fails on invalid relation type", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      const result = createLink(state, {
+        linkId: "l1",
+        sourceId: "v1",
+        targetId: "v1",
+        relation: "invalid_relation" as "supports",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("Invalid link relation");
+      }
+    });
+
+    it("fails on weight below 0", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      const result = createLink(state, {
+        linkId: "l1",
+        sourceId: "v1",
+        targetId: "v1",
+        relation: "supports",
+        weight: -0.1,
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("weight must be between 0.0 and 1.0");
+      }
+    });
+
+    it("fails on weight above 1", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      const result = createLink(state, {
+        linkId: "l1",
+        sourceId: "v1",
+        targetId: "v1",
+        relation: "supports",
+        weight: 1.1,
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("weight must be between 0.0 and 1.0");
+      }
+    });
+
+    it("fails on duplicate link ID", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "supports",
+          },
+        ],
+      };
+
+      const result = createLink(state, {
+        linkId: "l1",
+        sourceId: "v1",
+        targetId: "v1",
+        relation: "tests",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("already exists");
+      }
+    });
+
+    it("fails on non-existent sourceId (referential integrity)", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      const result = createLink(state, {
+        linkId: "l1",
+        sourceId: "nonexistent",
+        targetId: "v1",
+        relation: "supports",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("Source object 'nonexistent' not found");
+      }
+    });
+
+    it("fails on non-existent targetId (referential integrity)", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      const result = createLink(state, {
+        linkId: "l1",
+        sourceId: "v1",
+        targetId: "nonexistent",
+        relation: "supports",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("Target object 'nonexistent' not found");
+      }
+    });
+
+    it("can link to any object type (variable, episode, action, note, model, link)", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1],
+            objective: "Test",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [
+          {
+            id: "a1",
+            description: "Test action",
+            status: ACTION_STATUSES[0],
+          },
+        ],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+          },
+        ],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Test model",
+          },
+        ],
+        links: [],
+      };
+
+      // Link variable to episode
+      const r1 = createLink(state, {
+        linkId: "l1",
+        sourceId: "v1",
+        targetId: "e1",
+        relation: "supports",
+      });
+      expect(r1.ok).toBe(true);
+
+      // Link action to note
+      const r2 = createLink(state, {
+        linkId: "l2",
+        sourceId: "a1",
+        targetId: "n1",
+        relation: "responds_to",
+      });
+      expect(r2.ok).toBe(true);
+
+      // Link model to variable
+      const r3 = createLink(state, {
+        linkId: "l3",
+        sourceId: "m1",
+        targetId: "v1",
+        relation: "tests",
+      });
+      expect(r3.ok).toBe(true);
+    });
+  });
+
+  describe("deleteLink", () => {
+    it("deletes an existing link", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "supports",
+          },
+          {
+            id: "l2",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "tests",
+          },
+        ],
+      };
+
+      const result = deleteLink(state, { linkId: "l1" });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.links).toHaveLength(1);
+        expect(result.value.links[0]?.id).toBe("l2");
+        // Original state unchanged
+        expect(state.links).toHaveLength(2);
+      }
+    });
+
+    it("fails on non-existent link", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      const result = deleteLink(state, { linkId: "nonexistent" });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {

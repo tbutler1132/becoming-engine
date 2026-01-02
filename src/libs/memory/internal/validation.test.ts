@@ -13,9 +13,10 @@ import {
   isValidLegacyStateV1,
   isValidLegacyStateV0,
   isValidLegacyStateV4,
+  isValidLegacyStateV6,
   nodeRefFromLegacy,
 } from "./validation.js";
-import { migrateV4ToV5, migrateV5ToV6 } from "./migrations.js";
+import { migrateV4ToV5, migrateV5ToV6, migrateV6ToV7 } from "./migrations.js";
 import {
   SCHEMA_VERSION,
   ACTION_STATUSES,
@@ -25,6 +26,7 @@ import {
   MODEL_TYPES,
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
+  LINK_RELATIONS,
   DEFAULT_PERSONAL_NODE,
   DEFAULT_ORG_NODE,
 } from "../types.js";
@@ -33,7 +35,7 @@ import {
 // Factory Functions for Valid States
 // ============================================================================
 
-function createValidStateV4(): unknown {
+function createValidStateV7(): unknown {
   return {
     schemaVersion: SCHEMA_VERSION,
     variables: [
@@ -71,16 +73,97 @@ function createValidStateV4(): unknown {
       },
     ],
     models: [],
+    links: [],
   };
 }
 
-function createMinimalValidStateV4(): unknown {
+function createMinimalValidStateV7(): unknown {
   return {
     schemaVersion: SCHEMA_VERSION,
     variables: [],
     episodes: [],
     actions: [],
     notes: [],
+    models: [],
+    links: [],
+  };
+}
+
+function createValidStateV4(): unknown {
+  return {
+    schemaVersion: 4,
+    variables: [
+      {
+        id: "v1",
+        node: DEFAULT_PERSONAL_NODE,
+        name: "Agency",
+        status: VARIABLE_STATUSES[1],
+      },
+    ],
+    episodes: [
+      {
+        id: "e1",
+        node: DEFAULT_PERSONAL_NODE,
+        type: EPISODE_TYPES[0],
+        objective: "Test objective",
+        status: EPISODE_STATUSES[0],
+        openedAt: "2025-01-01T00:00:00.000Z",
+      },
+    ],
+    actions: [
+      {
+        id: "a1",
+        description: "Test action",
+        status: ACTION_STATUSES[0],
+        episodeId: "e1",
+      },
+    ],
+    notes: [
+      {
+        id: "n1",
+        content: "Test note",
+      },
+    ],
+  };
+}
+
+function createValidStateV6(): unknown {
+  return {
+    schemaVersion: 6,
+    variables: [
+      {
+        id: "v1",
+        node: DEFAULT_PERSONAL_NODE,
+        name: "Agency",
+        status: VARIABLE_STATUSES[1],
+      },
+    ],
+    episodes: [
+      {
+        id: "e1",
+        node: DEFAULT_PERSONAL_NODE,
+        type: EPISODE_TYPES[0],
+        objective: "Test objective",
+        status: EPISODE_STATUSES[0],
+        openedAt: "2025-01-01T00:00:00.000Z",
+      },
+    ],
+    actions: [
+      {
+        id: "a1",
+        description: "Test action",
+        status: ACTION_STATUSES[0],
+        episodeId: "e1",
+      },
+    ],
+    notes: [
+      {
+        id: "n1",
+        content: "Test note",
+        createdAt: "2025-01-01T00:00:00.000Z",
+        tags: [],
+      },
+    ],
     models: [],
   };
 }
@@ -221,11 +304,11 @@ function createValidStateV0(): unknown {
 describe("isValidState", () => {
   describe("valid cases", () => {
     it("accepts minimal valid state (empty arrays)", () => {
-      expect(isValidState(createMinimalValidStateV4())).toBe(true);
+      expect(isValidState(createMinimalValidStateV7())).toBe(true);
     });
 
     it("accepts state with all entity types", () => {
-      expect(isValidState(createValidStateV4())).toBe(true);
+      expect(isValidState(createValidStateV7())).toBe(true);
     });
 
     it("accepts state with all optional episode fields", () => {
@@ -248,6 +331,7 @@ describe("isValidState", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -267,6 +351,7 @@ describe("isValidState", () => {
         ],
         notes: [],
         models: [],
+        links: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -286,6 +371,7 @@ describe("isValidState", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1224,6 +1310,7 @@ describe("isValidState - Model Validation", () => {
         actions: [],
         notes: [],
         models: [],
+        links: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1242,6 +1329,7 @@ describe("isValidState - Model Validation", () => {
             statement: "Test belief",
           },
         ],
+        links: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1263,6 +1351,7 @@ describe("isValidState - Model Validation", () => {
             enforcement: ENFORCEMENT_LEVELS[2], // block
           },
         ],
+        links: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1293,6 +1382,7 @@ describe("isValidState - Model Validation", () => {
             scope: MODEL_SCOPES[2], // domain
           },
         ],
+        links: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1318,6 +1408,7 @@ describe("isValidState - Model Validation", () => {
             confidence: 1.0,
           },
         ],
+        links: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1648,7 +1739,7 @@ describe("migrateV5ToV6", () => {
 
     const v6State = migrateV5ToV6(v5State);
 
-    expect(v6State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v6State.schemaVersion).toBe(6);
     expect(v6State.notes).toHaveLength(2);
     expect(v6State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
     expect(v6State.notes[0]?.tags).toEqual([]);
@@ -1656,7 +1747,7 @@ describe("migrateV5ToV6", () => {
     expect(v6State.notes[1]?.tags).toEqual([]);
   });
 
-  it("produces valid current state", () => {
+  it("produces V6 state (not valid current state, needs V7 migration)", () => {
     const v5State = {
       schemaVersion: 5 as const,
       variables: [
@@ -1675,10 +1766,79 @@ describe("migrateV5ToV6", () => {
 
     const v6State = migrateV5ToV6(v5State);
 
-    expect(isValidState(v6State)).toBe(true);
+    expect(v6State.schemaVersion).toBe(6);
+    expect(isValidLegacyStateV6(v6State)).toBe(true);
+  });
+});
+
+// ============================================================================
+// migrateV6ToV7 Tests
+// ============================================================================
+
+describe("migrateV6ToV7", () => {
+  it("adds empty links array and sets schemaVersion to 7", () => {
+    const v6State = {
+      schemaVersion: 6 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+    };
+
+    const v7State = migrateV6ToV7(v6State);
+
+    expect(v7State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v7State.links).toEqual([]);
+    // Preserves existing data
+    expect(v7State.variables).toEqual(v6State.variables);
+    expect(v7State.notes).toEqual(v6State.notes);
   });
 
-  it("full migration chain V4 -> V5 -> V6 produces valid state", () => {
+  it("produces valid current state", () => {
+    const v6State = {
+      schemaVersion: 6 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+    };
+
+    const v7State = migrateV6ToV7(v6State);
+
+    expect(isValidState(v7State)).toBe(true);
+  });
+
+  it("full migration chain V4 -> V5 -> V6 -> V7 produces valid state", () => {
     const v4State = {
       schemaVersion: 4 as const,
       variables: [
@@ -1703,12 +1863,379 @@ describe("migrateV5ToV6", () => {
       notes: [{ id: "n1", content: "Note" }],
     };
 
-    const v6State = migrateV5ToV6(migrateV4ToV5(v4State));
+    const v7State = migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State)));
 
-    expect(v6State.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(v6State.models).toEqual([]);
-    expect(v6State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
-    expect(v6State.notes[0]?.tags).toEqual([]);
-    expect(isValidState(v6State)).toBe(true);
+    expect(v7State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v7State.models).toEqual([]);
+    expect(v7State.links).toEqual([]);
+    expect(v7State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
+    expect(v7State.notes[0]?.tags).toEqual([]);
+    expect(isValidState(v7State)).toBe(true);
+  });
+});
+
+// ============================================================================
+// isValidLegacyStateV6 Tests
+// ============================================================================
+
+describe("isValidLegacyStateV6", () => {
+  it("accepts valid V6 state (without links)", () => {
+    expect(isValidLegacyStateV6(createValidStateV6())).toBe(true);
+  });
+
+  it("rejects V7 state (wrong schemaVersion)", () => {
+    expect(isValidLegacyStateV6(createValidStateV7())).toBe(false);
+  });
+
+  it("rejects V5 state", () => {
+    const v5State = {
+      schemaVersion: 5,
+      variables: [],
+      episodes: [],
+      actions: [],
+      notes: [{ id: "n1", content: "Note" }],
+      models: [],
+    };
+    expect(isValidLegacyStateV6(v5State)).toBe(false);
+  });
+});
+
+// ============================================================================
+// Link Validation Tests (MP7)
+// ============================================================================
+
+describe("isValidState - Link Validation", () => {
+  describe("valid link cases", () => {
+    it("accepts state with empty links array", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+      expect(isValidState(state)).toBe(true);
+    });
+
+    it("accepts valid link with required fields", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+          {
+            id: "v2",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V2",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "v2",
+            relation: LINK_RELATIONS[0], // "supports"
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(true);
+    });
+
+    it("accepts link with optional weight", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "supports",
+            weight: 0.75,
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(true);
+    });
+
+    it("accepts weight at boundary values (0.0 and 1.0)", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "supports",
+            weight: 0.0,
+          },
+          {
+            id: "l2",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "tests",
+            weight: 1.0,
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(true);
+    });
+
+    it("accepts all valid relation types", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: LINK_RELATIONS.map((relation, i) => ({
+          id: `l${i}`,
+          sourceId: "v1",
+          targetId: "v1",
+          relation,
+        })),
+      };
+      expect(isValidState(state)).toBe(true);
+    });
+  });
+
+  describe("invalid link cases", () => {
+    it("rejects link with invalid relation type", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "invalid_relation",
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
+
+    it("rejects link with weight below 0", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "supports",
+            weight: -0.1,
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
+
+    it("rejects link with weight above 1", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "supports",
+            weight: 1.1,
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
+
+    it("rejects duplicate link IDs", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "supports",
+          },
+          {
+            id: "l1", // Duplicate
+            sourceId: "v1",
+            targetId: "v1",
+            relation: "tests",
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
+
+    it("rejects link with non-existent sourceId (referential integrity)", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "nonexistent",
+            targetId: "v1",
+            relation: "supports",
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
+
+    it("rejects link with non-existent targetId (referential integrity)", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            targetId: "nonexistent",
+            relation: "supports",
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
+
+    it("rejects link missing required fields", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "V1",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [
+          {
+            id: "l1",
+            sourceId: "v1",
+            // Missing targetId and relation
+          },
+        ],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
   });
 });
