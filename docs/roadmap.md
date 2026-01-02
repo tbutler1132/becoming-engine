@@ -44,7 +44,7 @@ Principles:
 
 ### MP5 — Episode Closure Produces Learning (Notes as Closure Artifacts)
 
-- [ ] **Complete**
+- [x] **Complete**
 
 **Goal**: When an Episode closes, something explicit is produced (at minimum: a closure Note).
 
