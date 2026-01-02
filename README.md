@@ -1,5 +1,7 @@
 # Becoming Engine
 
+[![CI](https://github.com/timbutler/becoming-engine-v/actions/workflows/ci.yml/badge.svg)](https://github.com/timbutler/becoming-engine-v/actions/workflows/ci.yml)
+
 A cybernetic doctrine for preserving viability, enabling learning, and allowing ambition without identity collapse through temporary, bounded interventions.
 
 ## 🧬 Architecture: The Organism
@@ -32,18 +34,26 @@ The system is organized into discrete "organs" (modules) with strict boundaries 
 npm install
 ```
 
-### Running Tests
+### Development Commands
 
 ```bash
-# Run unit tests (Vitest)
+# Run all checks (tests, types, lint, format)
+npm run check
+
+# Run unit tests
 npm test
 
-# Run unit tests in watch mode
+# Run tests in watch mode
 npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
 
 # Run memory organ integration smoke test
 npm run test:memory
 ```
+
+> **Note**: Pre-commit hooks (via Husky) automatically run linting and formatting on staged files.
 
 ## 🧠 CLI Usage
 
