@@ -51,6 +51,13 @@ This roadmap describes **small, composable micro-projects** that move the system
 - Deliver immediate pragmatic value: "what's stable, what needs attention, what should I do?"
 - Close the loop: users can actually _use_ the UI, not just look at it
 
+**Implementation**
+
+- **Next.js (App Router)**: API routes import existing regulator/memory modules directly
+- **Local-first**: reads/writes `data/state.json` (same as CLI)
+- **Styling**: Tailwind + custom CSS for mythic aesthetic
+- **Location**: `src/apps/web/`
+
 **Scope**
 
 - Variables view (color-coded by status: InRange/Low/High)
