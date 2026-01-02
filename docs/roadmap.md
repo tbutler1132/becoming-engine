@@ -40,6 +40,8 @@ This roadmap describes **small, composable micro-projects** that move the system
 
 **Goal**: Add a UI only after the underlying organism is stable.
 
+**Vision context**: See `docs/vision.md` (anti-capture, baseline quiet, no authority creep).
+
 **Scope**
 
 - Build a read-only interpretive surface
