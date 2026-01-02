@@ -33,6 +33,7 @@ import type {
   Result,
   OpenEpisodeParams,
   SignalParams,
+  StatusData,
   UpdateModelParams,
   VariableUpdate,
 } from "./types.js";
@@ -89,6 +90,42 @@ export function getActiveEpisodesByNode(
 
 export function isBaseline(state: State, node: NodeRef): boolean {
   return getActiveEpisodesByNode(state, node).length === 0;
+}
+
+/**
+ * Gets pending actions scoped to active episodes for a node.
+ * Only returns actions with status "Pending" that reference an active episode.
+ */
+export function getPendingActionsForActiveEpisodes(
+  state: State,
+  node: NodeRef,
+): Action[] {
+  const activeEpisodeIds = new Set(
+    getActiveEpisodesByNode(state, node).map((e) => e.id),
+  );
+  return state.actions.filter(
+    (a) =>
+      a.status === ACTION_PENDING_STATUS &&
+      a.episodeId !== undefined &&
+      activeEpisodeIds.has(a.episodeId),
+  );
+}
+
+/**
+ * Gets status data for CLI display.
+ * Returns baseline mode if no active episodes, otherwise returns active mode with details.
+ */
+export function getStatusData(state: State, node: NodeRef): StatusData {
+  if (isBaseline(state, node)) {
+    return { mode: "baseline", node };
+  }
+  return {
+    mode: "active",
+    node,
+    variables: getVariablesByNode(state, node),
+    episodes: getActiveEpisodesByNode(state, node),
+    actions: getPendingActionsForActiveEpisodes(state, node),
+  };
 }
 
 /**
