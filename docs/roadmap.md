@@ -494,8 +494,158 @@ Phase 1's Regulator is reactive (user calls `openEpisode`). Phase 3 makes it pro
 
 - **Learning velocity tracking**: How fast are Models being updated?
 - **Regulator meta-learning**: Adjust thresholds based on Episode outcomes
-- **Multi-node coordination**: Regulators signal each other about pressure
 - **Predictive intervention**: Anticipate pressure before it arrives
+
+---
+
+## Phase 4: Network Infrastructure (Future)
+
+Phase 1–3 assume a single-user, local deployment. Phase 4 evolves the infrastructure to support multiple users, multiple nodes, and network-based coordination.
+
+### Motivation
+
+The current design uses `state.json` for persistence—simple and honest for local use. But if we want:
+
+- Multiple people running their own nodes
+- Users creating new Org nodes dynamically
+- Nodes coordinating across a network
+- A hosted/web version of the system
+
+...we need real infrastructure: database persistence, authentication, and network federation.
+
+### Architectural Principle: Federation Over Centralization
+
+Nodes do not share state. They exchange **signals** and **artifacts**. This means:
+
+- Each node can have its own database (or partition)
+- No central source of truth for everyone
+- Federation happens at the event layer, not the data layer
+- Nodes can be self-hosted or cloud-hosted independently
+
+---
+
+### MP23 — Database Migration (JsonStore → DbStore)
+
+- [ ] **Complete**
+
+**Goal**: Replace file-based persistence with a proper database while maintaining the same API.
+
+**Scope**
+
+- Create `DbStore` implementing the same interface as `JsonStore`
+- Support SQLite (local) and PostgreSQL (hosted) as backends
+- Migration script to import existing `state.json` files
+- Transactions for atomic state updates
+- Memory organ's public API unchanged
+
+**Acceptance**
+
+- Existing tests pass with both JsonStore and DbStore
+- Migration script successfully imports `state.json`
+- Concurrent access is safe (no race conditions)
+
+---
+
+### MP24 — Dynamic Node Creation
+
+- [ ] **Complete**
+
+**Goal**: Allow users to create and manage multiple nodes programmatically.
+
+**Scope**
+
+- API to create new nodes: `createNode({ type, name }) => NodeRef`
+- List nodes: `getNodes() => NodeRef[]`
+- Delete/archive nodes
+- Each node has isolated state (Variables, Episodes, Actions)
+- NodeRef uses UUID, not hardcoded defaults
+
+**Acceptance**
+
+- Can create multiple Org nodes dynamically
+- Each node has its own isolated state
+- CLI supports `--node` flag for all commands
+
+---
+
+### MP25 — Authentication & Authorization
+
+- [ ] **Complete**
+
+**Goal**: Control who can access which nodes.
+
+**Scope**
+
+- User identity (start simple: API keys or JWT)
+- Node ownership: each node belongs to a user
+- Permission model:
+  - Owner: full read/write
+  - Collaborator: read + limited write (future)
+  - Viewer: read-only (future)
+- Membrane enforces auth before mutations
+
+**Acceptance**
+
+- Unauthenticated requests are rejected
+- Users can only access their own nodes
+- Tests cover permission boundaries
+
+---
+
+### MP26 — Federation v1 (Network Signaling)
+
+- [ ] **Complete**
+
+**Goal**: Nodes can exchange signals over the network.
+
+**Scope**
+
+- Extend MP11's event envelope for network transport
+- WebSocket or HTTP-based signal relay
+- Node discovery: how nodes find each other
+- Signal types: intent, status, completion, artifact reference
+- Nodes remain independent—no shared state, only signals
+
+**Acceptance**
+
+- Two nodes can send/receive signals over network
+- Signal delivery is at-least-once with idempotency
+- Network failures are handled gracefully
+
+---
+
+### MP27 — Codebase Node (Software Organism)
+
+- [ ] **Complete**
+
+**Goal**: Treat the codebase itself as a regulated organism with its own Variables.
+
+**Scope**
+
+- Add `Codebase` as a NodeType (alongside Personal, Org)
+- Define software-specific Variables:
+  - **Continuity**: builds/tests/deploys run reliably
+  - **Agency**: small changes ship without regressions
+  - **Optionality**: architecture isn't boxing you in
+  - **Coherence**: patterns are consistent, low special-case sprawl
+  - **Learning**: you understand why things work; no cargo cult
+- Proxies that infer status from CI, static analysis, dependencies
+- Episodes for codebase stabilization/exploration
+
+**Acceptance**
+
+- Codebase node can be created and regulated like Personal/Org
+- At least one Variable has an automated proxy (e.g., CI status → Continuity)
+- Membrane can visualize codebase health as overlay
+
+---
+
+### Future Considerations (Beyond MP27)
+
+- **Multi-node dashboards**: View multiple organisms at once
+- **Cross-node artifacts**: Share Models or Notes between nodes
+- **Self-hosting guides**: Docker, Railway, Fly.io deployment
+- **Mobile/web clients**: Access nodes from anywhere
 
 ---
 
