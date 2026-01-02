@@ -37,9 +37,32 @@ Before building the Web UI (MP12), we need to verify:
 
 **Acceptance criteria:**
 
-- [ ] Every doctrine object type has corresponding DNA entries
-- [ ] Tripwire test fails if any DNA value changes (intentional design)
-- [ ] SCHEMA_VERSION is current
+- [x] Every doctrine object type has corresponding DNA entries — **with known gaps (see below)**
+- [x] Tripwire test fails if any DNA value changes (intentional design)
+- [x] SCHEMA_VERSION is current (V7)
+
+**Audit completed: 2026-01-02**
+
+<details>
+<summary>Known Gaps (Doctrine vs DNA)</summary>
+
+These discrepancies between `docs/doctrine.md` Section 12 and `src/dna.ts` are documented as known gaps for future consideration:
+
+| Constant            | DNA Values                   | Doctrine Says                           | Gap                            |
+| ------------------- | ---------------------------- | --------------------------------------- | ------------------------------ |
+| `VARIABLE_STATUSES` | `["Low", "InRange", "High"]` | "Low / InRange / High / Unknown"        | Missing "Unknown"              |
+| `EPISODE_STATUSES`  | `["Active", "Closed"]`       | "Active / Closing / Closed / Abandoned" | Missing "Closing", "Abandoned" |
+
+**Decision**: These represent aspirational doctrine that has not yet been implemented. The current DNA accurately reflects the implemented system. If these statuses are needed for future milestones, DNA should be updated at that time along with corresponding validation and migration code.
+
+**What was verified complete:**
+
+- All 17 DNA exports have tripwire tests
+- Regulatory limits match doctrine (MAX_ACTIVE_EXPLORE_PER_NODE=1, MAX_ACTIVE_STABILIZE_PER_VARIABLE=1)
+- SCHEMA_VERSION=7 matches current State shape (variables, episodes, actions, notes, models, links)
+- NODE_TYPES, EPISODE_TYPES, ACTION_STATUSES, MODEL_TYPES, MODEL_SCOPES, ENFORCEMENT_LEVELS, NOTE_TAGS, LINK_RELATIONS, OBSERVATION_TYPES, SIGNAL_EVENT_TYPES all complete
+
+</details>
 
 ---
 
@@ -377,23 +400,23 @@ Before building the Web UI (MP12), we need to verify:
 
 ## Execution Checklist
 
-| Phase                    | Status | Notes |
-| ------------------------ | ------ | ----- |
-| 1.1 DNA Tripwire         | ⬜     |       |
-| 1.2 Type Definitions     | ⬜     |       |
-| 2.1 Memory Organ         | ⬜     |       |
-| 2.2 Regulator Organ      | ⬜     |       |
-| 2.3 Sensorium Organ      | ⬜     |       |
-| 2.4 Membrane Organ       | ⬜     |       |
-| 2.5 Signaling Organ      | ⬜     |       |
-| 3.1 CLI Orchestration    | ⬜     |       |
-| 3.2 Data Flow            | ⬜     |       |
-| 4.1 Property Tests       | ⬜     |       |
-| 4.2 Boundary Conditions  | ⬜     |       |
-| 5.1 README Audit         | ⬜     |       |
-| 5.2 Roadmap Verification | ⬜     |       |
-| 6.1 API Surface          | ⬜     |       |
-| 6.2 Viewer Stub          | ⬜     |       |
+| Phase                    | Status | Notes                               |
+| ------------------------ | ------ | ----------------------------------- |
+| 1.1 DNA Tripwire         | ✅     | Complete with known gaps documented |
+| 1.2 Type Definitions     | ⬜     |                                     |
+| 2.1 Memory Organ         | ⬜     |                                     |
+| 2.2 Regulator Organ      | ⬜     |                                     |
+| 2.3 Sensorium Organ      | ⬜     |                                     |
+| 2.4 Membrane Organ       | ⬜     |                                     |
+| 2.5 Signaling Organ      | ⬜     |                                     |
+| 3.1 CLI Orchestration    | ⬜     |                                     |
+| 3.2 Data Flow            | ⬜     |                                     |
+| 4.1 Property Tests       | ⬜     |                                     |
+| 4.2 Boundary Conditions  | ⬜     |                                     |
+| 5.1 README Audit         | ⬜     |                                     |
+| 5.2 Roadmap Verification | ⬜     |                                     |
+| 6.1 API Surface          | ⬜     |                                     |
+| 6.2 Viewer Stub          | ⬜     |                                     |
 
 ---
 
