@@ -41,6 +41,37 @@ Excellence is secondary.
 Optimization is conditional.
 Survival precedes ambition.
 
+3a. Ambition Through Viability
+
+This system is not anti-ambition. It is a bet on how ambition actually works.
+
+Direct optimization is fragile:
+
+it creates brittleness
+
+it burns capacity faster than it builds
+
+it collapses under uncertainty
+
+Regulated ambition compounds:
+
+Viability creates capacity
+
+Capacity enables Explore episodes
+
+Explore produces learning
+
+Learning accumulates in Models
+
+Models become competitive advantage
+
+Excellence emerges from organisms that can sustain effort, not just exert it.
+
+The system supports intensity — bounded, finite, recoverable intensity.
+It does not support permanent mobilization.
+
+The goal is not to want less. The goal is to pursue what you want from stable ground.
+
 4. Regulation Over Optimization
 
 The system does not pursue ends directly.
@@ -163,7 +194,11 @@ You regulate viability and learn under uncertainty.
 
 Change emerges through finite experiments, not self-coercion.
 
-When stability holds, the system goes quiet.
+When stability holds, the system goes quiet. It does not go blind.
+
+Capacity surplus is visible in Variables. The choice to act remains yours.
+
+And from that quiet, excellence becomes possible.
 
 12. Core Object Specifications
 

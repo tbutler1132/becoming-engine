@@ -20,7 +20,20 @@
       "status": "InRange"
     }
   ],
-  "episodes": [],
+  "episodes": [
+    {
+      "id": "4bbdc6ff-5835-45bb-90a3-58b3449e0436",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Explore",
+      "objective": "Test the CLI rename",
+      "status": "Closed",
+      "openedAt": "2026-01-02T03:40:22.874Z",
+      "closedAt": "2026-01-02T03:40:28.038Z"
+    }
+  ],
   "actions": [],
   "notes": []
 }

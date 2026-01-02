@@ -16,9 +16,12 @@ Its job is to:
 - prevent collapse
 - allow learning without coercion
 - preserve agency and optionality
+- create conditions where ambition can compound
 - disappear when nothing is wrong
 
-If the system is “busy,” something is off.
+This is not a system for wanting less. It is a system for pursuing what you want without self-destruction.
+
+If the system is "busy," something is off.
 
 ---
 
@@ -219,6 +222,8 @@ If you feel the urge to track actions → pressure is rising.
 - You act freely
 - No justification required
 - No tracking
+
+Baseline is not stasis. It is the ground from which ambitious moves become possible. You don't launch from exhaustion — you launch from rest.
 
 ### Out of Baseline
 
