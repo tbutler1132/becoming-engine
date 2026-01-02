@@ -2,45 +2,15 @@
 // The CLI owns no authority; it never mutates State directly.
 
 import { JsonStore } from "../../libs/memory/index.js";
-import {
-  EPISODE_STATUSES,
-  type NodeRef,
-  type State,
-} from "../../libs/memory/index.js";
-import { Regulator } from "../../libs/regulator/index.js";
+import type { NodeRef, State } from "../../libs/memory/index.js";
+import { getStatusData, Regulator } from "../../libs/regulator/index.js";
 import { parseCli } from "../../libs/sensorium/index.js";
+import { formatStatus } from "./format.js";
 import * as crypto from "node:crypto";
 
-const ACTIVE_STATUS = EPISODE_STATUSES[0];
-
-function printStatus(state: State, node: NodeRef, regulator: Regulator): void {
-  if (regulator.isBaseline(state, node)) {
-    // Silence is Success: minimal output.
-    console.log(`becoming status ${node.type}:${node.id}`);
-    console.log("Silence is Success (baseline).");
-    return;
-  }
-
-  console.log(`becoming status ${node.type}:${node.id}`);
-  console.log("");
-  console.log("Active Episodes:");
-  for (const e of state.episodes) {
-    if (
-      e.node.type === node.type &&
-      e.node.id === node.id &&
-      e.status === ACTIVE_STATUS
-    ) {
-      console.log(`- ${e.id}: ${e.type} — ${e.objective}`);
-    }
-  }
-
-  console.log("");
-  console.log("Variables:");
-  for (const v of state.variables) {
-    if (v.node.type === node.type && v.node.id === node.id) {
-      console.log(`- ${v.id}: ${v.name} = ${v.status}`);
-    }
-  }
+function printStatus(state: State, node: NodeRef): void {
+  const data = getStatusData(state, node);
+  console.log(formatStatus(data));
 }
 
 async function main(): Promise<void> {
@@ -60,7 +30,7 @@ async function main(): Promise<void> {
   const command = parsed.value;
 
   if (command.kind === "status") {
-    printStatus(state, command.node, regulator);
+    printStatus(state, command.node);
     return;
   }
 

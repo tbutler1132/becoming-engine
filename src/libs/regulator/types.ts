@@ -4,12 +4,15 @@
 
 import { EPISODE_TYPES } from "../memory/index.js";
 import type {
+  Action,
   EnforcementLevel,
+  Episode,
   LinkRelation,
   ModelScope,
   ModelType,
   NodeRef,
   NoteTag,
+  Variable,
   VariableStatus,
 } from "../memory/index.js";
 
@@ -138,3 +141,17 @@ export interface CreateLinkParams {
 export interface DeleteLinkParams {
   linkId: string;
 }
+
+/**
+ * Status data for CLI display.
+ * Discriminated union: baseline (quiet) vs active (shows details).
+ */
+export type StatusData =
+  | { mode: "baseline"; node: NodeRef }
+  | {
+      mode: "active";
+      node: NodeRef;
+      variables: Variable[];
+      episodes: Episode[];
+      actions: Action[];
+    };
