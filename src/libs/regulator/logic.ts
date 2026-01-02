@@ -5,6 +5,7 @@ import {
   ACTION_STATUSES,
   EPISODE_STATUSES,
   EPISODE_TYPES,
+  LINK_RELATIONS,
   NOTE_TAGS,
 } from "../memory/index.js";
 import type {
@@ -12,6 +13,7 @@ import type {
   State,
   Variable,
   Episode,
+  Link,
   NodeRef,
   Note,
   NoteTag,
@@ -22,8 +24,10 @@ import type {
   CloseEpisodeParams,
   ClosureNote,
   CreateActionParams,
+  CreateLinkParams,
   CreateModelParams,
   CreateNoteParams,
+  DeleteLinkParams,
   ModelUpdate,
   RemoveNoteTagParams,
   Result,
@@ -716,6 +720,120 @@ export function removeNoteTag(
     value: {
       ...state,
       notes: updatedNotes,
+    },
+  };
+}
+
+/**
+ * Collects all object IDs from the state for referential integrity checks.
+ */
+function collectAllObjectIds(state: State): Set<string> {
+  const ids = new Set<string>();
+  for (const v of state.variables) {
+    ids.add(v.id);
+  }
+  for (const e of state.episodes) {
+    ids.add(e.id);
+  }
+  for (const a of state.actions) {
+    ids.add(a.id);
+  }
+  for (const n of state.notes) {
+    ids.add(n.id);
+  }
+  for (const m of state.models) {
+    ids.add(m.id);
+  }
+  for (const l of state.links) {
+    ids.add(l.id);
+  }
+  return ids;
+}
+
+/**
+ * Creates a new link between two objects.
+ * Returns a new State with the link added.
+ * Pure function: does not mutate input state.
+ */
+export function createLink(
+  state: State,
+  params: CreateLinkParams,
+): Result<State> {
+  // Validate relation type
+  if (!(LINK_RELATIONS as readonly string[]).includes(params.relation)) {
+    return { ok: false, error: `Invalid link relation: ${params.relation}` };
+  }
+
+  // Validate weight if present
+  if (params.weight !== undefined) {
+    if (params.weight < 0 || params.weight > 1) {
+      return {
+        ok: false,
+        error: "Link weight must be between 0.0 and 1.0",
+      };
+    }
+  }
+
+  // Check for duplicate ID
+  if (state.links.some((l) => l.id === params.linkId)) {
+    return {
+      ok: false,
+      error: `Link with id '${params.linkId}' already exists`,
+    };
+  }
+
+  // Check referential integrity
+  const allObjectIds = collectAllObjectIds(state);
+  if (!allObjectIds.has(params.sourceId)) {
+    return {
+      ok: false,
+      error: `Source object '${params.sourceId}' not found`,
+    };
+  }
+  if (!allObjectIds.has(params.targetId)) {
+    return {
+      ok: false,
+      error: `Target object '${params.targetId}' not found`,
+    };
+  }
+
+  const newLink: Link = {
+    id: params.linkId,
+    sourceId: params.sourceId,
+    targetId: params.targetId,
+    relation: params.relation,
+    ...(params.weight !== undefined ? { weight: params.weight } : {}),
+  };
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      links: [...state.links, newLink],
+    },
+  };
+}
+
+/**
+ * Deletes a link by ID.
+ * Returns a new State with the link removed.
+ * Pure function: does not mutate input state.
+ */
+export function deleteLink(
+  state: State,
+  params: DeleteLinkParams,
+): Result<State> {
+  // Find the link
+  const linkExists = state.links.some((l) => l.id === params.linkId);
+  if (!linkExists) {
+    return { ok: false, error: `Link with id '${params.linkId}' not found` };
+  }
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      links: state.links.filter((l) => l.id !== params.linkId),
     },
   };
 }

@@ -53,6 +53,15 @@ export const NOTE_TAGS = [
   "closure_note",
 ] as const;
 
+/** The valid relation types for Links (typed relationships) */
+export const LINK_RELATIONS = [
+  "supports",
+  "tests",
+  "blocks",
+  "responds_to",
+  "derived_from",
+] as const;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // REGULATORY LIMITS — Constraints that preserve viability
 // ═══════════════════════════════════════════════════════════════════════════
@@ -68,4 +77,4 @@ export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Current schema version — increment when State shape changes */
-export const SCHEMA_VERSION = 6 as const;
+export const SCHEMA_VERSION = 7 as const;

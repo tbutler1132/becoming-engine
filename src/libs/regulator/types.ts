@@ -5,6 +5,7 @@
 import { EPISODE_TYPES } from "../memory/index.js";
 import type {
   EnforcementLevel,
+  LinkRelation,
   ModelScope,
   ModelType,
   NodeRef,
@@ -122,4 +123,18 @@ export interface AddNoteTagParams {
 export interface RemoveNoteTagParams {
   noteId: string;
   tag: NoteTag;
+}
+
+/** Params for creating a new link */
+export interface CreateLinkParams {
+  linkId: string;
+  sourceId: string;
+  targetId: string;
+  relation: LinkRelation;
+  weight?: number;
+}
+
+/** Params for deleting a link */
+export interface DeleteLinkParams {
+  linkId: string;
 }

@@ -19,6 +19,7 @@ import {
   isValidLegacyStateV3,
   isValidLegacyStateV4,
   isValidLegacyStateV5,
+  isValidLegacyStateV6,
   isValidState,
 } from "./internal/validation.js";
 import {
@@ -27,6 +28,7 @@ import {
   migrateV3ToV4,
   migrateV4ToV5,
   migrateV5ToV6,
+  migrateV6ToV7,
 } from "./internal/migrations.js";
 import {
   acquireLock,
@@ -88,29 +90,39 @@ export class JsonStore {
         return data;
       }
 
+      if (isValidLegacyStateV6(data)) {
+        return migrateV6ToV7(data);
+      }
+
       if (isValidLegacyStateV5(data)) {
-        return migrateV5ToV6(data);
+        return migrateV6ToV7(migrateV5ToV6(data));
       }
 
       if (isValidLegacyStateV4(data)) {
-        return migrateV5ToV6(migrateV4ToV5(data));
+        return migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(data)));
       }
 
       if (isValidLegacyStateV3(data)) {
-        return migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(data)));
+        return migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(data))));
       }
 
       if (isValidLegacyStateV2(data)) {
-        return migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(data))));
+        return migrateV6ToV7(
+          migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(data)))),
+        );
       }
 
       if (isValidLegacyStateV1(data)) {
-        return migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data)));
+        return migrateV6ToV7(
+          migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+        );
       }
 
       if (isValidLegacyStateV0(data)) {
         // Backward-compatible: files without schemaVersion are treated as v0 (legacy).
-        return migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data)));
+        return migrateV6ToV7(
+          migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+        );
       }
 
       await this.backupInvalidStateFile();
@@ -181,6 +193,7 @@ export class JsonStore {
       actions: [],
       notes: [],
       models: [],
+      links: [],
     };
   }
 

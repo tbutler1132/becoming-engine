@@ -15,6 +15,7 @@ export {
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
   NOTE_TAGS,
+  LINK_RELATIONS,
   SCHEMA_VERSION,
 } from "../../dna.js";
 
@@ -31,6 +32,7 @@ import {
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
   NOTE_TAGS,
+  LINK_RELATIONS,
   SCHEMA_VERSION,
 } from "../../dna.js";
 
@@ -44,6 +46,7 @@ export type ModelType = (typeof MODEL_TYPES)[number];
 export type ModelScope = (typeof MODEL_SCOPES)[number];
 export type EnforcementLevel = (typeof ENFORCEMENT_LEVELS)[number];
 export type NoteTag = (typeof NOTE_TAGS)[number];
+export type LinkRelation = (typeof LINK_RELATIONS)[number];
 export type SchemaVersion = typeof SCHEMA_VERSION;
 
 export type NodeId = string;
@@ -123,6 +126,18 @@ export interface Model {
   enforcement?: EnforcementLevel;
 }
 
+export interface Link {
+  id: string;
+  /** Reference to the source object */
+  sourceId: string;
+  /** Reference to the target object */
+  targetId: string;
+  /** The type of relationship */
+  relation: LinkRelation;
+  /** Optional strength/confidence of the relationship (0.0 to 1.0) */
+  weight?: number;
+}
+
 export interface State {
   schemaVersion: SchemaVersion;
   variables: Variable[];
@@ -130,4 +145,5 @@ export interface State {
   actions: Action[];
   notes: Note[];
   models: Model[];
+  links: Link[];
 }
