@@ -172,6 +172,7 @@ Variables
 A Variable is a regulated dimension of viability.
 
 Fields:
+
 - id, name, status (Low / InRange / High / Unknown)
 - preferredRange (min, max) — target bounds
 - stability — how stable over time (0.0 to 1.0)
@@ -179,6 +180,7 @@ Fields:
 - proxies — what signals inform this variable
 
 Invariants:
+
 - Variables are not optimized
 - Variables may be "unknown"
 - "High" is not automatically bad
@@ -191,6 +193,7 @@ An Episode is a temporary intervention.
 Types: Stabilize (restore viability) or Explore (reduce uncertainty through learning)
 
 Fields:
+
 - id, type, status (Active / Closing / Closed / Abandoned)
 - variableId — what Variable this addresses (Stabilize only)
 - objective — the hypothesis or goal
@@ -201,6 +204,7 @@ Fields:
 - closureNoteId — artifact produced on close
 
 Invariants:
+
 - Episodes are finite and must be closeable
 - At most 1 active Explore Episode per Node
 - At most 1 active Stabilize Episode per Variable
@@ -213,6 +217,7 @@ A Model is an explicit belief.
 Types: Descriptive (how reality behaves), Procedural (methods that work), Normative (constraints)
 
 Fields:
+
 - id, type, statement (the belief content)
 - confidence — how certain (0.0 to 1.0)
 - scope — personal, org, or domain
@@ -220,6 +225,7 @@ Fields:
 - exceptionsAllowed — whether exceptions can be logged
 
 Invariants:
+
 - Models must be explicit
 - Models are revisable
 - Normative Models may block actions or episodes
@@ -229,10 +235,12 @@ Actions
 An Action is a disposable execution unit.
 
 Fields:
+
 - id, description, status (Pending / Done)
 - episodeId — optional; only episode-scoped actions carry authority
 
 Invariants:
+
 - Actions carry no intrinsic meaning
 - Actions may be orphaned
 - Actions disappear when complete
@@ -243,6 +251,7 @@ Links
 A Link defines a typed relationship between objects.
 
 Fields:
+
 - sourceId, targetId — object references
 - relation — supports, tests, blocks, responds_to, etc.
 - weight — optional strength/confidence
@@ -252,10 +261,12 @@ Notes
 A Note is unstructured context.
 
 Fields:
+
 - id, content, createdAt
 - tags, linkedObjects
 
 Invariants:
+
 - Notes do not imply action
 - Notes are inert until reviewed
 - Notes may later be promoted to Models
@@ -287,6 +298,7 @@ The Regulator operates as a state machine:
 States: IDLE, EVALUATING, ASSESSING, OPENING_EPISODE, MONITORING, CLOSING_EPISODE, DEFERRING
 
 The Regulator:
+
 - Evaluates Variable states against thresholds
 - Detects pressure and uncertainty
 - Selects candidate Episodes (or "none")
@@ -296,6 +308,7 @@ The Regulator:
 - Integrates learning into Models
 
 The Regulator does NOT:
+
 - Schedule Actions
 - Assign work
 - Manage execution order

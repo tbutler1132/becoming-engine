@@ -1,0 +1,50 @@
+{
+  "organs": [
+    {
+      "id": "memory",
+      "name": "Memory",
+      "icon": "brain",
+      "role": "Ontology & Persistence",
+      "philosophy": "Models must be explicit",
+      "description": "Stores the system's definitions of reality and remembers state across sessions.",
+      "path": "src/libs/memory",
+      "files": ["index.ts", "store.ts", "types.ts", "internal/"]
+    },
+    {
+      "id": "regulator",
+      "name": "Regulator",
+      "icon": "gear",
+      "role": "Cybernetic Control Loop",
+      "philosophy": "Idleness is a success state",
+      "description": "Enforces homeostasis rules and manages temporary interventions (Episodes).",
+      "path": "src/libs/regulator",
+      "files": ["index.ts", "engine.ts", "logic.ts", "policy.ts", "types.ts"]
+    },
+    {
+      "id": "sensorium",
+      "name": "Sensorium",
+      "icon": "eye",
+      "role": "Input Parsing",
+      "philosophy": "No automatic ontology mutation",
+      "description": "Converts raw external signals into typed commands the system can understand.",
+      "path": "src/libs/sensorium",
+      "files": ["index.ts", "cli.ts"]
+    },
+    {
+      "id": "cortex",
+      "name": "Cortex",
+      "icon": "surface",
+      "role": "Interpretive Surface",
+      "philosophy": "Owns no authority",
+      "description": "Orchestrates the organ flow: Sensorium → Regulator → Memory.",
+      "path": "src/apps/cortex",
+      "files": ["cli.ts"]
+    }
+  ],
+  "dataFlow": [
+    { "from": "sensorium", "to": "cortex", "label": "commands" },
+    { "from": "cortex", "to": "regulator", "label": "mutations" },
+    { "from": "regulator", "to": "memory", "label": "state" }
+  ]
+}
+

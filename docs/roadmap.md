@@ -213,7 +213,7 @@ Phase 1 (MP1–MP12) establishes the **regulatory layer** — how the organism r
 
 ### Motivation
 
-To regulate effectively, the system needs to understand context. Descriptive Models need something to describe. Procedural Models need domains to apply to. The current ontology can represent beliefs (Models) but not the *entities* those beliefs are about.
+To regulate effectively, the system needs to understand context. Descriptive Models need something to describe. Procedural Models need domains to apply to. The current ontology can represent beliefs (Models) but not the _entities_ those beliefs are about.
 
 Phase 2 enables:
 
@@ -359,6 +359,7 @@ Phase 1 builds the core regulatory machinery (command-driven). Phase 2 adds the 
 ### Motivation
 
 The tech-spec describes a Regulator that:
+
 - Evaluates Variable states against thresholds
 - Detects pressure and uncertainty
 - Selects candidate Episodes automatically
