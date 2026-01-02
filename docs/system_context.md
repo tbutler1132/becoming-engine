@@ -315,6 +315,52 @@ The Regulator does NOT:
 
 "None" is a valid and common outcome. The system is successful when it is mostly inactive.
 
+15. Automation Doctrine
+
+Automation is execution of already-trusted behavior. It is subordinate to regulation and learning.
+
+First Principle:
+
+Automation is NOT the Regulator.
+Automation is NOT decision-making.
+Automation is NOT optimization.
+
+The system decides when something matters.
+Automation decides how something repeats safely.
+
+Canonical Flow:
+
+Sense → Store → Check Procedure → Enforce Constraints → Execute → Log
+
+1. Sensorium senses something (event, signal, input)
+2. Memory updates (Note, proxy, state)
+3. A Procedural Model determines whether action is appropriate
+4. Membrane enforces constraints and permissions
+5. An Action executes (or is queued for approval)
+6. Results are logged back into Memory
+
+Invariants:
+
+- Sensorium never triggers Actions directly
+- Automation never invents behavior
+- Automation never opens Episodes
+- Every automated step passes through Membrane
+
+Automation Levels (Earned Trust):
+
+- Level 0: Suggest / draft only (default)
+- Level 1: Auto-queue with approval
+- Level 2: Auto-execute in narrow envelopes
+- Never: High-stakes judgment or identity-bearing actions
+
+Procedural Models are the only legitimate bridge between sensing and action. They are explicit, bounded, reusable, and earned through learning.
+
+The approval queue lives in Notes. Drafts are Notes, reviewed during the normal review cycle.
+
+Central Doctrine (One Sentence):
+
+Automation in the Becoming Engine executes what is already known to be safe; it never decides what matters, and it never replaces learning.
+
 One-Line Agent Summary
 
 The Becoming Engine is a cybernetic doctrine for preserving viability, enabling learning, and allowing ambition without identity collapse through temporary, bounded interventions.

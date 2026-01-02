@@ -207,9 +207,55 @@ Principles:
 
 ---
 
+### MP-AUTO — Automation v0 (Procedural Model Execution)
+
+- [ ] **Complete**
+
+**Status**: Proposed (see [ADR 0003](decisions/0003-automation-philosophy.md))
+
+**Goal**: Enable Procedural Models to execute trusted behaviors under Membrane constraints, without replacing regulation or learning.
+
+**Scope**
+
+- Extend `ProceduralModel` with automation fields:
+  - `automationLevel: 0 | 1 | 2` — earned trust level
+  - `trigger?: TriggerCondition` — when to evaluate (event type, state pattern)
+  - `chain?: string[]` — optional sequence of Procedural Model IDs for composition
+- Create `src/libs/executor/*` — execution engine for Procedural Models:
+  - Evaluates triggers against incoming Observations
+  - Routes every execution through Membrane before external action
+  - Logs results back to Memory as Notes (Level 0/1) or completed Actions (Level 2)
+- Approval queue:
+  - Level 0: Creates draft Note only
+  - Level 1: Creates Note with `tag: "pending_approval"`, surfaced during review
+  - Level 2: Executes in narrow envelope, logs result
+- Static chain composition only (no runtime assembly)
+
+**Invariants**
+
+- ❌ Automation never opens Episodes
+- ❌ Automation never modifies Models directly
+- ❌ Automation never bypasses Membrane
+- ✅ Automation serves baseline; Episodes serve learning
+
+**Acceptance**
+
+- A Procedural Model with `automationLevel: 1` creates an approval Note when triggered
+- A Procedural Model with `automationLevel: 2` executes and logs without human intervention
+- Membrane blocks execution if linked Normative Model has `enforcement: "block"`
+- Tests cover: trigger matching, Membrane gating, approval flow, chain execution, logging
+
+**Dependencies**
+
+- MP6 (Models) — Procedural Models must exist
+- MP9 (Sensorium v1) — Observations as trigger source
+- MP10 (Membrane) — Constraint enforcement
+
+---
+
 ## Phase 2: World Model Layer (Future)
 
-Phase 1 (MP1–MP12) establishes the **regulatory layer** — how the organism regulates itself. Phase 2 introduces the **world model layer** — how the organism represents and reasons about its external environment.
+Phase 1 (MP1–MP12, MP-AUTO) establishes the **regulatory layer** — how the organism regulates itself. Phase 2 introduces the **world model layer** — how the organism represents and reasons about its external environment.
 
 ### Motivation
 
