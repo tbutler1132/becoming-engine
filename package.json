@@ -15,7 +15,8 @@
     "format:check": "prettier -c .",
     "check": "npm test && npx tsc --noEmit && npm run lint && npm run format:check",
     "becoming:dev": "tsx src/apps/cortex/cli.ts",
-    "becoming:status": "tsx src/apps/cortex/cli.ts status"
+    "becoming:status": "tsx src/apps/cortex/cli.ts status",
+    "viewer": "npx --yes serve . -l 3000 --config src/apps/viewer/serve.json"
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>State Viewer — Becoming Engine</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "SF Mono", "Menlo", "Monaco", monospace;
+        background: #0d1117;
+        color: #c9d1d9;
+        padding: 24px;
+        line-height: 1.6;
+      }
+
+      h1 {
+        font-size: 14px;
+        font-weight: 500;
+        color: #58a6ff;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .section {
+        margin-bottom: 32px;
+      }
+
+      .section-header {
+        font-size: 11px;
+        font-weight: 600;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .count {
+        background: #21262d;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 10px;
+      }
+
+      .empty {
+        color: #484f58;
+        font-style: italic;
+        font-size: 12px;
+      }
+
+      .card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin-bottom: 8px;
+      }
+
+      .card-title {
+        font-weight: 500;
+        color: #c9d1d9;
+        margin-bottom: 4px;
+      }
+
+      .card-meta {
+        font-size: 11px;
+        color: #8b949e;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-inrange {
+        background: #238636;
+        color: #fff;
+      }
+      .status-low {
+        background: #da3633;
+        color: #fff;
+      }
+      .status-high {
+        background: #d29922;
+        color: #fff;
+      }
+      .status-active {
+        background: #1f6feb;
+        color: #fff;
+      }
+      .status-closed {
+        background: #484f58;
+        color: #c9d1d9;
+      }
+      .status-pending {
+        background: #6e7681;
+        color: #fff;
+      }
+      .status-done {
+        background: #238636;
+        color: #fff;
+      }
+
+      .node-tag {
+        font-size: 10px;
+        color: #8b949e;
+        background: #21262d;
+        padding: 2px 6px;
+        border-radius: 3px;
+        margin-left: 8px;
+      }
+
+      .refresh-hint {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        font-size: 10px;
+        color: #484f58;
+      }
+
+      .error {
+        background: #3d1a1a;
+        border: 1px solid #da3633;
+        color: #f85149;
+        padding: 16px;
+        border-radius: 6px;
+      }
+
+      .baseline {
+        color: #3fb950;
+        font-size: 12px;
+        padding: 8px 12px;
+        background: #0d1a0d;
+        border: 1px solid #238636;
+        border-radius: 6px;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Becoming Engine — State</h1>
+    <div id="content">Loading...</div>
+    <div class="refresh-hint">Press Cmd+R to refresh</div>
+
+    <script>
+      async function loadState() {
+        const content = document.getElementById("content");
+
+        try {
+          const response = await fetch("/data/state.json");
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const state = await response.json();
+          render(state);
+        } catch (error) {
+          content.innerHTML = `<div class="error">Failed to load state: ${error.message}</div>`;
+        }
+      }
+
+      function render(state) {
+        const content = document.getElementById("content");
+
+        const personalVars = state.variables.filter(
+          (v) => v.node.type === "Personal",
+        );
+        const orgVars = state.variables.filter((v) => v.node.type === "Org");
+        const activeEpisodes = state.episodes.filter(
+          (e) => e.status === "Active",
+        );
+        const closedEpisodes = state.episodes.filter(
+          (e) => e.status === "Closed",
+        );
+        const pendingActions = state.actions.filter(
+          (a) => a.status === "Pending",
+        );
+        const doneActions = state.actions.filter((a) => a.status === "Done");
+
+        const isBaseline = activeEpisodes.length === 0;
+
+        let html = "";
+
+        // Baseline status
+        if (isBaseline) {
+          html += `<div class="section"><div class="baseline">✓ Baseline — no active episodes</div></div>`;
+        }
+
+        // Personal Variables
+        html += renderVariableSection("Personal Variables", personalVars);
+
+        // Org Variables
+        html += renderVariableSection("Org Variables", orgVars);
+
+        // Active Episodes
+        html += renderEpisodeSection("Active Episodes", activeEpisodes);
+
+        // Pending Actions
+        html += renderActionSection("Pending Actions", pendingActions);
+
+        // Notes
+        html += renderNoteSection("Notes", state.notes);
+
+        // Closed Episodes (collapsed)
+        if (closedEpisodes.length > 0) {
+          html += `
+          <div class="section">
+            <div class="section-header">
+              Closed Episodes <span class="count">${closedEpisodes.length}</span>
+            </div>
+            <div class="empty">Not shown (${closedEpisodes.length} total)</div>
+          </div>
+        `;
+        }
+
+        content.innerHTML = html;
+      }
+
+      function renderVariableSection(title, variables) {
+        let html = `
+        <div class="section">
+          <div class="section-header">${title} <span class="count">${variables.length}</span></div>
+      `;
+
+        if (variables.length === 0) {
+          html += `<div class="empty">No variables</div>`;
+        } else {
+          for (const v of variables) {
+            const statusClass = `status-${v.status.toLowerCase()}`;
+            html += `
+            <div class="card">
+              <div class="card-title">
+                ${v.name}
+                <span class="status ${statusClass}">${v.status}</span>
+              </div>
+              <div class="card-meta">${v.id}</div>
+            </div>
+          `;
+          }
+        }
+
+        html += `</div>`;
+        return html;
+      }
+
+      function renderEpisodeSection(title, episodes) {
+        let html = `
+        <div class="section">
+          <div class="section-header">${title} <span class="count">${episodes.length}</span></div>
+      `;
+
+        if (episodes.length === 0) {
+          html += `<div class="empty">No active episodes</div>`;
+        } else {
+          for (const e of episodes) {
+            const statusClass = `status-${e.status.toLowerCase()}`;
+            html += `
+            <div class="card">
+              <div class="card-title">
+                ${e.type}: ${e.objective}
+                <span class="status ${statusClass}">${e.status}</span>
+                <span class="node-tag">${e.node.type}</span>
+              </div>
+              <div class="card-meta">
+                Opened: ${new Date(e.openedAt).toLocaleDateString()}
+                ${e.variableId ? ` • Variable: ${e.variableId.slice(0, 8)}...` : ""}
+              </div>
+            </div>
+          `;
+          }
+        }
+
+        html += `</div>`;
+        return html;
+      }
+
+      function renderActionSection(title, actions) {
+        let html = `
+        <div class="section">
+          <div class="section-header">${title} <span class="count">${actions.length}</span></div>
+      `;
+
+        if (actions.length === 0) {
+          html += `<div class="empty">No pending actions</div>`;
+        } else {
+          for (const a of actions) {
+            const statusClass = `status-${a.status.toLowerCase()}`;
+            html += `
+            <div class="card">
+              <div class="card-title">
+                ${a.description}
+                <span class="status ${statusClass}">${a.status}</span>
+              </div>
+              <div class="card-meta">
+                ${a.episodeId ? `Episode: ${a.episodeId.slice(0, 8)}...` : "Unscoped"}
+              </div>
+            </div>
+          `;
+          }
+        }
+
+        html += `</div>`;
+        return html;
+      }
+
+      function renderNoteSection(title, notes) {
+        let html = `
+        <div class="section">
+          <div class="section-header">${title} <span class="count">${notes.length}</span></div>
+      `;
+
+        if (notes.length === 0) {
+          html += `<div class="empty">No notes</div>`;
+        } else {
+          for (const n of notes) {
+            html += `
+            <div class="card">
+              <div class="card-title">${n.content}</div>
+              <div class="card-meta">${n.id}</div>
+            </div>
+          `;
+          }
+        }
+
+        html += `</div>`;
+        return html;
+      }
+
+      // Load on page load
+      loadState();
+    </script>
+  </body>
+</html>

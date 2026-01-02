@@ -1,0 +1,4 @@
+{
+  "public": ".",
+  "rewrites": [{ "source": "/", "destination": "/src/apps/viewer/index.html" }]
+}

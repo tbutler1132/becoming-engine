@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "variables": [
     {
       "id": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
@@ -8,7 +8,7 @@
         "id": "personal"
       },
       "name": "Agency",
-      "status": "InRange"
+      "status": "Low"
     },
     {
       "id": "9c06f69d-f75c-46e6-9235-191fc78ad23a",
