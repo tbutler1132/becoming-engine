@@ -6,7 +6,7 @@ alwaysApply: true
 
 ## Required Reading
 
-1. Read `docs/system_context.md` before proposing any feature.
+1. Read `docs/doctrine.md` before proposing any feature.
 2. Follow `docs/standards.md` strictly.
 3. Check `src/dna.ts` for invariants before adding constants elsewhere.
 
