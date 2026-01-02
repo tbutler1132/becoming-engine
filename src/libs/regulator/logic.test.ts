@@ -697,6 +697,92 @@ describe("Regulator Logic (Pure Functions)", () => {
         expect(result.error).toContain("Closure note content cannot be empty");
       }
     });
+
+    it("requires Model updates when closing an Explore episode", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1], // Explore
+            objective: "Discover something",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      // Closing Explore without modelUpdates should fail
+      const resultNoModels = closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Learned nothing" },
+      });
+      expect(resultNoModels.ok).toBe(false);
+      if (!resultNoModels.ok) {
+        expect(resultNoModels.error).toContain("Model update");
+      }
+
+      // Closing Explore with empty modelUpdates array should fail
+      const resultEmptyModels = closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Learned nothing" },
+        modelUpdates: [],
+      });
+      expect(resultEmptyModels.ok).toBe(false);
+
+      // Closing Explore WITH modelUpdates should succeed
+      const resultWithModels = closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Learned about X" },
+        modelUpdates: [
+          {
+            id: "model-1",
+            type: MODEL_TYPES[0],
+            statement: "X leads to Y",
+          },
+        ],
+      });
+      expect(resultWithModels.ok).toBe(true);
+    });
+
+    it("does NOT require Model updates when closing a Stabilize episode", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0], // Stabilize
+            variableId: "v1",
+            objective: "Restore agency",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+      };
+
+      // Closing Stabilize without modelUpdates should succeed
+      const result = closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Variable restored" },
+      });
+      expect(result.ok).toBe(true);
+    });
   });
 
   describe("applySignal", () => {

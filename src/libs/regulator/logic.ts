@@ -423,6 +423,8 @@ function applyModelUpdates(models: Model[], updates?: ModelUpdate[]): Model[] {
  * Closes an episode and creates a closure note.
  * Returns a new State with the episode closed, timestamps set, note created, variables updated, and models created/updated.
  * Pure function: does not mutate input state.
+ *
+ * Explore episodes MUST produce at least one Model update (learning is required).
  */
 export function closeEpisode(
   state: State,
@@ -445,6 +447,17 @@ export function closeEpisode(
 
   if (episode.status === CLOSED_STATUS) {
     return { ok: false, error: `Episode '${episodeId}' is already closed` };
+  }
+
+  // Explore episodes must produce learning (at least one Model update)
+  if (episode.type === EXPLORE_TYPE) {
+    if (!modelUpdates || modelUpdates.length === 0) {
+      return {
+        ok: false,
+        error:
+          "Explore episodes must produce at least one Model update on closure",
+      };
+    }
   }
 
   // Create the closure note with timestamp and closure_note tag
