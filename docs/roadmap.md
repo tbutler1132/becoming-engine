@@ -85,6 +85,40 @@ Principles:
 
 ---
 
+### MP6.5 — Notes v1 (Tags + Timestamps + Inbox Processing)
+
+- [ ] **Complete**
+
+**Goal**: Enrich Notes with the fields needed for inbox/processed distinction and automation approval queues.
+
+**Scope**
+
+- Extend `Note` with fields from tech-spec:
+  - `createdAt: string` — ISO timestamp when note was created
+  - `tags?: string[]` — e.g., `["inbox", "pending_approval", "closure_note"]`
+  - `linkedObjects?: string[]` — IDs of related objects (Episodes, Models, etc.)
+- Define semantic tag conventions:
+  - `inbox` — unprocessed, surfaces during review
+  - `pending_approval` — automation draft awaiting human confirmation
+  - `processed` — reviewed and integrated (or simply remove `inbox` tag)
+  - `closure_note` — attached to a closed Episode
+- Notes without tags default to `inbox` behavior (unprocessed)
+
+**Acceptance**
+
+- Notes include `createdAt` on creation
+- Tags can be added/removed via Regulator mutations
+- Tests cover: note creation with timestamp, tag filtering, linked object references
+- Migration preserves existing notes (new fields optional, `createdAt` backfilled to migration time)
+
+**Why Now**
+
+- MP-AUTO (Automation) assumes Notes have `tag: "pending_approval"` for approval queue
+- Review cycle assumes inbox/processed distinction
+- Closure notes (MP5) benefit from explicit `closure_note` tag and `linkedObjects`
+
+---
+
 ### MP7 — Links v0 (Typed Relationships Between Objects)
 
 - [ ] **Complete**
