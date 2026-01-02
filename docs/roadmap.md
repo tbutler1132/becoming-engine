@@ -507,16 +507,26 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 **Status**: Proposed (see [ADR 0002](decisions/0002-membrane-visualization.md))
 
-**Concept**: A web visualization that renders the system as a living organism rather than a dashboard. Quiet at baseline, perturbation when pressure emerges, Episodes as temporary scaffolding that dissolves.
+**Concept**: A web visualization that renders the **codebase itself** as a living organism. Self-discovering, zero configuration, grows automatically as the codebase evolves.
+
+**Key Insight**: This is about **code structure**, not application state. State visualization (Variables, Episodes) belongs in Cortex UI. Membrane visualizes the code itself.
+
+**What It Shows**:
+
+| Layer          | What You See                                   | Audience          |
+| -------------- | ---------------------------------------------- | ----------------- |
+| **Organs**     | Auto-discovered modules with data flow arrows  | Anyone            |
+| **Files**      | Files within an organ as smaller cells         | Curious observers |
+| **Code Graph** | Functions, types, and their call relationships | Developers        |
 
 **Why it fits the philosophy**:
 
-- "When nothing is wrong, the system disappears" → visual quietness at baseline
-- Organisms as living entities → breathing, pulsing animation
-- Episodes are temporary → scaffolding that dissolves on close
-- Reactive to code changes → recent edits pulse through affected organs
+- Organs as living entities → breathing, pulsing animation
+- Self-discovering → no manual configuration, grows with codebase
+- Plain-language descriptions → non-technical people understand code structure
+- Reactive to code changes → save a file, see the organism respond
 
-**Dependencies**: Works best after MP6 (Models) and MP12 (Cortex UI), but could be built earlier.
+**Dependencies**: None required—orthogonal to the core MP track.
 
 ---
 
@@ -524,20 +534,20 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 - [ ] **Complete**
 
-**Goal**: Establish the dev environment and real-time data pipeline.
+**Goal**: Establish the dev environment and real-time file watching.
 
 **Scope**
 
 - Add Vite + chokidar + ws as dev dependencies
 - Create `src/apps/membrane/` directory structure
-- WebSocket server that watches `data/state.json` and broadcasts changes
+- WebSocket server that watches `src/**/*.ts` for code changes
 - Minimal HTML shell with dark background and canvas element
 
 **Acceptance**
 
 - `npm run membrane:server` starts WebSocket relay on port 8081
 - `npm run membrane:dev` starts Vite dev server
-- Browser connects to WebSocket and logs state changes to console
+- Browser connects to WebSocket and logs file change events to console
 
 ---
 
@@ -552,7 +562,6 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 - Spring physics: `advanceSpring(state, target, config) => newState`
 - Breathing cycle: `breathe(time, period) => 0..1`
 - Pulse decay: `pulseDecay(age, decayMs) => 0..1`
-- Tremor effect: `tremor(time, intensity) => offset`
 - Easing functions: `easeOutCubic`, `easeInOutCubic`
 
 **Acceptance**
@@ -562,69 +571,70 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 ---
 
-#### MV3 — Organism Layer (Nodes + Variables)
+#### MV3 — Auto-Discovery (Scan + Parse)
 
 - [ ] **Complete**
 
-**Goal**: Visualize Personal and Org nodes with Variables as membrane cells.
+**Goal**: Automatically discover organs from the filesystem—no configuration.
 
 **Scope**
 
-- Render two node "pools" positioned horizontally
-- Variables appear as glowing cells within each node
-- Visual states: `InRange` (calm pulse), `Low/High` (tremor + color shift)
-- Baseline indicator: nodes contract to minimal size when no episodes
-- Connection line between nodes (subtle, dashed)
+- Scan `src/libs/*` → discover organs (core modules)
+- Scan `src/apps/*` → discover surfaces (user-facing apps)
+- Parse each module's `README.md` to extract:
+  - Name (first heading)
+  - Description (first paragraph)
+  - Philosophy quote (if present)
+- Watch for new directories → update organ list in real-time
 
 **Acceptance**
 
-- Both nodes render with their Variables
-- Breathing animation runs continuously
-- Tension states visibly differ from calm states
+- Adding `src/libs/newOrgan/README.md` makes it appear in the visualization
+- No manual JSON configuration required
+- Discovery runs on server startup and on directory changes
 
 ---
 
-#### MV4 — Episodes as Scaffolding
+#### MV4 — Organs Layer (Render Discovered Modules)
 
 - [ ] **Complete**
 
-**Goal**: Visualize active Episodes as temporary structures around nodes.
+**Goal**: Render discovered organs as living cellular structures.
 
 **Scope**
 
-- Episodes render as arcs around the affected node
-- Stabilize episodes: amber color
-- Explore episodes: teal color
-- Pulsing effect to indicate "active"
-- Episodes should feel "attached" but clearly temporary
+- Render each organ as a membrane cell with icon and label
+- Position organs using a force-directed or circular layout
+- Breathing animation on all organs
+- Hover: show organ description in plain language
+- Click: focus on organ and show philosophy quote
 
 **Acceptance**
 
-- Active episodes appear as arcs
-- Closed episodes are not rendered
-- Visual distinction between Stabilize and Explore
+- All discovered organs render with names
+- Hover shows accessible description from README
+- Animation runs continuously
 
 ---
 
-#### MV5 — Organs Layer (Modules + Data Flow)
+#### MV5 — Data Flow Inference (Parse Imports)
 
 - [ ] **Complete**
 
-**Goal**: Visualize the codebase organs with relationships.
+**Goal**: Infer data flow relationships by parsing import statements.
 
 **Scope**
 
-- Create `organs.json` metadata: id, name, role, philosophy, description
-- Render organs as cellular structures: Memory, Regulator, Sensorium, Cortex
-- Data flow arrows between organs (Sensorium → Cortex → Regulator → Memory)
-- Hover behavior: show organ description and philosophy quote
-- Focus behavior: click to highlight an organ
+- For each organ, scan its TypeScript files for imports
+- If organ A imports from organ B, create an edge A → B
+- Render edges as subtle, pulsing arrows between organs
+- Deduplicate and consolidate edges
 
 **Acceptance**
 
-- All four organs render with icons and labels
-- Data flow arrows pulse subtly
-- Non-technical descriptions appear on hover
+- Import relationships appear as arrows automatically
+- Adding an import updates the visualization
+- No manual configuration of data flow
 
 ---
 
@@ -636,16 +646,16 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 **Scope**
 
-- Extend WebSocket server to watch `src/libs/**/*.ts` and `src/apps/cortex/**/*.ts`
-- Map file paths to organ IDs
-- Broadcast `codeChange` events with organ ID and timestamp
+- File watcher broadcasts `codeChange` events with organ ID
 - Organs pulse/glow briefly when their code is edited
+- Pulses decay over ~3 seconds
+- Multiple rapid edits stack (brighter pulse)
 
 **Acceptance**
 
 - Editing a file causes the relevant organ to pulse
-- Pulses decay over ~3 seconds
-- Multiple edits stack (brighter pulse)
+- Pulses are visible and feel responsive
+- Works for any file in any discovered organ
 
 ---
 
@@ -657,42 +667,41 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 **Scope**
 
-- Scroll/pinch to transition between Organism ↔ Organs layers
-- Click on nodes (Organism layer) to zoom into Organs
-- Click on organs to focus and show details
+- Scroll/pinch to zoom in/out
+- Click on organ to focus and reveal details
 - Esc key to zoom out or clear focus
-- Smooth transitions between layers (fade/scale)
+- Smooth transitions between states (eased, not instant)
 
 **Acceptance**
 
-- Can navigate between layers with scroll or click
-- Esc returns to previous level
-- Transitions feel organic (eased, not instant)
+- Can navigate between zoom levels with scroll or click
+- Esc returns to previous state
+- Transitions feel organic
 
 ---
 
-#### MV8 — Philosophy Integration
+#### MV8 — Accessibility Layer (Plain Language)
 
 - [ ] **Complete**
 
-**Goal**: Make the philosophy tangible for non-technical viewers.
+**Goal**: Make the visualization understandable by non-technical viewers.
 
 **Scope**
 
-- Ambient philosophy fragments rotate at bottom of screen
-- Organ descriptions use plain language, not technical jargon
-- Variable cells show human-readable tooltips on hover
-- Baseline state has explicit visual reward (calm + label)
+- Organ descriptions use plain language from READMEs
+- Add "What this does" tooltips for each organ
+- Philosophy fragments display as ambient floating text
+- Legends or hints for first-time viewers
 
 **Acceptance**
 
-- Philosophy text fades in/out periodically
-- Hovering on Variables shows accessible descriptions
-- Someone unfamiliar with code can understand what they're seeing
+- Someone unfamiliar with code understands what each organ does
+- No technical jargon in hover states
+- Clear visual hierarchy
 
 ---
 
-#### MV9 — Files Layer (Future)
+#### MV9 — Files Layer
 
 - [ ] **Complete**
 
@@ -704,16 +713,17 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 - Files rendered as smaller membrane cells
 - Recent file changes cause pulses
 - Internal files (e.g., `internal/`) slightly dimmed
+- Back navigation via Esc or clicking outside
 
 **Acceptance**
 
-- Can navigate: Organism → Organs → Files
+- Can navigate: Organs → Files → back to Organs
 - Files show names and pulse on save
-- Back navigation works (Esc or click outside)
+- Internal vs. public files visually distinct
 
 ---
 
-#### MV10 — Code Graph Layer (Future)
+#### MV10 — Code Graph Layer
 
 - [ ] **Complete**
 
@@ -731,7 +741,7 @@ These are ideas that embody the philosophy but aren't core to the regulatory mac
 
 - Clicking a file shows its internal call graph
 - Functions connected by "calls" edges
-- Hover shows function signature and first-line comment
+- Hover shows function signature and JSDoc comment
 
 ---
 
