@@ -5,7 +5,7 @@
  * All organs (Memory, Regulator, Sensorium, etc.) import from here.
  *
  * If you need to change a fundamental rule, change it HERE.
- * Changes here reshape the entire organism.
+ * Changes here are mutations to the species, not to any single organism.
  *
  * The dna.test.ts file acts as a tripwire — it hardcodes expected values
  * so any change requires explicit acknowledgment.
