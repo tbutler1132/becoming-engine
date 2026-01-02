@@ -213,7 +213,7 @@ Phase 1 (MP1–MP12) establishes the **regulatory layer** — how the organism r
 
 ### Motivation
 
-To regulate effectively, the system needs to understand context. Descriptive Models need something to describe. Procedural Models need domains to apply to. The current ontology can represent beliefs (Models) but not the *entities* those beliefs are about.
+To regulate effectively, the system needs to understand context. Descriptive Models need something to describe. Procedural Models need domains to apply to. The current ontology can represent beliefs (Models) but not the _entities_ those beliefs are about.
 
 Phase 2 enables:
 
@@ -359,6 +359,7 @@ Phase 1 builds the core regulatory machinery (command-driven). Phase 2 adds the 
 ### Motivation
 
 The tech-spec describes a Regulator that:
+
 - Evaluates Variable states against thresholds
 - Detects pressure and uncertainty
 - Selects candidate Episodes automatically
@@ -495,3 +496,53 @@ Phase 1's Regulator is reactive (user calls `openEpisode`). Phase 3 makes it pro
 - **Regulator meta-learning**: Adjust thresholds based on Episode outcomes
 - **Multi-node coordination**: Regulators signal each other about pressure
 - **Predictive intervention**: Anticipate pressure before it arrives
+
+---
+
+## Nice to Have / Maybe
+
+These are ideas that embody the philosophy but aren't core to the regulatory machinery. They can be pursued when capacity allows or as exploratory side projects.
+
+### Membrane — Living Codebase Visualization
+
+**Status**: Proposed (see [ADR 0002](decisions/0002-membrane-visualization.md))
+
+**Concept**: A web visualization that renders the system as a living organism rather than a dashboard. Quiet at baseline, perturbation when pressure emerges, Episodes as temporary scaffolding that dissolves.
+
+**Layers**:
+
+1. **Organism**: Personal/Org nodes with Variables as membrane cells, Episodes as arcs
+2. **Organs**: Memory, Regulator, Sensorium, Cortex with data flow arrows
+3. **Files** (future): Drill into an organ to see its files
+4. **Code Graph** (future): AST visualization showing function-call relationships
+
+**Why it fits the philosophy**:
+
+- "When nothing is wrong, the system disappears" → visual quietness at baseline
+- Organisms as living entities → breathing, pulsing animation
+- Episodes are temporary → scaffolding that dissolves on close
+- Reactive to code changes → recent edits pulse through affected organs
+
+**Dependencies**: Works best after MP6 (Models) and MP12 (Cortex UI), but could be built earlier.
+
+**Effort**: Medium (prototype validated the concept)
+
+---
+
+### AI-Assisted Capture (Sensorium Extension)
+
+**Concept**: An LLM-powered layer that converts unstructured input (voice notes, chat messages, raw text) into structured Observations, Notes, and Model proposals.
+
+**Why it fits**: "No automatic ontology mutation" — the AI proposes, human confirms.
+
+**Dependencies**: MP9 (Sensorium v1 with Observations)
+
+---
+
+### Mobile Companion (Read-Only)
+
+**Concept**: A minimal mobile app for glancing at status. No planning affordances—just awareness.
+
+**Why it fits**: "Baseline quiet" — if nothing is wrong, the app shows almost nothing.
+
+**Dependencies**: MP12 (Cortex UI) or an API layer
