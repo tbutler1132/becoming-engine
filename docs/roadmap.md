@@ -20,6 +20,7 @@ This roadmap describes **small, composable micro-projects** that move the system
 - [x] **MP3**: CLI + Sensorium stub (orchestration + status/signal/act)
 - [x] **MP4**: Episode Lifecycle (Open/Close Commands + Timestamps)
 - [x] **MP5**: Episode Closure Produces Learning (Notes as Closure Artifacts)
+- [x] **MP9**: Sensorium v1 (Observations)
 
 ---
 
@@ -91,22 +92,6 @@ This roadmap describes **small, composable micro-projects** that move the system
 
 - Baseline output is quiet
 - Non-baseline output is structured and testable
-
----
-
-### MP9 — Sensorium v1 (Observations)
-
-**Goal**: Upgrade Sensorium to produce structured Observations.
-
-**Scope**
-
-- Add `Observation` type (e.g., `variableProxySignal`, `freeformNote`, `episodeProposal`)
-- CLI converts Observations into explicit Regulator mutations
-
-**Acceptance**
-
-- Tests prove invalid input cannot silently mutate ontology
-- At least one path: observation → note or variable status update
 
 ---
 
@@ -261,3 +246,13 @@ Minimal read-only app for glancing at status. If nothing is wrong, it shows almo
 ### Templates & Extensions
 
 Shareable Variable configurations and custom proxy pipelines for non-native data sources.
+
+### Persisted Observations
+
+Currently, Observations are ephemeral intermediate values during CLI execution. A future enhancement could persist Observations to Memory, creating a log of what was sensed. This would enable:
+
+- Audit trail of all input to the system
+- Replay capabilities for debugging
+- Analytics on observation patterns over time
+
+This aligns with the doctrine's canonical flow: "Sense → Store → ..."

@@ -23,6 +23,7 @@ import {
   ENFORCEMENT_LEVELS,
   NOTE_TAGS,
   LINK_RELATIONS,
+  OBSERVATION_TYPES,
   MAX_ACTIVE_EXPLORE_PER_NODE,
   MAX_ACTIVE_STABILIZE_PER_VARIABLE,
   SCHEMA_VERSION,
@@ -83,6 +84,14 @@ describe("DNA Integrity (Tripwire)", () => {
         "blocks",
         "responds_to",
         "derived_from",
+      ]);
+    });
+
+    it("has expected observation types", () => {
+      expect(OBSERVATION_TYPES).toEqual([
+        "variableProxySignal",
+        "freeformNote",
+        "episodeProposal",
       ]);
     });
   });
