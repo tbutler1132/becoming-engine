@@ -2,6 +2,8 @@
 
 > The philosophical foundation. Read this first.
 
+If you want the broader product-level framing (what we’re building, what it is not, and the anti-capture boundary), see `docs/vision.md`.
+
 ---
 
 ## 1. Ontological Premise
