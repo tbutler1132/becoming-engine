@@ -36,6 +36,15 @@ export const EPISODE_STATUSES = ["Active", "Closed"] as const;
 /** The valid action statuses (execution states) */
 export const ACTION_STATUSES = ["Pending", "Done"] as const;
 
+/** The valid model types (belief categories) */
+export const MODEL_TYPES = ["Descriptive", "Procedural", "Normative"] as const;
+
+/** The valid model scopes (where the belief applies) */
+export const MODEL_SCOPES = ["personal", "org", "domain"] as const;
+
+/** The valid enforcement levels (for Normative models) */
+export const ENFORCEMENT_LEVELS = ["none", "warn", "block"] as const;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // REGULATORY LIMITS — Constraints that preserve viability
 // ═══════════════════════════════════════════════════════════════════════════
@@ -51,4 +60,4 @@ export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Current schema version — increment when State shape changes */
-export const SCHEMA_VERSION = 4 as const;
+export const SCHEMA_VERSION = 5 as const;

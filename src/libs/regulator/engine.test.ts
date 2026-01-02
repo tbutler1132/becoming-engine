@@ -8,6 +8,8 @@ import {
   VARIABLE_STATUSES,
   EPISODE_TYPES,
   EPISODE_STATUSES,
+  MODEL_TYPES,
+  MODEL_SCOPES,
   SCHEMA_VERSION,
 } from "../memory/index.js";
 
@@ -37,6 +39,7 @@ describe("Regulator (Class Integration)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const regulator = new Regulator();
@@ -54,6 +57,7 @@ describe("Regulator (Class Integration)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const regulator = new Regulator();
@@ -85,6 +89,7 @@ describe("Regulator (Class Integration)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const regulatorDefault = new Regulator();
@@ -123,6 +128,7 @@ describe("Regulator (Class Integration)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const regulator = new Regulator();
@@ -139,6 +145,7 @@ describe("Regulator (Class Integration)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const regulator = new Regulator();
@@ -170,6 +177,7 @@ describe("Regulator (Class Integration)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const regulator = new Regulator({ logger: mockLogger });
@@ -200,6 +208,7 @@ describe("Regulator (Class Integration)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const regulator = new Regulator({ logger: mockLogger });
@@ -235,6 +244,7 @@ describe("Regulator (Class Integration)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const regulator = new Regulator();
@@ -284,6 +294,7 @@ describe("Regulator (Class Integration)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const regulator = new Regulator({ logger: mockLogger });
@@ -318,6 +329,7 @@ describe("Regulator (Class Integration)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       // Should not throw even without logger
@@ -328,6 +340,166 @@ describe("Regulator (Class Integration)", () => {
         closureNote: { id: "note-1", content: "Learned something" },
       });
       expect(result.ok).toBe(true);
+    });
+  });
+
+  // =========================================================================
+  // Acceptance Test: Closing Explore Creates Model (MP6)
+  // =========================================================================
+  describe("closeEpisode with Model creation (MP6)", () => {
+    it("closing an Explore can create a new Model", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1], // Explore
+            objective: "Discover what drives commitment",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const regulator = new Regulator();
+      const result = regulator.closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Learned about commitment" },
+        modelUpdates: [
+          {
+            id: "model-1",
+            type: MODEL_TYPES[0], // Descriptive
+            statement: "Publishing under my name increases commitment",
+            confidence: 0.7,
+            scope: MODEL_SCOPES[0], // personal
+          },
+        ],
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // Model was created
+        expect(result.value.models).toHaveLength(1);
+        expect(result.value.models[0]?.id).toBe("model-1");
+        expect(result.value.models[0]?.statement).toBe(
+          "Publishing under my name increases commitment",
+        );
+        expect(result.value.models[0]?.confidence).toBe(0.7);
+        expect(result.value.models[0]?.scope).toBe(MODEL_SCOPES[0]);
+        // Episode was closed
+        expect(result.value.episodes[0]?.status).toBe(CLOSED_STATUS);
+        // Note was created
+        expect(result.value.notes).toHaveLength(1);
+      }
+    });
+
+    it("closing an Explore can update an existing Model", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1], // Explore
+            objective: "Refine understanding of commitment",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "model-1",
+            type: MODEL_TYPES[0],
+            statement: "Publishing increases commitment",
+            confidence: 0.5,
+          },
+        ],
+      };
+
+      const regulator = new Regulator();
+      const result = regulator.closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: { id: "note-1", content: "Confirmed hypothesis" },
+        modelUpdates: [
+          {
+            id: "model-1", // Same ID as existing model
+            type: MODEL_TYPES[0],
+            statement: "Publishing under my own name increases commitment",
+            confidence: 0.85, // Increased confidence
+          },
+        ],
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // Model was updated (not duplicated)
+        expect(result.value.models).toHaveLength(1);
+        expect(result.value.models[0]?.statement).toBe(
+          "Publishing under my own name increases commitment",
+        );
+        expect(result.value.models[0]?.confidence).toBe(0.85);
+      }
+    });
+
+    it("closing an Explore can create multiple Models", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1], // Explore
+            objective: "Explore workflow patterns",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const regulator = new Regulator();
+      const result = regulator.closeEpisode(state, {
+        episodeId: "e1",
+        closedAt: "2025-01-01T12:00:00.000Z",
+        closureNote: {
+          id: "note-1",
+          content: "Discovered multiple workflow insights",
+        },
+        modelUpdates: [
+          {
+            id: "model-1",
+            type: MODEL_TYPES[0], // Descriptive
+            statement: "Morning focus blocks are most productive",
+            confidence: 0.8,
+          },
+          {
+            id: "model-2",
+            type: MODEL_TYPES[1], // Procedural
+            statement: "Break complex tasks into 25-minute chunks",
+            confidence: 0.6,
+          },
+        ],
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.models).toHaveLength(2);
+        expect(result.value.models[0]?.id).toBe("model-1");
+        expect(result.value.models[1]?.id).toBe("model-2");
+      }
     });
   });
 });

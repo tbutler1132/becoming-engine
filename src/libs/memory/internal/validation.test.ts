@@ -12,14 +12,19 @@ import {
   isValidLegacyStateV2,
   isValidLegacyStateV1,
   isValidLegacyStateV0,
+  isValidLegacyStateV4,
   nodeRefFromLegacy,
 } from "./validation.js";
+import { migrateV4ToV5 } from "./migrations.js";
 import {
   SCHEMA_VERSION,
   ACTION_STATUSES,
   EPISODE_STATUSES,
   EPISODE_TYPES,
   VARIABLE_STATUSES,
+  MODEL_TYPES,
+  MODEL_SCOPES,
+  ENFORCEMENT_LEVELS,
   DEFAULT_PERSONAL_NODE,
   DEFAULT_ORG_NODE,
 } from "../types.js";
@@ -58,6 +63,7 @@ function createValidStateV4(): unknown {
       },
     ],
     notes: [{ id: "n1", content: "Test note" }],
+    models: [],
   };
 }
 
@@ -68,6 +74,7 @@ function createMinimalValidStateV4(): unknown {
     episodes: [],
     actions: [],
     notes: [],
+    models: [],
   };
 }
 
@@ -233,6 +240,7 @@ describe("isValidStateV4", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
       expect(isValidStateV4(state)).toBe(true);
     });
@@ -251,6 +259,7 @@ describe("isValidStateV4", () => {
           },
         ],
         notes: [],
+        models: [],
       };
       expect(isValidStateV4(state)).toBe(true);
     });
@@ -269,6 +278,7 @@ describe("isValidStateV4", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
       expect(isValidStateV4(state)).toBe(true);
     });
@@ -1190,5 +1200,423 @@ describe("nodeRefFromLegacy", () => {
   it("converts 'Org' to { type: 'Org', id: 'org' }", () => {
     const result = nodeRefFromLegacy("Org");
     expect(result).toEqual({ type: "Org", id: "org" });
+  });
+});
+
+// ============================================================================
+// Model Validation Tests (MP6)
+// ============================================================================
+
+describe("isValidStateV4 - Model Validation", () => {
+  describe("valid model cases", () => {
+    it("accepts state with empty models array", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+      expect(isValidStateV4(state)).toBe(true);
+    });
+
+    it("accepts minimal model (required fields only)", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0], // Descriptive
+            statement: "Test belief",
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(true);
+    });
+
+    it("accepts model with all optional fields", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[2], // Normative
+            statement: "Test constraint",
+            confidence: 0.85,
+            scope: MODEL_SCOPES[0], // personal
+            enforcement: ENFORCEMENT_LEVELS[2], // block
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(true);
+    });
+
+    it("accepts multiple valid models", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Descriptive belief",
+          },
+          {
+            id: "m2",
+            type: MODEL_TYPES[1], // Procedural
+            statement: "Procedural knowledge",
+            confidence: 0.5,
+          },
+          {
+            id: "m3",
+            type: MODEL_TYPES[2], // Normative
+            statement: "Normative constraint",
+            scope: MODEL_SCOPES[2], // domain
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(true);
+    });
+
+    it("accepts confidence at boundary values (0.0 and 1.0)", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Zero confidence",
+            confidence: 0.0,
+          },
+          {
+            id: "m2",
+            type: MODEL_TYPES[0],
+            statement: "Full confidence",
+            confidence: 1.0,
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(true);
+    });
+  });
+
+  describe("invalid model cases", () => {
+    it("rejects missing models array", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        // Missing models array
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+
+    it("rejects model with invalid type", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: "InvalidType",
+            statement: "Test",
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+
+    it("rejects model missing statement", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            // Missing statement
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+
+    it("rejects model with non-string statement", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: 123,
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+
+    it("rejects model with invalid scope", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Test",
+            scope: "invalid_scope",
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+
+    it("rejects model with confidence below 0", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Test",
+            confidence: -0.1,
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+
+    it("rejects model with confidence above 1", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Test",
+            confidence: 1.1,
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+
+    it("rejects model with non-number confidence", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Test",
+            confidence: "high",
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+
+    it("rejects model with invalid enforcement level", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[2], // Normative
+            statement: "Test",
+            enforcement: "invalid",
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+
+    it("rejects duplicate model IDs", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "First",
+          },
+          {
+            id: "m1", // Duplicate
+            type: MODEL_TYPES[1],
+            statement: "Second",
+          },
+        ],
+      };
+      expect(isValidStateV4(state)).toBe(false);
+    });
+  });
+});
+
+// ============================================================================
+// isValidLegacyStateV4 Tests
+// ============================================================================
+
+describe("isValidLegacyStateV4", () => {
+  it("accepts valid V4 state (without models)", () => {
+    const state = {
+      schemaVersion: 4,
+      variables: [],
+      episodes: [],
+      actions: [],
+      notes: [],
+    };
+    expect(isValidLegacyStateV4(state)).toBe(true);
+  });
+
+  it("rejects V5 state (wrong schemaVersion)", () => {
+    const state = {
+      schemaVersion: SCHEMA_VERSION, // V5
+      variables: [],
+      episodes: [],
+      actions: [],
+      notes: [],
+      models: [],
+    };
+    expect(isValidLegacyStateV4(state)).toBe(false);
+  });
+
+  it("rejects V3 state", () => {
+    const state = {
+      schemaVersion: 3,
+      variables: [],
+      episodes: [],
+      actions: [],
+      notes: [],
+    };
+    expect(isValidLegacyStateV4(state)).toBe(false);
+  });
+});
+
+// ============================================================================
+// migrateV4ToV5 Tests
+// ============================================================================
+
+describe("migrateV4ToV5", () => {
+  it("adds empty models array to existing state", () => {
+    const v4State = {
+      schemaVersion: 4 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [
+        {
+          id: "e1",
+          node: DEFAULT_PERSONAL_NODE,
+          type: EPISODE_TYPES[0],
+          objective: "Test",
+          status: EPISODE_STATUSES[0],
+          openedAt: "2025-01-01T00:00:00.000Z",
+        },
+      ],
+      actions: [],
+      notes: [{ id: "n1", content: "Note" }],
+    };
+
+    const v5State = migrateV4ToV5(v4State);
+
+    expect(v5State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v5State.models).toEqual([]);
+    // Preserves existing data
+    expect(v5State.variables).toEqual(v4State.variables);
+    expect(v5State.episodes).toEqual(v4State.episodes);
+    expect(v5State.actions).toEqual(v4State.actions);
+    expect(v5State.notes).toEqual(v4State.notes);
+  });
+
+  it("preserves all existing data during migration", () => {
+    const v4State = {
+      schemaVersion: 4 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Test",
+          status: VARIABLE_STATUSES[0],
+        },
+        {
+          id: "v2",
+          node: DEFAULT_ORG_NODE,
+          name: "Capacity",
+          status: VARIABLE_STATUSES[2],
+        },
+      ],
+      episodes: [],
+      actions: [
+        {
+          id: "a1",
+          description: "Do something",
+          status: ACTION_STATUSES[0],
+        },
+      ],
+      notes: [],
+    };
+
+    const v5State = migrateV4ToV5(v4State);
+
+    expect(v5State.variables).toHaveLength(2);
+    expect(v5State.actions).toHaveLength(1);
+    expect(v5State.models).toEqual([]);
+    expect(isValidStateV4(v5State)).toBe(true);
   });
 });

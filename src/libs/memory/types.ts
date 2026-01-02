@@ -11,6 +11,9 @@ export {
   EPISODE_TYPES,
   EPISODE_STATUSES,
   ACTION_STATUSES,
+  MODEL_TYPES,
+  MODEL_SCOPES,
+  ENFORCEMENT_LEVELS,
   SCHEMA_VERSION,
 } from "../../dna.js";
 
@@ -23,6 +26,9 @@ import {
   EPISODE_TYPES,
   EPISODE_STATUSES,
   ACTION_STATUSES,
+  MODEL_TYPES,
+  MODEL_SCOPES,
+  ENFORCEMENT_LEVELS,
   SCHEMA_VERSION,
 } from "../../dna.js";
 
@@ -32,6 +38,9 @@ export type VariableStatus = (typeof VARIABLE_STATUSES)[number];
 export type EpisodeType = (typeof EPISODE_TYPES)[number];
 export type EpisodeStatus = (typeof EPISODE_STATUSES)[number];
 export type ActionStatus = (typeof ACTION_STATUSES)[number];
+export type ModelType = (typeof MODEL_TYPES)[number];
+export type ModelScope = (typeof MODEL_SCOPES)[number];
+export type EnforcementLevel = (typeof ENFORCEMENT_LEVELS)[number];
 export type SchemaVersion = typeof SCHEMA_VERSION;
 
 export type NodeId = string;
@@ -93,10 +102,23 @@ export interface Note {
   content: string;
 }
 
+export interface Model {
+  id: string;
+  type: ModelType;
+  statement: string;
+  /** Confidence level 0.0 to 1.0 */
+  confidence?: number;
+  /** Where the belief applies */
+  scope?: ModelScope;
+  /** Enforcement level (only applicable to Normative models) */
+  enforcement?: EnforcementLevel;
+}
+
 export interface State {
   schemaVersion: SchemaVersion;
   variables: Variable[];
   episodes: Episode[];
   actions: Action[];
   notes: Note[];
+  models: Model[];
 }
