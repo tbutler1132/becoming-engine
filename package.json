@@ -18,7 +18,8 @@
     "becoming:dev": "tsx src/apps/cli/cli.ts",
     "becoming:status": "tsx src/apps/cli/cli.ts status",
     "viewer": "npx --yes serve . -l 3000 --config src/apps/viewer/serve.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "dev:web": "cd src/apps/web && npm run dev"
   },
   "keywords": [],
   "author": "",
