@@ -17,6 +17,7 @@ import {
   removeNoteTag,
   createLink,
   deleteLink,
+  logException,
 } from "./logic.js";
 import {
   DEFAULT_PERSONAL_NODE,
@@ -63,6 +64,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const personalVars = getVariablesByNode(state, DEFAULT_PERSONAL_NODE);
@@ -111,6 +113,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const personalActive = getActiveEpisodesByNode(
@@ -158,6 +161,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const count = countActiveExplores(state, DEFAULT_PERSONAL_NODE);
@@ -175,6 +179,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
@@ -199,6 +204,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
@@ -228,6 +234,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = canStartExplore(state, DEFAULT_ORG_NODE);
@@ -260,6 +267,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const policyTwo: RegulatorPolicyForNode = {
@@ -296,6 +304,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = canCreateAction(state, {
@@ -322,6 +331,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = canCreateAction(state, {
@@ -370,6 +380,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const openedAt = "2025-01-01T12:00:00.000Z";
@@ -404,6 +415,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const params = {
@@ -437,6 +449,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const params = {
@@ -470,6 +483,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const sameVariable = openEpisode(state, {
@@ -513,6 +527,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const closedAt = "2025-01-01T12:00:00.000Z";
@@ -566,6 +581,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = closeEpisode(state, {
@@ -591,6 +607,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = closeEpisode(state, {
@@ -623,6 +640,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = closeEpisode(state, {
@@ -654,6 +672,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = closeEpisode(state, {
@@ -685,6 +704,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = closeEpisode(state, {
@@ -716,6 +736,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       // Closing Explore without modelUpdates should fail
@@ -773,6 +794,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       // Closing Stabilize without modelUpdates should succeed
@@ -808,6 +830,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = applySignal(state, {
@@ -837,6 +860,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createAction(state, {
@@ -860,6 +884,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createAction(state, {
@@ -889,6 +914,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const wrongNode = createAction(state, {
@@ -919,6 +945,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createAction(state, {
@@ -948,6 +975,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createAction(state, {
@@ -975,6 +1003,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createModel(state, {
@@ -1005,6 +1034,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createModel(state, {
@@ -1033,6 +1063,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createModel(state, {
@@ -1056,6 +1087,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createModel(state, {
@@ -1076,6 +1108,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createModel(state, {
@@ -1100,6 +1133,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createModel(state, {
@@ -1127,6 +1161,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
 
       const result = createModel(state, {
@@ -1158,6 +1193,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
 
       const result = updateModel(state, {
@@ -1189,6 +1225,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
 
       const result = updateModel(state, {
@@ -1217,6 +1254,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
 
       const result = updateModel(state, {
@@ -1243,6 +1281,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = updateModel(state, {
@@ -1271,6 +1310,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
 
       const result = updateModel(state, {
@@ -1296,6 +1336,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
 
       const result = updateModel(state, {
@@ -1317,6 +1358,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const createdAt = "2025-01-01T12:00:00.000Z";
@@ -1347,6 +1389,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createNote(state, {
@@ -1371,6 +1414,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createNote(state, {
@@ -1398,6 +1442,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createNote(state, {
@@ -1428,6 +1473,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createNote(state, {
@@ -1460,6 +1506,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = addNoteTag(state, {
@@ -1491,6 +1538,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = addNoteTag(state, {
@@ -1515,6 +1563,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = addNoteTag(state, {
@@ -1546,6 +1595,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = removeNoteTag(state, {
@@ -1577,6 +1627,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = removeNoteTag(state, {
@@ -1601,6 +1652,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = removeNoteTag(state, {
@@ -1639,6 +1691,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createLink(state, {
@@ -1684,6 +1737,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createLink(state, {
@@ -1722,6 +1776,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result1 = createLink(state, {
@@ -1759,6 +1814,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createLink(state, {
@@ -1790,6 +1846,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createLink(state, {
@@ -1822,6 +1879,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createLink(state, {
@@ -1861,6 +1919,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             relation: "supports",
           },
         ],
+        exceptions: [],
       };
 
       const result = createLink(state, {
@@ -1892,6 +1951,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createLink(state, {
@@ -1923,6 +1983,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = createLink(state, {
@@ -1982,6 +2043,7 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
 
       // Link variable to episode
@@ -2043,6 +2105,7 @@ describe("Regulator Logic (Pure Functions)", () => {
             relation: "tests",
           },
         ],
+        exceptions: [],
       };
 
       const result = deleteLink(state, { linkId: "l1" });
@@ -2065,6 +2128,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const result = deleteLink(state, { linkId: "nonexistent" });
@@ -2072,6 +2136,157 @@ describe("Regulator Logic (Pure Functions)", () => {
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain("not found");
+      }
+    });
+  });
+
+  describe("logException", () => {
+    it("logs a membrane exception", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[2],
+            statement: "No late-night work",
+            scope: MODEL_SCOPES[0],
+            enforcement: ENFORCEMENT_LEVELS[2],
+          },
+        ],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = logException(state, {
+        exceptionId: "ex1",
+        modelId: "m1",
+        originalDecision: "block",
+        justification: "Urgent deadline",
+        mutationType: "episode",
+        mutationId: "e1",
+        createdAt: "2025-01-02T00:00:00.000Z",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.exceptions).toHaveLength(1);
+        expect(result.value.exceptions[0]?.modelId).toBe("m1");
+        expect(result.value.exceptions[0]?.originalDecision).toBe("block");
+        expect(result.value.exceptions[0]?.justification).toBe(
+          "Urgent deadline",
+        );
+        // Original state unchanged
+        expect(state.exceptions).toHaveLength(0);
+      }
+    });
+
+    it("fails when model does not exist", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = logException(state, {
+        exceptionId: "ex1",
+        modelId: "nonexistent",
+        originalDecision: "warn",
+        justification: "Test",
+        mutationType: "episode",
+        mutationId: "e1",
+        createdAt: "2025-01-02T00:00:00.000Z",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("not found");
+      }
+    });
+
+    it("fails with empty justification", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[2],
+            statement: "Test",
+          },
+        ],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = logException(state, {
+        exceptionId: "ex1",
+        modelId: "m1",
+        originalDecision: "warn",
+        justification: "   ",
+        mutationType: "episode",
+        mutationId: "e1",
+        createdAt: "2025-01-02T00:00:00.000Z",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("empty");
+      }
+    });
+
+    it("fails with duplicate exception ID", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[2],
+            statement: "Test",
+          },
+        ],
+        links: [],
+        exceptions: [
+          {
+            id: "ex1",
+            modelId: "m1",
+            originalDecision: "warn",
+            justification: "Already exists",
+            mutationType: "episode",
+            mutationId: "e0",
+            createdAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+      };
+
+      const result = logException(state, {
+        exceptionId: "ex1",
+        modelId: "m1",
+        originalDecision: "warn",
+        justification: "New justification",
+        mutationType: "episode",
+        mutationId: "e1",
+        createdAt: "2025-01-02T00:00:00.000Z",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("already exists");
       }
     });
   });

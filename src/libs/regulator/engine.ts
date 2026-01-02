@@ -7,6 +7,7 @@ import type {
   CloseEpisodeParams,
   CreateActionParams,
   CreateNoteParams,
+  LogExceptionParams,
   RemoveNoteTagParams,
   Result,
   OpenEpisodeParams,
@@ -219,6 +220,29 @@ export class Regulator {
       );
     } else {
       this.logger.warn(`Remove tag failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Logs a Membrane exception when a user bypasses a Normative Model constraint.
+   *
+   * **Intent:** Provide audit trail for when users proceed despite warnings
+   * or override blocks with justification.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with new exception appended
+   * - Validates: modelId exists, mutationType and originalDecision are valid
+   * - Error handling: Returns error if validation fails
+   */
+  logException(state: State, params: LogExceptionParams): Result<State> {
+    const result = logic.logException(state, params);
+    if (result.ok) {
+      this.logger.info(
+        `Exception logged: ${params.originalDecision} override for model ${params.modelId}`,
+      );
+    } else {
+      this.logger.warn(`Exception logging failed: ${result.error}`);
     }
     return result;
   }

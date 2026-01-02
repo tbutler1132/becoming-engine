@@ -41,6 +41,23 @@ function getNormativeModelsForNode(state: State, node: NodeRef): Model[] {
 }
 
 /**
+ * Determines if exceptions are allowed for a model.
+ *
+ * Default behavior:
+ * - warn models: exceptions allowed by default (true)
+ * - block models: exceptions NOT allowed by default (false)
+ *
+ * This can be overridden by the model's exceptionsAllowed field.
+ */
+function isExceptionAllowed(model: Model): boolean {
+  if (model.exceptionsAllowed !== undefined) {
+    return model.exceptionsAllowed;
+  }
+  // Default: warn allows exceptions, block does not
+  return model.enforcement === "warn";
+}
+
+/**
  * Checks if opening an episode is allowed by Normative Models.
  *
  * **Intent:** Gate episode mutations through Normative Model constraints.
@@ -61,6 +78,10 @@ function getNormativeModelsForNode(state: State, node: NodeRef): Model[] {
  * - enforcement: "none" → ignored (model is informational only)
  * - enforcement: "warn" → mutation allowed, warning returned
  * - enforcement: "block" → mutation blocked, reason returned
+ *
+ * **Exception handling:**
+ * - exceptionAllowed on warn: indicates if exception can be logged when proceeding
+ * - exceptionAllowed on block: indicates if user can override with --override flag
  */
 export function checkEpisodeConstraints(
   state: State,
@@ -82,6 +103,7 @@ export function checkEpisodeConstraints(
         warnings.push({
           modelId: model.id,
           statement: model.statement,
+          exceptionAllowed: isExceptionAllowed(model),
         });
         continue;
 
@@ -91,6 +113,7 @@ export function checkEpisodeConstraints(
           decision: "block",
           reason: model.statement,
           modelId: model.id,
+          exceptionAllowed: isExceptionAllowed(model),
         };
     }
   }

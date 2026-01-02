@@ -91,4 +91,14 @@ export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Current schema version — increment when State shape changes */
-export const SCHEMA_VERSION = 7 as const;
+export const SCHEMA_VERSION = 8 as const;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MEMBRANE — Exception tracking for constraint bypasses
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** The valid mutation types that can trigger Membrane exceptions */
+export const MUTATION_TYPES = ["episode", "action", "signal"] as const;
+
+/** The valid original decisions that can be overridden */
+export const OVERRIDE_DECISIONS = ["warn", "block"] as const;

@@ -19,6 +19,7 @@ function emptyState(): State {
     notes: [],
     models: [],
     links: [],
+    exceptions: [],
   };
 }
 
@@ -316,6 +317,90 @@ describe("Membrane Logic (Pure Functions)", () => {
         });
 
         expect(result.decision).toBe("allow");
+      });
+    });
+
+    describe("exceptionAllowed behavior", () => {
+      it("warn models default to exceptionAllowed: true", () => {
+        const state = emptyState();
+        state.models = [
+          normativeModel("m1", "Warning constraint", "personal", "warn"),
+        ];
+
+        const result = checkEpisodeConstraints(state, {
+          node: DEFAULT_PERSONAL_NODE,
+          episodeType: "Explore",
+        });
+
+        expect(result.decision).toBe("warn");
+        if (result.decision === "warn") {
+          expect(result.warnings[0]?.exceptionAllowed).toBe(true);
+        }
+      });
+
+      it("block models default to exceptionAllowed: false", () => {
+        const state = emptyState();
+        state.models = [
+          normativeModel("m1", "Blocking constraint", "personal", "block"),
+        ];
+
+        const result = checkEpisodeConstraints(state, {
+          node: DEFAULT_PERSONAL_NODE,
+          episodeType: "Explore",
+        });
+
+        expect(result.decision).toBe("block");
+        if (result.decision === "block") {
+          expect(result.exceptionAllowed).toBe(false);
+        }
+      });
+
+      it("respects explicit exceptionsAllowed: true on block model", () => {
+        const state = emptyState();
+        state.models = [
+          {
+            id: "m1",
+            type: "Normative",
+            statement: "Overridable block",
+            scope: "personal",
+            enforcement: "block",
+            exceptionsAllowed: true,
+          },
+        ];
+
+        const result = checkEpisodeConstraints(state, {
+          node: DEFAULT_PERSONAL_NODE,
+          episodeType: "Explore",
+        });
+
+        expect(result.decision).toBe("block");
+        if (result.decision === "block") {
+          expect(result.exceptionAllowed).toBe(true);
+        }
+      });
+
+      it("respects explicit exceptionsAllowed: false on warn model", () => {
+        const state = emptyState();
+        state.models = [
+          {
+            id: "m1",
+            type: "Normative",
+            statement: "Warning without exception",
+            scope: "personal",
+            enforcement: "warn",
+            exceptionsAllowed: false,
+          },
+        ];
+
+        const result = checkEpisodeConstraints(state, {
+          node: DEFAULT_PERSONAL_NODE,
+          episodeType: "Explore",
+        });
+
+        expect(result.decision).toBe("warn");
+        if (result.decision === "warn") {
+          expect(result.warnings[0]?.exceptionAllowed).toBe(false);
+        }
       });
     });
   });

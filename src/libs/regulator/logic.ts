@@ -29,6 +29,7 @@ import type {
   CreateModelParams,
   CreateNoteParams,
   DeleteLinkParams,
+  LogExceptionParams,
   ModelUpdate,
   RemoveNoteTagParams,
   Result,
@@ -45,7 +46,8 @@ import {
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
 } from "../memory/index.js";
-import type { Model } from "../memory/index.js";
+import type { MembraneException, Model } from "../memory/index.js";
+import { MUTATION_TYPES, OVERRIDE_DECISIONS } from "../memory/index.js";
 
 const CLOSURE_NOTE_TAG: NoteTag = "closure_note";
 
@@ -881,6 +883,88 @@ export function deleteLink(
     value: {
       ...state,
       links: state.links.filter((l) => l.id !== params.linkId),
+    },
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MEMBRANE EXCEPTION LOGGING
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Logs a Membrane exception when a user bypasses a Normative Model constraint.
+ *
+ * **Intent:** Provide audit trail for when users proceed despite warnings
+ * or override blocks with justification.
+ *
+ * **Contract:**
+ * - Returns: Result<State> with new exception appended
+ * - Validates: modelId exists, mutationType and originalDecision are valid
+ * - Pure function: does not mutate input state
+ */
+export function logException(
+  state: State,
+  params: LogExceptionParams,
+): Result<State> {
+  // Validate modelId exists
+  const modelExists = state.models.some((m) => m.id === params.modelId);
+  if (!modelExists) {
+    return {
+      ok: false,
+      error: `Model with id '${params.modelId}' not found`,
+    };
+  }
+
+  // Validate mutationType
+  if (!MUTATION_TYPES.includes(params.mutationType)) {
+    return {
+      ok: false,
+      error: `Invalid mutationType: '${params.mutationType}'`,
+    };
+  }
+
+  // Validate originalDecision
+  if (!OVERRIDE_DECISIONS.includes(params.originalDecision)) {
+    return {
+      ok: false,
+      error: `Invalid originalDecision: '${params.originalDecision}'`,
+    };
+  }
+
+  // Validate justification is not empty
+  if (params.justification.trim() === "") {
+    return {
+      ok: false,
+      error: "Justification cannot be empty",
+    };
+  }
+
+  // Check for duplicate exception ID
+  const exceptionExists = state.exceptions.some(
+    (e) => e.id === params.exceptionId,
+  );
+  if (exceptionExists) {
+    return {
+      ok: false,
+      error: `Exception with id '${params.exceptionId}' already exists`,
+    };
+  }
+
+  const newException: MembraneException = {
+    id: params.exceptionId,
+    modelId: params.modelId,
+    originalDecision: params.originalDecision,
+    justification: params.justification,
+    mutationType: params.mutationType,
+    mutationId: params.mutationId,
+    createdAt: params.createdAt,
+  };
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      exceptions: [...state.exceptions, newException],
     },
   };
 }

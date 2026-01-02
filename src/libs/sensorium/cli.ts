@@ -38,6 +38,8 @@ export type SensoriumCommand =
       type: EpisodeType;
       variableId?: string;
       objective: string;
+      /** Override justification for bypassing a Membrane block */
+      override?: string;
     }
   | {
       kind: "close";
@@ -196,6 +198,9 @@ export function parseCli(argv: readonly string[]): Result<SensoriumCommand> {
       };
     }
 
+    // Optional override flag for bypassing Membrane blocks
+    const override = getFlagValue(argv, "--override");
+
     return {
       ok: true,
       value: {
@@ -204,6 +209,7 @@ export function parseCli(argv: readonly string[]): Result<SensoriumCommand> {
         type: typeRaw,
         ...(variableId ? { variableId } : {}),
         objective,
+        ...(override ? { override } : {}),
       },
     };
   }

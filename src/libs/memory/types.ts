@@ -17,6 +17,8 @@ export {
   NOTE_TAGS,
   LINK_RELATIONS,
   SCHEMA_VERSION,
+  MUTATION_TYPES,
+  OVERRIDE_DECISIONS,
 } from "../../dna.js";
 
 // Import for local type derivations
@@ -34,6 +36,8 @@ import {
   NOTE_TAGS,
   LINK_RELATIONS,
   SCHEMA_VERSION,
+  MUTATION_TYPES,
+  OVERRIDE_DECISIONS,
 } from "../../dna.js";
 
 // Type derivations from DNA constants
@@ -48,6 +52,8 @@ export type EnforcementLevel = (typeof ENFORCEMENT_LEVELS)[number];
 export type NoteTag = (typeof NOTE_TAGS)[number];
 export type LinkRelation = (typeof LINK_RELATIONS)[number];
 export type SchemaVersion = typeof SCHEMA_VERSION;
+export type MutationType = (typeof MUTATION_TYPES)[number];
+export type OverrideDecision = (typeof OVERRIDE_DECISIONS)[number];
 
 export type NodeId = string;
 
@@ -132,6 +138,8 @@ export interface Model {
   scope?: ModelScope;
   /** Enforcement level (only applicable to Normative models) */
   enforcement?: EnforcementLevel;
+  /** Whether exceptions can be logged against this model (default: true for warn, false for block) */
+  exceptionsAllowed?: boolean;
 }
 
 export interface Link {
@@ -146,6 +154,26 @@ export interface Link {
   weight?: number;
 }
 
+/**
+ * A MembraneException records when a user bypassed a Normative Model constraint.
+ * This provides audit trail for warn acknowledgments and block overrides.
+ */
+export interface MembraneException {
+  id: string;
+  /** The Normative Model that was bypassed */
+  modelId: string;
+  /** What kind of decision was overridden */
+  originalDecision: OverrideDecision;
+  /** User-provided reason for proceeding */
+  justification: string;
+  /** What mutation was being attempted */
+  mutationType: MutationType;
+  /** ID of the resulting mutation (episode/action ID) */
+  mutationId: string;
+  /** ISO timestamp */
+  createdAt: string;
+}
+
 export interface State {
   schemaVersion: SchemaVersion;
   variables: Variable[];
@@ -154,4 +182,5 @@ export interface State {
   notes: Note[];
   models: Model[];
   links: Link[];
+  exceptions: MembraneException[];
 }

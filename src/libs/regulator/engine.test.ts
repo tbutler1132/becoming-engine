@@ -41,6 +41,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator();
@@ -60,6 +61,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator();
@@ -93,6 +95,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulatorDefault = new Regulator();
@@ -133,6 +136,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator();
@@ -151,6 +155,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator();
@@ -184,6 +189,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator({ logger: mockLogger });
@@ -216,6 +222,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator({ logger: mockLogger });
@@ -253,6 +260,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator();
@@ -304,6 +312,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator({ logger: mockLogger });
@@ -340,6 +349,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       // Should not throw even without logger
@@ -375,6 +385,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator();
@@ -435,6 +446,7 @@ describe("Regulator (Class Integration)", () => {
           },
         ],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator();
@@ -481,6 +493,7 @@ describe("Regulator (Class Integration)", () => {
         notes: [],
         models: [],
         links: [],
+        exceptions: [],
       };
 
       const regulator = new Regulator();

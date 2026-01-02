@@ -8,6 +8,7 @@ import type {
   StateV4,
   StateV5,
   StateV6,
+  StateV7,
 } from "./validation.js";
 import { nodeRefFromLegacy } from "./validation.js";
 
@@ -95,10 +96,21 @@ export function migrateV5ToV6(v5: StateV5): StateV6 {
 /**
  * Migrates v6 state to v7 by adding an empty links array.
  */
-export function migrateV6ToV7(v6: StateV6): State {
+export function migrateV6ToV7(v6: StateV6): StateV7 {
   return {
     ...v6,
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: 7,
     links: [],
+  };
+}
+
+/**
+ * Migrates v7 state to v8 by adding an empty exceptions array.
+ */
+export function migrateV7ToV8(v7: StateV7): State {
+  return {
+    ...v7,
+    schemaVersion: SCHEMA_VERSION,
+    exceptions: [],
   };
 }
