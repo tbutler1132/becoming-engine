@@ -18,6 +18,9 @@ import {
   EPISODE_TYPES,
   EPISODE_STATUSES,
   ACTION_STATUSES,
+  MODEL_TYPES,
+  MODEL_SCOPES,
+  ENFORCEMENT_LEVELS,
   MAX_ACTIVE_EXPLORE_PER_NODE,
   MAX_ACTIVE_STABILIZE_PER_VARIABLE,
   SCHEMA_VERSION,
@@ -49,6 +52,18 @@ describe("DNA Integrity (Tripwire)", () => {
     it("has expected action statuses", () => {
       expect(ACTION_STATUSES).toEqual(["Pending", "Done"]);
     });
+
+    it("has expected model types", () => {
+      expect(MODEL_TYPES).toEqual(["Descriptive", "Procedural", "Normative"]);
+    });
+
+    it("has expected model scopes", () => {
+      expect(MODEL_SCOPES).toEqual(["personal", "org", "domain"]);
+    });
+
+    it("has expected enforcement levels", () => {
+      expect(ENFORCEMENT_LEVELS).toEqual(["none", "warn", "block"]);
+    });
   });
 
   describe("Regulatory Limits", () => {
@@ -63,7 +78,7 @@ describe("DNA Integrity (Tripwire)", () => {
 
   describe("Schema Version", () => {
     it("has expected schema version", () => {
-      expect(SCHEMA_VERSION).toBe(4);
+      expect(SCHEMA_VERSION).toBe(5);
     });
   });
 });

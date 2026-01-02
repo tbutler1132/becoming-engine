@@ -18,12 +18,20 @@ import type {
   CloseEpisodeParams,
   ClosureNote,
   CreateActionParams,
+  CreateModelParams,
   Result,
   OpenEpisodeParams,
   SignalParams,
+  UpdateModelParams,
 } from "./types.js";
 import type { RegulatorPolicyForNode } from "./policy.js";
 import { MAX_ACTIVE_EXPLORE_PER_NODE } from "./types.js";
+import {
+  MODEL_TYPES,
+  MODEL_SCOPES,
+  ENFORCEMENT_LEVELS,
+} from "../memory/index.js";
+import type { Model } from "../memory/index.js";
 
 const ACTIVE_STATUS = EPISODE_STATUSES[0];
 const CLOSED_STATUS = EPISODE_STATUSES[1];
@@ -296,14 +304,15 @@ export function validateClosureNote(note: ClosureNote): Result<void> {
 
 /**
  * Closes an episode and creates a closure note.
- * Returns a new State with the episode closed, timestamps set, note created, and variables updated.
+ * Returns a new State with the episode closed, timestamps set, note created, variables updated, and models created/updated.
  * Pure function: does not mutate input state.
  */
 export function closeEpisode(
   state: State,
   params: CloseEpisodeParams,
 ): Result<State> {
-  const { episodeId, closedAt, closureNote, variableUpdates } = params;
+  const { episodeId, closedAt, closureNote, variableUpdates, modelUpdates } =
+    params;
 
   // Validate closure note
   const noteValidation = validateClosureNote(closureNote);
@@ -348,6 +357,50 @@ export function closeEpisode(
     });
   }
 
+  // Create or update models if provided
+  let updatedModels = state.models;
+  if (modelUpdates && modelUpdates.length > 0) {
+    const existingModelIds = new Set(state.models.map((m) => m.id));
+    const newModels: Model[] = [];
+
+    for (const update of modelUpdates) {
+      if (existingModelIds.has(update.id)) {
+        // Update existing model
+        updatedModels = updatedModels.map((m) =>
+          m.id === update.id
+            ? {
+                ...m,
+                statement: update.statement,
+                ...(update.confidence !== undefined
+                  ? { confidence: update.confidence }
+                  : {}),
+                ...(update.scope !== undefined ? { scope: update.scope } : {}),
+                ...(update.enforcement !== undefined
+                  ? { enforcement: update.enforcement }
+                  : {}),
+              }
+            : m,
+        );
+      } else {
+        // Create new model
+        const newModel: Model = {
+          id: update.id,
+          type: update.type,
+          statement: update.statement,
+          ...(update.confidence !== undefined
+            ? { confidence: update.confidence }
+            : {}),
+          ...(update.scope !== undefined ? { scope: update.scope } : {}),
+          ...(update.enforcement !== undefined
+            ? { enforcement: update.enforcement }
+            : {}),
+        };
+        newModels.push(newModel);
+      }
+    }
+    updatedModels = [...updatedModels, ...newModels];
+  }
+
   return {
     ok: true,
     value: {
@@ -355,6 +408,158 @@ export function closeEpisode(
       episodes: updatedEpisodes,
       variables: updatedVariables,
       notes: [...state.notes, newNote],
+      models: updatedModels,
+    },
+  };
+}
+
+/**
+ * Validates model creation parameters.
+ */
+function validateModelParams(params: CreateModelParams): Result<void> {
+  if (!params.statement || params.statement.trim().length === 0) {
+    return { ok: false, error: "Model statement cannot be empty" };
+  }
+  if (!(MODEL_TYPES as readonly string[]).includes(params.type)) {
+    return { ok: false, error: `Invalid model type: ${params.type}` };
+  }
+  if (params.confidence !== undefined) {
+    if (params.confidence < 0 || params.confidence > 1) {
+      return {
+        ok: false,
+        error: "Model confidence must be between 0.0 and 1.0",
+      };
+    }
+  }
+  if (
+    params.scope !== undefined &&
+    !(MODEL_SCOPES as readonly string[]).includes(params.scope)
+  ) {
+    return { ok: false, error: `Invalid model scope: ${params.scope}` };
+  }
+  if (
+    params.enforcement !== undefined &&
+    !(ENFORCEMENT_LEVELS as readonly string[]).includes(params.enforcement)
+  ) {
+    return {
+      ok: false,
+      error: `Invalid enforcement level: ${params.enforcement}`,
+    };
+  }
+  return { ok: true, value: undefined };
+}
+
+/**
+ * Creates a new model.
+ * Returns a new State with the model added.
+ * Pure function: does not mutate input state.
+ */
+export function createModel(
+  state: State,
+  params: CreateModelParams,
+): Result<State> {
+  // Validate params
+  const validation = validateModelParams(params);
+  if (!validation.ok) {
+    return validation;
+  }
+
+  // Check for duplicate ID
+  if (state.models.some((m) => m.id === params.modelId)) {
+    return {
+      ok: false,
+      error: `Model with id '${params.modelId}' already exists`,
+    };
+  }
+
+  const newModel: Model = {
+    id: params.modelId,
+    type: params.type,
+    statement: params.statement,
+    ...(params.confidence !== undefined
+      ? { confidence: params.confidence }
+      : {}),
+    ...(params.scope !== undefined ? { scope: params.scope } : {}),
+    ...(params.enforcement !== undefined
+      ? { enforcement: params.enforcement }
+      : {}),
+  };
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      models: [...state.models, newModel],
+    },
+  };
+}
+
+/**
+ * Updates an existing model.
+ * Returns a new State with the model updated.
+ * Pure function: does not mutate input state.
+ */
+export function updateModel(
+  state: State,
+  params: UpdateModelParams,
+): Result<State> {
+  // Find the model
+  const model = state.models.find((m) => m.id === params.modelId);
+  if (!model) {
+    return { ok: false, error: `Model with id '${params.modelId}' not found` };
+  }
+
+  // Validate updates
+  if (params.statement !== undefined && params.statement.trim().length === 0) {
+    return { ok: false, error: "Model statement cannot be empty" };
+  }
+  if (params.confidence !== undefined) {
+    if (params.confidence < 0 || params.confidence > 1) {
+      return {
+        ok: false,
+        error: "Model confidence must be between 0.0 and 1.0",
+      };
+    }
+  }
+  if (
+    params.scope !== undefined &&
+    !(MODEL_SCOPES as readonly string[]).includes(params.scope)
+  ) {
+    return { ok: false, error: `Invalid model scope: ${params.scope}` };
+  }
+  if (
+    params.enforcement !== undefined &&
+    !(ENFORCEMENT_LEVELS as readonly string[]).includes(params.enforcement)
+  ) {
+    return {
+      ok: false,
+      error: `Invalid enforcement level: ${params.enforcement}`,
+    };
+  }
+
+  const updatedModels = state.models.map((m) =>
+    m.id === params.modelId
+      ? {
+          ...m,
+          ...(params.statement !== undefined
+            ? { statement: params.statement }
+            : {}),
+          ...(params.confidence !== undefined
+            ? { confidence: params.confidence }
+            : {}),
+          ...(params.scope !== undefined ? { scope: params.scope } : {}),
+          ...(params.enforcement !== undefined
+            ? { enforcement: params.enforcement }
+            : {}),
+        }
+      : m,
+  );
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      models: updatedModels,
     },
   };
 }

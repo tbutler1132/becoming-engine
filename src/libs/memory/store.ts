@@ -15,12 +15,14 @@ import {
   isValidLegacyStateV1,
   isValidLegacyStateV2,
   isValidLegacyStateV3,
+  isValidLegacyStateV4,
   isValidStateV4,
 } from "./internal/validation.js";
 import {
-  migrateLegacyToV2,
+  migrateLegacyToV4,
   migrateV2ToV3,
   migrateV3ToV4,
+  migrateV4ToV5,
 } from "./internal/migrations.js";
 import {
   acquireLock,
@@ -91,21 +93,25 @@ export class JsonStore {
         return data;
       }
 
+      if (isValidLegacyStateV4(data)) {
+        return migrateV4ToV5(data);
+      }
+
       if (isValidLegacyStateV3(data)) {
-        return migrateV3ToV4(data);
+        return migrateV4ToV5(migrateV3ToV4(data));
       }
 
       if (isValidLegacyStateV2(data)) {
-        return migrateV3ToV4(migrateV2ToV3(data));
+        return migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(data)));
       }
 
       if (isValidLegacyStateV1(data)) {
-        return migrateLegacyToV2(data);
+        return migrateV4ToV5(migrateLegacyToV4(data));
       }
 
       if (isValidLegacyStateV0(data)) {
         // Backward-compatible: files without schemaVersion are treated as v0 (legacy).
-        return migrateLegacyToV2(data);
+        return migrateV4ToV5(migrateLegacyToV4(data));
       }
 
       await this.backupInvalidStateFile();
@@ -175,6 +181,7 @@ export class JsonStore {
       episodes: [],
       actions: [],
       notes: [],
+      models: [],
     };
   }
 

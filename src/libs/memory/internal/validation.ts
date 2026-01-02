@@ -2,16 +2,22 @@ import {
   ACTION_STATUSES,
   DEFAULT_ORG_NODE_ID,
   DEFAULT_PERSONAL_NODE_ID,
+  ENFORCEMENT_LEVELS,
   EPISODE_STATUSES,
   EPISODE_TYPES,
+  MODEL_SCOPES,
+  MODEL_TYPES,
   NODE_TYPES,
   SCHEMA_VERSION,
   VARIABLE_STATUSES,
 } from "../types.js";
 import type {
   ActionStatus,
+  EnforcementLevel,
   EpisodeStatus,
   EpisodeType,
+  ModelScope,
+  ModelType,
   NodeRef,
   NodeType,
   SchemaVersion,
@@ -22,9 +28,15 @@ import type {
 const LEGACY_SCHEMA_VERSION_V1 = 1 as const;
 const LEGACY_SCHEMA_VERSION_V2 = 2 as const;
 const LEGACY_SCHEMA_VERSION_V3 = 3 as const;
+const LEGACY_SCHEMA_VERSION_V4 = 4 as const;
 
-export type StateV2 = Omit<State, "schemaVersion"> & {
+export type StateV2 = Omit<State, "schemaVersion" | "models"> & {
   schemaVersion: typeof LEGACY_SCHEMA_VERSION_V2;
+};
+
+/** V4 State without models array */
+export type StateV4 = Omit<State, "schemaVersion" | "models"> & {
+  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V4;
 };
 
 /** V3 Episode without timestamp fields */
@@ -161,6 +173,24 @@ function isEpisodeStatus(value: unknown): value is EpisodeStatus {
 
 function isActionStatus(value: unknown): value is ActionStatus {
   return typeof value === "string" && isMember(ACTION_STATUSES, value);
+}
+
+function isModelType(value: unknown): value is ModelType {
+  return typeof value === "string" && isMember(MODEL_TYPES, value);
+}
+
+function isModelScope(value: unknown): value is ModelScope {
+  return typeof value === "string" && isMember(MODEL_SCOPES, value);
+}
+
+function isEnforcementLevel(value: unknown): value is EnforcementLevel {
+  return typeof value === "string" && isMember(ENFORCEMENT_LEVELS, value);
+}
+
+function isLegacySchemaVersionV4(
+  value: unknown,
+): value is typeof LEGACY_SCHEMA_VERSION_V4 {
+  return value === LEGACY_SCHEMA_VERSION_V4;
 }
 
 function hasUniqueIds(items: readonly unknown[]): boolean {
@@ -509,12 +539,16 @@ export function isValidLegacyStateV3(data: unknown): data is StateV3 {
   return true;
 }
 
-export function isValidStateV4(data: unknown): data is State {
+/**
+ * Validates a V4 state (schema version 4, without models array).
+ * Used for migration from V4 to V5.
+ */
+export function isValidLegacyStateV4(data: unknown): data is StateV4 {
   if (typeof data !== "object" || data === null) {
     return false;
   }
   const obj = data as Record<string, unknown>;
-  if (!isSchemaVersion(obj.schemaVersion)) {
+  if (!isLegacySchemaVersionV4(obj.schemaVersion)) {
     return false;
   }
   if (
@@ -531,6 +565,111 @@ export function isValidStateV4(data: unknown): data is State {
     !hasUniqueIds(obj.episodes) ||
     !hasUniqueIds(obj.actions) ||
     !hasUniqueIds(obj.notes) ||
+    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
+  ) {
+    return false;
+  }
+
+  for (const variable of obj.variables) {
+    if (
+      typeof variable !== "object" ||
+      variable === null ||
+      typeof (variable as Record<string, unknown>).id !== "string" ||
+      !isNodeRef((variable as Record<string, unknown>).node) ||
+      typeof (variable as Record<string, unknown>).name !== "string" ||
+      !isVariableStatus((variable as Record<string, unknown>).status)
+    ) {
+      return false;
+    }
+  }
+
+  for (const episode of obj.episodes) {
+    if (typeof episode !== "object" || episode === null) {
+      return false;
+    }
+    const e = episode as Record<string, unknown>;
+    if (
+      typeof e.id !== "string" ||
+      !isNodeRef(e.node) ||
+      !isEpisodeType(e.type) ||
+      typeof e.objective !== "string" ||
+      !isEpisodeStatus(e.status)
+    ) {
+      return false;
+    }
+    if (e.variableId !== undefined && typeof e.variableId !== "string") {
+      return false;
+    }
+    if (typeof e.openedAt !== "string") {
+      return false;
+    }
+    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
+      return false;
+    }
+    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
+      return false;
+    }
+  }
+
+  for (const action of obj.actions) {
+    if (typeof action !== "object" || action === null) {
+      return false;
+    }
+    const a = action as Record<string, unknown>;
+    if (
+      typeof a.id !== "string" ||
+      typeof a.description !== "string" ||
+      !isActionStatus(a.status)
+    ) {
+      return false;
+    }
+    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
+      return false;
+    }
+  }
+
+  for (const note of obj.notes) {
+    if (
+      typeof note !== "object" ||
+      note === null ||
+      typeof (note as Record<string, unknown>).id !== "string" ||
+      typeof (note as Record<string, unknown>).content !== "string"
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Validates the current state schema (V5, with models array).
+ * Note: Named isValidStateV4 for backwards compatibility with existing test imports.
+ */
+export function isValidStateV4(data: unknown): data is State {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+  const obj = data as Record<string, unknown>;
+  if (!isSchemaVersion(obj.schemaVersion)) {
+    return false;
+  }
+  if (
+    !Array.isArray(obj.variables) ||
+    !Array.isArray(obj.episodes) ||
+    !Array.isArray(obj.actions) ||
+    !Array.isArray(obj.notes) ||
+    !Array.isArray(obj.models)
+  ) {
+    return false;
+  }
+
+  if (
+    !hasUniqueIds(obj.variables) ||
+    !hasUniqueIds(obj.episodes) ||
+    !hasUniqueIds(obj.actions) ||
+    !hasUniqueIds(obj.notes) ||
+    !hasUniqueIds(obj.models) ||
     !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
   ) {
     return false;
@@ -606,6 +745,40 @@ export function isValidStateV4(data: unknown): data is State {
       typeof (note as Record<string, unknown>).id !== "string" ||
       typeof (note as Record<string, unknown>).content !== "string"
     ) {
+      return false;
+    }
+  }
+
+  // Validate models
+  for (const model of obj.models) {
+    if (typeof model !== "object" || model === null) {
+      return false;
+    }
+    const m = model as Record<string, unknown>;
+    // Required fields: id, type, statement
+    if (
+      typeof m.id !== "string" ||
+      !isModelType(m.type) ||
+      typeof m.statement !== "string"
+    ) {
+      return false;
+    }
+    // confidence is optional, must be number 0.0-1.0 if present
+    if (m.confidence !== undefined) {
+      if (
+        typeof m.confidence !== "number" ||
+        m.confidence < 0 ||
+        m.confidence > 1
+      ) {
+        return false;
+      }
+    }
+    // scope is optional, must be valid if present
+    if (m.scope !== undefined && !isModelScope(m.scope)) {
+      return false;
+    }
+    // enforcement is optional, must be valid if present
+    if (m.enforcement !== undefined && !isEnforcementLevel(m.enforcement)) {
       return false;
     }
   }

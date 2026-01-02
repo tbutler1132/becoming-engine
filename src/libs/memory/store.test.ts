@@ -114,6 +114,7 @@ describe("JsonStore", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       vi.mocked(fs.pathExists).mockResolvedValue(true as never);
@@ -217,6 +218,7 @@ describe("JsonStore", () => {
           },
         ],
         notes: [{ id: "note-1", content: "Test note" }],
+        models: [],
       };
 
       const store = new JsonStore();

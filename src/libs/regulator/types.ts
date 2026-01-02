@@ -3,7 +3,13 @@
 // Constraint constants are imported from DNA (the source of truth) and re-exported
 
 import { EPISODE_TYPES } from "../memory/index.js";
-import type { NodeRef, VariableStatus } from "../memory/index.js";
+import type {
+  EnforcementLevel,
+  ModelScope,
+  ModelType,
+  NodeRef,
+  VariableStatus,
+} from "../memory/index.js";
 
 // Re-export DNA constraint constants for consumers
 export {
@@ -53,6 +59,7 @@ export interface CloseEpisodeParams {
   closedAt: string;
   closureNote: ClosureNote;
   variableUpdates?: VariableUpdate[];
+  modelUpdates?: ModelUpdate[];
 }
 
 export interface SignalParams {
@@ -66,4 +73,31 @@ export interface CreateActionParams {
   node: NodeRef;
   episodeId?: string;
   description: string;
+}
+
+export interface CreateModelParams {
+  modelId: string;
+  type: ModelType;
+  statement: string;
+  confidence?: number;
+  scope?: ModelScope;
+  enforcement?: EnforcementLevel;
+}
+
+export interface UpdateModelParams {
+  modelId: string;
+  statement?: string;
+  confidence?: number;
+  scope?: ModelScope;
+  enforcement?: EnforcementLevel;
+}
+
+/** Model to be created or updated when closing an episode */
+export interface ModelUpdate {
+  id: string;
+  type: ModelType;
+  statement: string;
+  confidence?: number;
+  scope?: ModelScope;
+  enforcement?: EnforcementLevel;
 }

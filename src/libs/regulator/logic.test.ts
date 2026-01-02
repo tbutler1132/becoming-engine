@@ -10,6 +10,8 @@ import {
   validateEpisodeParams,
   openEpisode,
   closeEpisode,
+  createModel,
+  updateModel,
 } from "./logic.js";
 import {
   DEFAULT_PERSONAL_NODE,
@@ -18,6 +20,9 @@ import {
   VARIABLE_STATUSES,
   EPISODE_TYPES,
   EPISODE_STATUSES,
+  MODEL_TYPES,
+  MODEL_SCOPES,
+  ENFORCEMENT_LEVELS,
   SCHEMA_VERSION,
 } from "../memory/index.js";
 
@@ -49,6 +54,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const personalVars = getVariablesByNode(state, DEFAULT_PERSONAL_NODE);
@@ -95,6 +101,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const personalActive = getActiveEpisodesByNode(
@@ -140,6 +147,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const count = countActiveExplores(state, DEFAULT_PERSONAL_NODE);
@@ -155,6 +163,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
@@ -177,6 +186,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
@@ -204,6 +214,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = canStartExplore(state, DEFAULT_ORG_NODE);
@@ -234,6 +245,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const policyTwo: RegulatorPolicyForNode = {
@@ -268,6 +280,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = canCreateAction(state, {
@@ -292,6 +305,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = canCreateAction(state, {
@@ -338,6 +352,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const openedAt = "2025-01-01T12:00:00.000Z";
@@ -370,6 +385,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const params = {
@@ -401,6 +417,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const params = {
@@ -432,6 +449,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const sameVariable = openEpisode(state, {
@@ -473,6 +491,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const closedAt = "2025-01-01T12:00:00.000Z";
@@ -522,6 +541,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = closeEpisode(state, {
@@ -545,6 +565,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = closeEpisode(state, {
@@ -575,6 +596,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = closeEpisode(state, {
@@ -604,6 +626,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = closeEpisode(state, {
@@ -633,6 +656,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = closeEpisode(state, {
@@ -668,6 +692,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = applySignal(state, {
@@ -695,6 +720,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = createAction(state, {
@@ -716,6 +742,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         episodes: [],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = createAction(state, {
@@ -743,6 +770,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const wrongNode = createAction(state, {
@@ -771,6 +799,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = createAction(state, {
@@ -798,6 +827,7 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         actions: [],
         notes: [],
+        models: [],
       };
 
       const result = createAction(state, {
@@ -812,6 +842,335 @@ describe("Regulator Logic (Pure Functions)", () => {
         expect(result.value.actions[0]?.episodeId).toBe("e1");
         expect(result.value.actions[0]?.status).toBe(ACTION_STATUSES[0]);
       }
+    });
+  });
+
+  describe("createModel", () => {
+    it("creates a model with valid params", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = createModel(state, {
+        modelId: "m1",
+        type: MODEL_TYPES[0], // Descriptive
+        statement: "Publishing under my name increases commitment",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.models).toHaveLength(1);
+        expect(result.value.models[0]?.id).toBe("m1");
+        expect(result.value.models[0]?.type).toBe(MODEL_TYPES[0]);
+        expect(result.value.models[0]?.statement).toBe(
+          "Publishing under my name increases commitment",
+        );
+        // Original state unchanged (pure function)
+        expect(state.models).toHaveLength(0);
+      }
+    });
+
+    it("creates model with all optional fields", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = createModel(state, {
+        modelId: "m1",
+        type: MODEL_TYPES[2], // Normative
+        statement: "Never commit on Friday",
+        confidence: 0.9,
+        scope: MODEL_SCOPES[0], // personal
+        enforcement: ENFORCEMENT_LEVELS[1], // warn
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.models[0]?.confidence).toBe(0.9);
+        expect(result.value.models[0]?.scope).toBe(MODEL_SCOPES[0]);
+        expect(result.value.models[0]?.enforcement).toBe(ENFORCEMENT_LEVELS[1]);
+      }
+    });
+
+    it("fails on empty statement", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = createModel(state, {
+        modelId: "m1",
+        type: MODEL_TYPES[0],
+        statement: "",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("statement");
+      }
+    });
+
+    it("fails on whitespace-only statement", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = createModel(state, {
+        modelId: "m1",
+        type: MODEL_TYPES[0],
+        statement: "   ",
+      });
+
+      expect(result.ok).toBe(false);
+    });
+
+    it("fails on confidence below 0", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = createModel(state, {
+        modelId: "m1",
+        type: MODEL_TYPES[0],
+        statement: "Test",
+        confidence: -0.1,
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("confidence");
+      }
+    });
+
+    it("fails on confidence above 1", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = createModel(state, {
+        modelId: "m1",
+        type: MODEL_TYPES[0],
+        statement: "Test",
+        confidence: 1.5,
+      });
+
+      expect(result.ok).toBe(false);
+    });
+
+    it("fails on duplicate model ID", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Existing model",
+          },
+        ],
+      };
+
+      const result = createModel(state, {
+        modelId: "m1", // Duplicate
+        type: MODEL_TYPES[1],
+        statement: "New model",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("already exists");
+      }
+    });
+  });
+
+  describe("updateModel", () => {
+    it("updates statement on existing model", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Original statement",
+          },
+        ],
+      };
+
+      const result = updateModel(state, {
+        modelId: "m1",
+        statement: "Updated statement",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.models[0]?.statement).toBe("Updated statement");
+        // Original state unchanged (pure function)
+        expect(state.models[0]?.statement).toBe("Original statement");
+      }
+    });
+
+    it("updates confidence on existing model", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Test",
+            confidence: 0.5,
+          },
+        ],
+      };
+
+      const result = updateModel(state, {
+        modelId: "m1",
+        confidence: 0.8,
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.models[0]?.confidence).toBe(0.8);
+      }
+    });
+
+    it("updates multiple fields at once", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Original",
+          },
+        ],
+      };
+
+      const result = updateModel(state, {
+        modelId: "m1",
+        statement: "Updated",
+        confidence: 0.75,
+        scope: MODEL_SCOPES[1], // org
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.models[0]?.statement).toBe("Updated");
+        expect(result.value.models[0]?.confidence).toBe(0.75);
+        expect(result.value.models[0]?.scope).toBe(MODEL_SCOPES[1]);
+      }
+    });
+
+    it("fails on non-existent model", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+      };
+
+      const result = updateModel(state, {
+        modelId: "nonexistent",
+        statement: "Updated",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("not found");
+      }
+    });
+
+    it("fails on empty statement update", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Original",
+          },
+        ],
+      };
+
+      const result = updateModel(state, {
+        modelId: "m1",
+        statement: "",
+      });
+
+      expect(result.ok).toBe(false);
+    });
+
+    it("fails on invalid confidence update", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [
+          {
+            id: "m1",
+            type: MODEL_TYPES[0],
+            statement: "Test",
+          },
+        ],
+      };
+
+      const result = updateModel(state, {
+        modelId: "m1",
+        confidence: 2.0,
+      });
+
+      expect(result.ok).toBe(false);
     });
   });
 });
