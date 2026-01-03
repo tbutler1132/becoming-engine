@@ -199,6 +199,8 @@ export async function addAction(
 
   const state = await store.load();
 
+  //TODO: Goes through Sensorium first?
+  
   const result = regulator.act(state, {
     actionId: crypto.randomUUID(),
     node: DEFAULT_PERSONAL_NODE,

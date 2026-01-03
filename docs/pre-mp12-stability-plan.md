@@ -272,7 +272,7 @@ Silence is Success (baseline).
 
 All commands use `Result<T>` types consistently:
 
-- Sensorium returns `Result<SensoriumCommand>` or `Result<Observation>`
+- Sensorium returns `Result<CliCommand>` or `Result<Observation>`
 - Regulator returns `Result<State>`
 - CLI exits with code 1 on error, prints message to stderr
 

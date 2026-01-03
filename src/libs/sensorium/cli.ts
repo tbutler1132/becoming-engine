@@ -1,6 +1,8 @@
-// Sensorium organ: minimal CLI input parsing
-// Converts raw argv into typed commands for the CLI to orchestrate.
-// Also produces structured Observations for the new sensing flow.
+// CLI input parsing: converts raw argv into typed commands.
+// Exports both CliCommand (direct regulator commands) and Observation (sensed input).
+// The CLI orchestrator routes these to the appropriate subsystem:
+//   - CliCommand → Membrane → Regulator (direct mutation path)
+//   - Observation → interpreted by CLI → Regulator (sensing flow)
 
 import {
   DEFAULT_PERSONAL_NODE,
@@ -20,7 +22,7 @@ import type {
 } from "../memory/index.js";
 import type { Observation, Result } from "./types.js";
 
-export type SensoriumCommand =
+export type CliCommand =
   | { kind: "status"; node: NodeRef }
   | {
       kind: "signal";
@@ -110,7 +112,7 @@ function getFlagValue(
   return value;
 }
 
-export function parseCli(argv: readonly string[]): Result<SensoriumCommand> {
+export function parseCli(argv: readonly string[]): Result<CliCommand> {
   // Expect argv to be process.argv slice starting at the command, e.g. ["status", "--node", ...]
   const [commandRaw] = argv;
   const command = (commandRaw ?? "status").trim();

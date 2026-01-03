@@ -8,7 +8,7 @@
         "id": "personal"
       },
       "name": "Agency",
-      "status": "High"
+      "status": "Low"
     },
     {
       "id": "9c06f69d-f75c-46e6-9235-191fc78ad23a",
@@ -73,6 +73,45 @@
       "openedAt": "2026-01-03T01:54:13.541Z",
       "closedAt": "2026-01-03T02:03:55.751Z",
       "closureNoteId": "d89d858c-7335-4321-9bf1-8972b308f632"
+    },
+    {
+      "id": "28d9ac3a-c1db-4725-a27f-16214ee10448",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Stabilize",
+      "variableId": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
+      "objective": "Ear",
+      "status": "Closed",
+      "openedAt": "2026-01-03T04:56:05.926Z",
+      "closedAt": "2026-01-03T04:56:33.347Z",
+      "closureNoteId": "9187c10e-4a19-4b82-b91c-4bb4c4a00d12"
+    },
+    {
+      "id": "f8290832-29ee-4337-96c9-c18989b79ede",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Explore",
+      "objective": "nothing",
+      "status": "Closed",
+      "openedAt": "2026-01-03T04:56:58.432Z",
+      "closedAt": "2026-01-03T04:59:46.353Z",
+      "closureNoteId": "c6edf3d6-74c8-4384-9655-0ff5e04f6f43"
+    },
+    {
+      "id": "49fbf037-c874-4803-ac79-97167ed3f581",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Stabilize",
+      "variableId": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
+      "objective": "meal",
+      "status": "Active",
+      "openedAt": "2026-01-03T04:57:02.139Z"
     }
   ],
   "actions": [
@@ -81,6 +120,18 @@
       "description": "lick an ear",
       "status": "Done",
       "episodeId": "75d7dd0c-8476-4ae7-8e6f-64cfc881fdc6"
+    },
+    {
+      "id": "73fdc88d-8ad5-4b7a-9b0b-6061e5893370",
+      "description": "Meal",
+      "status": "Done",
+      "episodeId": "28d9ac3a-c1db-4725-a27f-16214ee10448"
+    },
+    {
+      "id": "e912b170-3c46-445f-b39f-74c12a62d937",
+      "description": "Sev",
+      "status": "Done",
+      "episodeId": "28d9ac3a-c1db-4725-a27f-16214ee10448"
     }
   ],
   "notes": [
@@ -107,6 +158,18 @@
       "content": "I found my love for ear",
       "createdAt": "2026-01-03T02:03:55.751Z",
       "tags": ["closure_note"]
+    },
+    {
+      "id": "9187c10e-4a19-4b82-b91c-4bb4c4a00d12",
+      "content": "nothing",
+      "createdAt": "2026-01-03T04:56:33.347Z",
+      "tags": ["closure_note"]
+    },
+    {
+      "id": "c6edf3d6-74c8-4384-9655-0ff5e04f6f43",
+      "content": "my ass",
+      "createdAt": "2026-01-03T04:59:46.353Z",
+      "tags": ["closure_note"]
     }
   ],
   "models": [
@@ -114,6 +177,12 @@
       "id": "36dd3ece-ff1f-44dd-b9e0-386dafe6a157",
       "type": "Descriptive",
       "statement": "To follow my heart",
+      "confidence": 0.7
+    },
+    {
+      "id": "7ee2a396-eac2-40ea-a511-2e11497ddc42",
+      "type": "Descriptive",
+      "statement": "ear",
       "confidence": 0.7
     }
   ],
