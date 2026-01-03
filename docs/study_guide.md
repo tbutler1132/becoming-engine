@@ -32,9 +32,14 @@ Start with the **data shapes** — everything else is transformations on these:
 
 This is the "genetic code" of the organism — the single source of truth for all fundamental constants:
 
-- Ontology enums (`NODE_TYPES`, `EPISODE_TYPES`, `VARIABLE_STATUSES`, etc.)
-- Regulatory limits (`MAX_ACTIVE_EXPLORE_PER_NODE`, `MAX_ACTIVE_STABILIZE_PER_VARIABLE`)
-- Schema version (`SCHEMA_VERSION`)
+- **Ontology enums:**
+  - `NODE_TYPES`, `VARIABLE_STATUSES`, `EPISODE_TYPES`, `EPISODE_STATUSES`
+  - `ACTION_STATUSES`, `MODEL_TYPES`, `MODEL_SCOPES`, `ENFORCEMENT_LEVELS`
+  - `NOTE_TAGS`, `LINK_RELATIONS`, `OBSERVATION_TYPES`, `SIGNAL_EVENT_TYPES`
+  - `MUTATION_TYPES`, `OVERRIDE_DECISIONS`
+- **Regulatory limits:** `MAX_ACTIVE_EXPLORE_PER_NODE`, `MAX_ACTIVE_STABILIZE_PER_VARIABLE`
+- **Schema version:** `SCHEMA_VERSION`
+- **Node defaults:** `DEFAULT_PERSONAL_NODE_ID`, `DEFAULT_ORG_NODE_ID`
 
 All other modules import from here.
 
@@ -45,34 +50,53 @@ All other modules import from here.
 This imports constants from DNA and defines the type derivations and interfaces:
 
 - How types are derived from const arrays (`NodeType = (typeof NODE_TYPES)[number]`)
-- The four core interfaces: `Variable`, `Episode`, `Action`, `Note`
+- The core interfaces: `Variable`, `Episode`, `Action`, `Note`, `Model`, `Link`, `MembraneException`
 - The `State` interface that holds everything
 
 **Exercise:** Draw the data model on paper:
 
 ```
 State
+├── schemaVersion
 ├── variables: Variable[]
 ├── episodes: Episode[]
 ├── actions: Action[]
-└── notes: Note[]
+├── notes: Note[]
+├── models: Model[]
+├── links: Link[]
+└── exceptions: MembraneException[]
 ```
 
 ---
 
-## Phase 3: Understand the Regulator (45 min)
+## Phase 3: Understand the Shared Utilities (5 min)
+
+**Read:** `src/libs/shared/types.ts`
+
+The `Result<T>` type is defined here — this pattern is used everywhere:
+
+```typescript
+type Result<T, E = string> = { ok: true; value: T } | { ok: false; error: E };
+```
+
+All fallible operations return `Result<T>` instead of throwing. This makes errors explicit and composable.
+
+---
+
+## Phase 4: Understand the Regulator (45 min)
 
 This is the brain. Read in this order:
 
-### 3a. Types first
+### 4a. Types first
 
 **Read:** `src/libs/regulator/types.ts`
 
-- The `Result<T>` type — this pattern is everywhere
 - `OpenEpisodeParams` — discriminated union for Stabilize vs Explore
-- The constraint constants
+- `CloseEpisodeParams` — includes closure note and optional model updates
+- `StatusData` — discriminated union for CLI display (baseline vs active mode)
+- Many param types: `SignalParams`, `CreateActionParams`, `CreateModelParams`, `CreateNoteParams`, `CreateLinkParams`, `LogExceptionParams`, etc.
 
-### 3b. Pure logic
+### 4b. Pure logic
 
 **Read:** `src/libs/regulator/logic.ts`
 
@@ -88,7 +112,11 @@ This is the most important file. Notice:
 1. `isBaseline()` — simplest, shows the pattern
 2. `canStartExplore()` — constraint checking
 3. `openEpisode()` — full mutation with validation
-4. `closeEpisode()` — see how closureNoteId flows through
+4. `closeEpisode()` — see how closureNote and modelUpdates flow through
+5. `createModel()`, `updateModel()` — belief management
+6. `createNote()`, `addNoteTag()`, `removeNoteTag()` — note workflow
+7. `createLink()`, `deleteLink()` — relationship management
+8. `logException()` — Membrane audit trail
 
 **Exercise:** Add `console.log` statements and run a test to see the data flow:
 
@@ -96,7 +124,7 @@ This is the most important file. Notice:
 npm test -- --grep "opens a Stabilize"
 ```
 
-### 3c. The wrapper
+### 4c. The wrapper
 
 **Read:** `src/libs/regulator/engine.ts`
 
@@ -108,43 +136,85 @@ The `Regulator` class is a thin facade over `logic.ts`:
 
 **Question to answer:** Why is the class thin? (Answer: testability, composability)
 
-### 3d. Policy
+### 4d. Policy
 
 **Read:** `src/libs/regulator/policy.ts`
 
-See how boundaries are configurable but mechanisms aren't.
+See how boundaries are configurable but mechanisms aren't. Policies can vary per node type or per specific node.
 
 ---
 
-## Phase 4: Trace I/O Through the System (30 min)
+## Phase 5: Understand the Membrane (20 min)
+
+The Membrane enforces **Normative Model constraints** before mutations.
+
+### 5a. Why Membrane exists
+
+The Regulator enforces hard invariants (e.g., max 1 Explore per node). The Membrane enforces soft constraints — user-defined Normative Models that can warn or block, with the ability to override when justified.
+
+### 5b. Types and logic
+
+**Read:** `src/libs/membrane/types.ts` and `src/libs/membrane/logic.ts`
+
+Key concepts:
+
+- **Enforcement levels:** `none`, `warn`, `block`
+- **Scope matching:** `personal`, `org`, `domain`
+- **Exception tracking:** When users override a block, it's logged as a `MembraneException`
+
+**Key function:**
+
+- `checkEpisodeConstraints(state, context)` — returns `MembraneResult` (allow/warn/block)
+
+**Exercise:** Look at how the CLI calls Membrane before opening an episode.
+
+---
+
+## Phase 6: Trace I/O Through the System (30 min)
 
 Now see how data flows end-to-end:
 
-### 4a. Input parsing
+### 6a. Input parsing
 
 **Read:** `src/libs/sensorium/cli.ts`
 
 - `parseCli()` turns `string[]` into typed `SensoriumCommand`
-- Notice the `SensoriumParseResult<T>` — same Result pattern
+- `parseObservation()` turns observation input into typed `Observation`
+- `parseNodeRef()` parses strings like `"Personal:personal"` into `NodeRef`
+- Notice the `Result<T>` pattern throughout
 
-### 4b. Persistence
+**Observation types:**
+
+- `variableProxySignal` — signal about a variable's status
+- `freeformNote` — unstructured input to become a Note
+- `episodeProposal` — proposal to open an episode
+
+### 6b. Persistence
 
 **Read:** `src/libs/memory/store.ts`
 
 - `load()` — reads JSON, validates, migrates if needed
 - `save()` — atomic write with temp file + rename
-- `createSeed()` — what happens on first run
+- `createSeed()` — what happens on first run (Genesis)
 
-### 4c. Orchestration
+### 6c. Orchestration
 
 **Read:** `src/apps/cli/cli.ts`
 
-This ties everything together:
+This ties everything together with the canonical flow:
+
+```
+Sensorium (Input) → Membrane (Constraints) → Regulator (Mutation) → Memory (Persist)
+```
+
+Key points:
 
 1. Load state from store
-2. Parse CLI args via sensorium
-3. Call regulator to get new state
-4. Save new state to store
+2. Parse CLI args via Sensorium
+3. For episode operations, gate through Membrane first
+4. Call Regulator to get new state
+5. Save new state to store
+6. Log any Membrane exceptions
 
 **Exercise:** Trace a full command by hand:
 
@@ -152,11 +222,27 @@ This ties everything together:
 npm run becoming:dev -- open --node Personal:personal --type Explore --objective "Test"
 ```
 
-Follow the data: argv → parseCli → openEpisode → save → JSON file
+Follow the data: argv → parseCli → checkMembraneForEpisode → openEpisode → save → JSON file
 
 ---
 
-## Phase 5: Run and Break Things (30 min)
+## Phase 7: Understand Signaling (15 min)
+
+The Signaling organ handles **inter-node communication** through an append-only event log.
+
+**Read:** `src/libs/signaling/README.md`
+
+Key concepts:
+
+- **Event types:** `intent`, `status`, `completion`
+- **Storage:** `data/events.jsonl` (JSON Lines format)
+- **Idempotency:** Emitting the same eventId twice is a no-op
+
+This is the foundation for federation — enabling nodes to exchange signals without sharing internal state.
+
+---
+
+## Phase 8: Run and Break Things (30 min)
 
 **Hands-on exercises:**
 
@@ -173,10 +259,18 @@ Follow the data: argv → parseCli → openEpisode → save → JSON file
    npm run becoming:dev -- open --node Personal:personal --type Explore --objective "Learn the codebase"
    npm run becoming:status
    cat data/state.json  # see the episode
-   npm run becoming:dev -- close --node Personal:personal --episodeId <id-from-above>
+   npm run becoming:dev -- close --episodeId <id-from-above> --note "Completed learning" --model-type Descriptive --model-statement "The codebase uses pure functions"
    ```
 
-3. **Run the tests and read them:**
+3. **Try the observation flow:**
+
+   ```bash
+   npm run becoming:dev -- observe signal --variableId <id> --status InRange
+   npm run becoming:dev -- observe note --content "This is an observation"
+   npm run becoming:dev -- observe episode --type Explore --objective "Test observation flow"
+   ```
+
+4. **Run the tests and read them:**
 
    ```bash
    npm test
@@ -184,24 +278,27 @@ Follow the data: argv → parseCli → openEpisode → save → JSON file
 
    Tests are documentation. `logic.test.ts` shows every constraint.
 
-4. **Break a constraint intentionally:**
+5. **Break a constraint intentionally:**
    - Open an Explore episode
    - Try to open another Explore
    - See the error message
 
-5. **Add a temporary log:**
+6. **Add a temporary log:**
 
    Add `console.log(state)` inside `openEpisode` in logic.ts, run a test, see the state shape.
 
 ---
 
-## Phase 6: Understand the Module Pattern (15 min)
+## Phase 9: Understand the Module Pattern (15 min)
 
 **Read the `index.ts` files:**
 
 - `src/libs/memory/index.ts`
 - `src/libs/regulator/index.ts`
 - `src/libs/sensorium/index.ts`
+- `src/libs/membrane/index.ts`
+- `src/libs/signaling/index.ts`
+- `src/libs/shared/index.ts`
 
 These define the **public API** of each module. Notice:
 
@@ -213,7 +310,7 @@ These define the **public API** of each module. Notice:
 
 ---
 
-## Phase 7: Read a Migration (10 min)
+## Phase 10: Read a Migration (10 min)
 
 **Read:** `src/libs/memory/internal/migrations.ts`
 
@@ -222,22 +319,49 @@ See how schema evolution works:
 - Each version has a migration function
 - Migrations are chained in `load()`
 - Old data is transformed to new shape
+- Current schema version is 8
 
 ---
 
 ## Quick Reference Card
 
-| Layer         | File                  | Responsibility                        |
-| ------------- | --------------------- | ------------------------------------- |
-| DNA           | `dna.ts`              | Source of truth for all invariants    |
-| Ontology      | `memory/types.ts`     | Data shapes (imports from DNA)        |
-| Persistence   | `memory/store.ts`     | JSON I/O                              |
-| Constraints   | `regulator/types.ts`  | Rules as constants (imports from DNA) |
-| Pure Logic    | `regulator/logic.ts`  | State transformations                 |
-| Policy        | `regulator/policy.ts` | Configurable boundaries               |
-| Facade        | `regulator/engine.ts` | Public interface                      |
-| Input         | `sensorium/cli.ts`    | Parse CLI → Commands                  |
-| Orchestration | `cli/cli.ts`          | Wire everything together              |
+| Layer         | File(s)               | Responsibility                         |
+| ------------- | --------------------- | -------------------------------------- |
+| DNA           | `dna.ts`              | Source of truth for all invariants     |
+| Shared        | `shared/types.ts`     | Result type and shared utilities       |
+| Ontology      | `memory/types.ts`     | Data shapes (imports from DNA)         |
+| Persistence   | `memory/store.ts`     | JSON I/O with atomic writes            |
+| Constraints   | `regulator/types.ts`  | Rules as constants (imports from DNA)  |
+| Pure Logic    | `regulator/logic.ts`  | State transformations                  |
+| Policy        | `regulator/policy.ts` | Configurable boundaries                |
+| Facade        | `regulator/engine.ts` | Public interface                       |
+| Membrane      | `membrane/logic.ts`   | Normative Model constraint enforcement |
+| Input         | `sensorium/cli.ts`    | Parse CLI → Commands/Observations      |
+| Signaling     | `signaling/`          | Inter-node event communication         |
+| Orchestration | `cli/cli.ts`          | Wire everything together               |
+
+---
+
+## Organ Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                           CLI                                    │
+│  (Orchestrator — owns no authority, never mutates State)        │
+└────────┬────────────────┬──────────────────┬──────────────┬─────┘
+         │                │                  │              │
+         ▼                ▼                  ▼              ▼
+    ┌─────────┐     ┌──────────┐      ┌───────────┐   ┌─────────┐
+    │Sensorium│     │ Membrane │      │ Regulator │   │ Memory  │
+    │(parsing)│────▶│(gating)  │─────▶│(mutation) │──▶│(persist)│
+    └─────────┘     └──────────┘      └───────────┘   └─────────┘
+                                            │
+                                            ▼
+                                      ┌───────────┐
+                                      │ Signaling │
+                                      │ (events)  │
+                                      └───────────┘
+```
 
 ---
 
@@ -247,6 +371,8 @@ See how schema evolution works:
 - [ ] You can trace a CLI command from argv to JSON file
 - [ ] You can explain why logic.ts has no I/O
 - [ ] You can name the two Episode types and their constraints
+- [ ] You can explain the difference between Regulator constraints and Membrane constraints
+- [ ] You can describe what happens when closing an Explore episode (Model required)
 - [ ] You can modify a test, break it, and fix it
 
 ---
@@ -258,8 +384,8 @@ Once you're comfortable with the current codebase, read about the **Two-Layer On
 - **Regulatory Layer** (Phase 1, current): Variables, Episodes, Actions — fixed, minimal
 - **World Model Layer** (Phase 2, future): Schemas, Entities, Links, Models — extensible, user-defined
 
-See `docs/roadmap.md` (Future Vision section) and `docs/doctrine.md` (section 13) for details.
+See `docs/roadmap.md` (Future Vision section) and `docs/doctrine.md` (sections 13-15) for details.
 
 ---
 
-_Estimated time: 2-3 hours of focused reading_
+_Estimated time: 3-4 hours of focused reading_
