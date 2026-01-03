@@ -1,0 +1,58 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+}
+
+/* Status variants */
+.badge[data-variant="Low"] {
+  background: color-mix(in srgb, var(--color-low) 15%, transparent);
+  color: var(--color-low);
+}
+
+.badge[data-variant="InRange"] {
+  background: color-mix(in srgb, var(--color-in-range) 15%, transparent);
+  color: var(--color-in-range);
+}
+
+.badge[data-variant="High"] {
+  background: color-mix(in srgb, var(--color-high) 15%, transparent);
+  color: var(--color-high);
+}
+
+/* Episode type variants */
+.badge[data-variant="Stabilize"] {
+  background: color-mix(in srgb, var(--color-low) 10%, transparent);
+  color: var(--color-low);
+}
+
+.badge[data-variant="Explore"] {
+  background: color-mix(in srgb, #6366f1 15%, transparent);
+  color: #6366f1;
+}
+
+/* Action status variants */
+.badge[data-variant="Pending"] {
+  background: color-mix(in srgb, var(--text-secondary) 15%, transparent);
+  color: var(--text-secondary);
+}
+
+.badge[data-variant="Done"] {
+  background: color-mix(in srgb, var(--color-in-range) 15%, transparent);
+  color: var(--color-in-range);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .badge[data-variant="Explore"] {
+    color: #a5b4fc;
+    background: color-mix(in srgb, #6366f1 20%, transparent);
+  }
+}
+
