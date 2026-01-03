@@ -43,6 +43,20 @@
       "objective": "Test audit",
       "status": "Active",
       "openedAt": "2026-01-02T19:36:51.846Z"
+    },
+    {
+      "id": "c6fbab64-d343-4da1-93b8-05dfaea61b61",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Stabilize",
+      "variableId": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
+      "objective": "To be stable",
+      "status": "Closed",
+      "openedAt": "2026-01-03T01:50:15.269Z",
+      "closedAt": "2026-01-03T01:50:25.179Z",
+      "closureNoteId": "99d53e79-0938-496b-b986-a53a6d55991a"
     }
   ],
   "actions": [],
@@ -52,6 +66,12 @@
       "content": "Testing observe flow",
       "createdAt": "2026-01-02T19:37:01.988Z",
       "tags": []
+    },
+    {
+      "id": "99d53e79-0938-496b-b986-a53a6d55991a",
+      "content": "I liked ass",
+      "createdAt": "2026-01-03T01:50:25.179Z",
+      "tags": ["closure_note"]
     }
   ],
   "models": [],

@@ -1,66 +1,195 @@
-import Image from "next/image";
+import path from "path";
+import { JsonStore, DEFAULT_PERSONAL_NODE, formatNodeRef } from "@libs/memory";
+import { getStatusData } from "@libs/regulator";
+import type { Action, Episode, Variable } from "@libs/memory";
+import { Card, Badge, Button } from "@/components/ui";
+import { OpenStabilizeForm } from "@/components/OpenStabilizeForm";
+import { OpenExploreForm } from "@/components/OpenExploreForm";
+import { CloseEpisodeForm } from "@/components/CloseEpisodeForm";
+import { completeAction } from "./actions";
 import styles from "./page.module.css";
 
-export default function Home() {
+/**
+ * Get the project root path.
+ * The web app is at src/apps/web, so we go up 3 levels from cwd.
+ */
+function getProjectRoot(): string {
+  const cwd = process.cwd();
+  if (cwd.endsWith("src/apps/web") || cwd.includes("/src/apps/web")) {
+    return path.resolve(cwd, "../../..");
+  }
+  return cwd;
+}
+
+export default async function StatusPage(): Promise<React.ReactNode> {
+  const store = new JsonStore({ basePath: getProjectRoot() });
+  const state = await store.load();
+  const status = getStatusData(state, DEFAULT_PERSONAL_NODE);
+
+  // Always show variables for this node, regardless of mode
+  const nodeVariables = state.variables.filter(
+    (v) =>
+      v.node.type === DEFAULT_PERSONAL_NODE.type &&
+      v.node.id === DEFAULT_PERSONAL_NODE.id
+  );
+
+  // Get active episodes for this node
+  const activeEpisodes =
+    status.mode === "active" ? status.episodes : [];
+  const pendingActions =
+    status.mode === "active" ? status.actions : [];
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <div className={styles.headerContent}>
+            <div>
+              <h1 className={styles.title}>Status</h1>
+              <p className={styles.subtitle}>
+                {formatNodeRef(DEFAULT_PERSONAL_NODE)}
+              </p>
+            </div>
+            <OpenExploreForm />
+          </div>
+        </header>
+
+        <VariablesSection variables={nodeVariables} />
+
+        {activeEpisodes.length > 0 ? (
+          <EpisodesSection episodes={activeEpisodes} actions={pendingActions} />
+        ) : (
+          <BaselineMessage />
+        )}
+      </div>
+    </main>
+  );
+}
+
+function BaselineMessage(): React.ReactNode {
+  return (
+    <section className={styles.section}>
+      <div className={styles.baselineMessage}>
+        <p className={styles.baselineText}>
+          No active interventions. All quiet.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+interface VariablesSectionProps {
+  variables: Variable[];
+}
+
+function VariablesSection({
+  variables,
+}: VariablesSectionProps): React.ReactNode {
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>Variables</h2>
+      <div className={styles.cardList}>
+        {variables.map((variable) => (
+          <Card key={variable.id} status={variable.status}>
+            <div className={styles.variableContent}>
+              <div className={styles.variableInfo}>
+                <span className={styles.variableName}>{variable.name}</span>
+                <Badge variant={variable.status}>{variable.status}</Badge>
+              </div>
+              <OpenStabilizeForm
+                variableId={variable.id}
+                variableName={variable.name}
+              />
+            </div>
+          </Card>
+        ))}
+        {variables.length === 0 && (
+          <p className={styles.emptyState}>No variables defined</p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+interface EpisodesSectionProps {
+  episodes: Episode[];
+  actions: Action[];
+}
+
+function EpisodesSection({
+  episodes,
+  actions,
+}: EpisodesSectionProps): React.ReactNode {
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>Active Episodes</h2>
+      <div className={styles.cardList}>
+        {episodes.map((episode) => {
+          const episodeActions = actions.filter(
+            (a) => a.episodeId === episode.id
+          );
+          return (
+            <EpisodeCard
+              key={episode.id}
+              episode={episode}
+              actions={episodeActions}
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+interface EpisodeCardProps {
+  episode: Episode;
+  actions: Action[];
+}
+
+function EpisodeCard({ episode, actions }: EpisodeCardProps): React.ReactNode {
+  return (
+    <Card>
+      <div className={styles.episodeHeader}>
+        <span className={styles.episodeObjective}>{episode.objective}</span>
+        <div className={styles.episodeMeta}>
+          <Badge variant={episode.type}>{episode.type}</Badge>
+          <CloseEpisodeForm
+            episodeId={episode.id}
+            episodeType={episode.type}
+          />
         </div>
-      </main>
+      </div>
+
+      {actions.length > 0 && (
+        <div className={styles.episodeActions}>
+          <h3 className={styles.episodeActionsTitle}>Actions</h3>
+          {actions.map((action) => (
+            <ActionItem key={action.id} action={action} />
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+interface ActionItemProps {
+  action: Action;
+}
+
+function ActionItem({ action }: ActionItemProps): React.ReactNode {
+  const completeActionWithId = completeAction.bind(null, action.id);
+
+  return (
+    <div className={styles.actionItem}>
+      <span className={styles.actionDescription}>{action.description}</span>
+      {action.status === "Pending" && (
+        <form action={completeActionWithId}>
+          <Button type="submit" size="sm" variant="secondary">
+            Done
+          </Button>
+        </form>
+      )}
+      {action.status === "Done" && <Badge variant="Done">Done</Badge>}
     </div>
   );
 }
