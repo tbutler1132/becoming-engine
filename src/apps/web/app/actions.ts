@@ -5,7 +5,7 @@ import path from "path";
 import { revalidatePath } from "next/cache";
 import { JsonStore, DEFAULT_PERSONAL_NODE } from "@libs/memory";
 import { Regulator } from "@libs/regulator";
-import type { EpisodeType, ModelType } from "@libs/memory";
+import type { EpisodeType, ModelType, VariableStatus } from "@libs/memory";
 
 /**
  * Get the project root path.
@@ -173,6 +173,33 @@ export async function addAction(
     node: DEFAULT_PERSONAL_NODE,
     episodeId,
     description,
+  });
+
+  if (!result.ok) {
+    throw new Error(result.error);
+  }
+
+  await store.save(result.value);
+  revalidatePath("/");
+}
+
+/**
+ * Signals a new status for a variable.
+ * This is a manual override — eventually proxies will drive this.
+ */
+export async function signalVariable(
+  variableId: string,
+  status: VariableStatus
+): Promise<void> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+
+  const result = regulator.signal(state, {
+    node: DEFAULT_PERSONAL_NODE,
+    variableId,
+    status,
   });
 
   if (!result.ok) {

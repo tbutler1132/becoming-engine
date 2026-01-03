@@ -7,6 +7,7 @@ import { OpenStabilizeForm } from "@/components/OpenStabilizeForm";
 import { OpenExploreForm } from "@/components/OpenExploreForm";
 import { CloseEpisodeForm } from "@/components/CloseEpisodeForm";
 import { AddActionForm } from "@/components/AddActionForm";
+import { SignalForm } from "@/components/SignalForm";
 import { completeAction } from "./actions";
 import styles from "./page.module.css";
 
@@ -96,6 +97,10 @@ function VariablesSection({
               <div className={styles.variableInfo}>
                 <span className={styles.variableName}>{variable.name}</span>
                 <Badge variant={variable.status}>{variable.status}</Badge>
+                <SignalForm
+                  variableId={variable.id}
+                  currentStatus={variable.status}
+                />
               </div>
               <OpenStabilizeForm
                 variableId={variable.id}
