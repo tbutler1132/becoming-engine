@@ -6,6 +6,7 @@ import { Card, Badge, Button } from "@/components/ui";
 import { OpenStabilizeForm } from "@/components/OpenStabilizeForm";
 import { OpenExploreForm } from "@/components/OpenExploreForm";
 import { CloseEpisodeForm } from "@/components/CloseEpisodeForm";
+import { AddActionForm } from "@/components/AddActionForm";
 import { completeAction } from "./actions";
 import styles from "./page.module.css";
 
@@ -160,14 +161,17 @@ function EpisodeCard({ episode, actions }: EpisodeCardProps): React.ReactNode {
         </div>
       </div>
 
-      {actions.length > 0 && (
-        <div className={styles.episodeActions}>
-          <h3 className={styles.episodeActionsTitle}>Actions</h3>
-          {actions.map((action) => (
-            <ActionItem key={action.id} action={action} />
-          ))}
-        </div>
-      )}
+      <div className={styles.episodeActions}>
+        {actions.length > 0 && (
+          <>
+            <h3 className={styles.episodeActionsTitle}>Actions</h3>
+            {actions.map((action) => (
+              <ActionItem key={action.id} action={action} />
+            ))}
+          </>
+        )}
+        <AddActionForm episodeId={episode.id} />
+      </div>
     </Card>
   );
 }

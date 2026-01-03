@@ -155,3 +155,30 @@ export async function closeEpisode(
   await store.save(result.value);
   revalidatePath("/");
 }
+
+/**
+ * Adds an action to an episode.
+ */
+export async function addAction(
+  episodeId: string,
+  description: string
+): Promise<void> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+
+  const result = regulator.act(state, {
+    actionId: crypto.randomUUID(),
+    node: DEFAULT_PERSONAL_NODE,
+    episodeId,
+    description,
+  });
+
+  if (!result.ok) {
+    throw new Error(result.error);
+  }
+
+  await store.save(result.value);
+  revalidatePath("/");
+}
