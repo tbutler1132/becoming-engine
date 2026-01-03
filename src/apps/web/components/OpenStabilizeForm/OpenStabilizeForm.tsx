@@ -24,13 +24,13 @@ export function OpenStabilizeForm({
     setError(null);
 
     startTransition(async () => {
-      try {
-        await openStabilizeEpisode(variableId, objective);
-        setObjective("");
-        setIsOpen(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to open episode");
+      const result = await openStabilizeEpisode(variableId, objective);
+      if (!result.ok) {
+        setError(result.error);
+        return;
       }
+      setObjective("");
+      setIsOpen(false);
     });
   }
 

@@ -41,9 +41,16 @@ export class Regulator {
 
   constructor(options?: { logger?: Logger; policy?: RegulatorPolicy }) {
     this.logger = options?.logger ?? silentLogger;
-    this.policy = validateRegulatorPolicy(
-      options?.policy ?? DEFAULT_REGULATOR_POLICY,
-    );
+    const policy = options?.policy ?? DEFAULT_REGULATOR_POLICY;
+    const validated = validateRegulatorPolicy(policy);
+    if (validated.ok) {
+      this.policy = validated.value;
+    } else {
+      this.logger.warn(
+        `Invalid Regulator policy; falling back to DEFAULT_REGULATOR_POLICY. Reason: ${validated.error}`,
+      );
+      this.policy = DEFAULT_REGULATOR_POLICY;
+    }
   }
 
   /**

@@ -3,6 +3,7 @@
 
 import type { NodeRef, NodeType } from "../memory/index.js";
 import { formatNodeRef, NODE_TYPES } from "../memory/index.js";
+import type { Result } from "../shared/index.js";
 import {
   MAX_ACTIVE_EXPLORE_PER_NODE,
   MAX_ACTIVE_STABILIZE_PER_VARIABLE,
@@ -67,54 +68,66 @@ export function getRegulatorPolicyForNode(
 
 export function validateRegulatorPolicy(
   policy: RegulatorPolicy,
-): RegulatorPolicy {
+): Result<RegulatorPolicy> {
   if (!Number.isFinite(policy.maxActiveExplorePerNode)) {
-    throw new Error("RegulatorPolicy.maxActiveExplorePerNode must be finite");
+    return {
+      ok: false,
+      error: "RegulatorPolicy.maxActiveExplorePerNode must be finite",
+    };
   }
   if (policy.maxActiveExplorePerNode < 0) {
-    throw new Error("RegulatorPolicy.maxActiveExplorePerNode must be >= 0");
+    return {
+      ok: false,
+      error: "RegulatorPolicy.maxActiveExplorePerNode must be >= 0",
+    };
   }
 
   for (const node of NODE_TYPES) {
     const override = policy.maxActiveExplorePerNodeByType[node];
     if (override === undefined) continue;
     if (!Number.isFinite(override)) {
-      throw new Error(
-        `RegulatorPolicy.maxActiveExplorePerNodeByType['${node}'] must be finite`,
-      );
+      return {
+        ok: false,
+        error: `RegulatorPolicy.maxActiveExplorePerNodeByType['${node}'] must be finite`,
+      };
     }
     if (override < 0) {
-      throw new Error(
-        `RegulatorPolicy.maxActiveExplorePerNodeByType['${node}'] must be >= 0`,
-      );
+      return {
+        ok: false,
+        error: `RegulatorPolicy.maxActiveExplorePerNodeByType['${node}'] must be >= 0`,
+      };
     }
   }
 
   if (!Number.isFinite(policy.maxActiveStabilizePerVariable)) {
-    throw new Error(
-      "RegulatorPolicy.maxActiveStabilizePerVariable must be finite",
-    );
+    return {
+      ok: false,
+      error: "RegulatorPolicy.maxActiveStabilizePerVariable must be finite",
+    };
   }
   if (policy.maxActiveStabilizePerVariable < 0) {
-    throw new Error(
-      "RegulatorPolicy.maxActiveStabilizePerVariable must be >= 0",
-    );
+    return {
+      ok: false,
+      error: "RegulatorPolicy.maxActiveStabilizePerVariable must be >= 0",
+    };
   }
 
   for (const node of NODE_TYPES) {
     const override = policy.maxActiveStabilizePerVariableByType[node];
     if (override === undefined) continue;
     if (!Number.isFinite(override)) {
-      throw new Error(
-        `RegulatorPolicy.maxActiveStabilizePerVariableByType['${node}'] must be finite`,
-      );
+      return {
+        ok: false,
+        error: `RegulatorPolicy.maxActiveStabilizePerVariableByType['${node}'] must be finite`,
+      };
     }
     if (override < 0) {
-      throw new Error(
-        `RegulatorPolicy.maxActiveStabilizePerVariableByType['${node}'] must be >= 0`,
-      );
+      return {
+        ok: false,
+        error: `RegulatorPolicy.maxActiveStabilizePerVariableByType['${node}'] must be >= 0`,
+      };
     }
   }
 
-  return policy;
+  return { ok: true, value: policy };
 }

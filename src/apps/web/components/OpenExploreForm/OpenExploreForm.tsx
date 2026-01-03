@@ -16,13 +16,13 @@ export function OpenExploreForm(): React.ReactNode {
     setError(null);
 
     startTransition(async () => {
-      try {
-        await openExploreEpisode(objective);
-        setObjective("");
-        setIsOpen(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to open episode");
+      const result = await openExploreEpisode(objective);
+      if (!result.ok) {
+        setError(result.error);
+        return;
       }
+      setObjective("");
+      setIsOpen(false);
     });
   }
 
