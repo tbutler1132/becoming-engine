@@ -178,7 +178,7 @@ Now see how data flows end-to-end:
 
 **Read:** `src/libs/sensorium/cli.ts`
 
-- `parseCli()` turns `string[]` into typed `SensoriumCommand`
+- `parseCli()` turns `string[]` into typed `CliCommand`
 - `parseObservation()` turns observation input into typed `Observation`
 - `parseNodeRef()` parses strings like `"Personal:personal"` into `NodeRef`
 - Notice the `Result<T>` pattern throughout

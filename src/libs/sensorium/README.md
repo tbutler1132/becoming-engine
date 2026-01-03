@@ -10,7 +10,7 @@ The system needs a clean boundary between messy external input (CLI arguments, f
 
 ## 🧠 Responsibilities
 
-- Parse CLI arguments into typed `SensoriumCommand` objects
+- Parse CLI arguments into typed `CliCommand` objects
 - Parse observation input into typed `Observation` objects
 - Validate node references (`NodeRef`) and option values
 - Return explicit `Result` types for invalid input (no silent failures)
@@ -21,7 +21,7 @@ The organ exposes its API via `index.ts`.
 
 ### `parseCli(argv)`
 
-Parses a command-line argument array into a `Result<SensoriumCommand>`:
+Parses a command-line argument array into a `Result<CliCommand>`:
 
 ```typescript
 import { parseCli } from "./libs/sensorium/index.js";
@@ -75,7 +75,7 @@ if (result.ok) {
 
 | Type                             | Purpose                                                                 |
 | -------------------------------- | ----------------------------------------------------------------------- |
-| `SensoriumCommand`               | Discriminated union: status, signal, act, open, close                   |
+| `CliCommand`                     | Discriminated union: status, signal, act, open, close                   |
 | `Observation`                    | Discriminated union: variableProxySignal, freeformNote, episodeProposal |
 | `VariableProxySignalObservation` | Signal about a variable's status                                        |
 | `FreeformNoteObservation`        | Unstructured input to become a Note                                     |

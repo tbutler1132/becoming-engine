@@ -157,6 +157,7 @@ export class Regulator {
   /**
    * Attempts to create an Action.
    */
+  //TODO: Go through sensorium first
   act(state: State, params: CreateActionParams): Result<State> {
     const result = logic.createAction(state, params);
     if (result.ok) {

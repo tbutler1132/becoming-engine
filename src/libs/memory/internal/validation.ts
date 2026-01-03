@@ -1218,6 +1218,7 @@ export function isValidLegacyStateV7(data: unknown): data is StateV7 {
 /**
  * Validates the current state schema (V8, with exceptions array).
  */
+//TODO: Decompose
 export function isValidState(data: unknown): data is State {
   if (typeof data !== "object" || data === null) {
     return false;
