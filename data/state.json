@@ -8,7 +8,7 @@
         "id": "personal"
       },
       "name": "Agency",
-      "status": "Low"
+      "status": "High"
     },
     {
       "id": "9c06f69d-f75c-46e6-9235-191fc78ad23a",
@@ -69,8 +69,10 @@
       "type": "Stabilize",
       "variableId": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
       "objective": "Like Ear",
-      "status": "Active",
-      "openedAt": "2026-01-03T01:54:13.541Z"
+      "status": "Closed",
+      "openedAt": "2026-01-03T01:54:13.541Z",
+      "closedAt": "2026-01-03T02:03:55.751Z",
+      "closureNoteId": "d89d858c-7335-4321-9bf1-8972b308f632"
     }
   ],
   "actions": [
@@ -98,6 +100,12 @@
       "id": "32e04dd5-4e41-40ca-a3f5-3e5505144401",
       "content": "I won",
       "createdAt": "2026-01-03T01:54:06.600Z",
+      "tags": ["closure_note"]
+    },
+    {
+      "id": "d89d858c-7335-4321-9bf1-8972b308f632",
+      "content": "I found my love for ear",
+      "createdAt": "2026-01-03T02:03:55.751Z",
       "tags": ["closure_note"]
     }
   ],
