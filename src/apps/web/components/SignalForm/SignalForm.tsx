@@ -25,11 +25,12 @@ export function SignalForm({
     setError(null);
 
     startTransition(async () => {
+      const previousStatus = optimisticStatus;
       setOptimisticStatus(status);
-      try {
-        await signalVariable(variableId, status);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to signal");
+      const result = await signalVariable(variableId, status);
+      if (!result.ok) {
+        setOptimisticStatus(previousStatus);
+        setError(result.error);
       }
     });
   }

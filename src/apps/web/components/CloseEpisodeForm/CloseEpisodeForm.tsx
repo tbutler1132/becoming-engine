@@ -33,21 +33,19 @@ export function CloseEpisodeForm({
     }
 
     startTransition(async () => {
-      try {
-        await closeEpisode(
-          episodeId,
-          closureNote,
-          episodeType,
-          isExplore ? modelStatement : undefined
-        );
-        setClosureNote("");
-        setModelStatement("");
-        setIsOpen(false);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to close episode"
-        );
+      const result = await closeEpisode(
+        episodeId,
+        closureNote,
+        episodeType,
+        isExplore ? modelStatement : undefined,
+      );
+      if (!result.ok) {
+        setError(result.error);
+        return;
       }
+      setClosureNote("");
+      setModelStatement("");
+      setIsOpen(false);
     });
   }
 

@@ -20,13 +20,13 @@ export function AddActionForm({ episodeId }: AddActionFormProps): React.ReactNod
     setError(null);
 
     startTransition(async () => {
-      try {
-        await addAction(episodeId, description);
-        setDescription("");
-        setIsOpen(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to add action");
+      const result = await addAction(episodeId, description);
+      if (!result.ok) {
+        setError(result.error);
+        return;
       }
+      setDescription("");
+      setIsOpen(false);
     });
   }
 

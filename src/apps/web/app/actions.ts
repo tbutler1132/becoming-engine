@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { JsonStore, DEFAULT_PERSONAL_NODE } from "@libs/memory";
 import { Regulator } from "@libs/regulator";
 import type { EpisodeType, ModelType, VariableStatus } from "@libs/memory";
+import type { Result } from "@libs/shared";
 
 /**
  * Get the project root path.
@@ -33,12 +34,20 @@ function createStore(): JsonStore {
   return new JsonStore({ basePath: PROJECT_ROOT });
 }
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown error";
+}
+
+function okVoid(): Result<void> {
+  return { ok: true, value: undefined };
+}
+
 /**
  * Marks an action as Done.
  *
  * **Pattern**: Load → Mutate → Save → Revalidate
  */
-export async function completeAction(actionId: string): Promise<void> {
+export async function completeAction(actionId: string): Promise<Result<void>> {
   const store = createStore();
   const regulator = new Regulator();
 
@@ -46,11 +55,16 @@ export async function completeAction(actionId: string): Promise<void> {
   const result = regulator.completeAction(state, { actionId });
 
   if (!result.ok) {
-    throw new Error(result.error);
+    return { ok: false, error: result.error };
   }
 
-  await store.save(result.value);
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
   revalidatePath("/");
+  return okVoid();
 }
 
 /**
@@ -59,7 +73,7 @@ export async function completeAction(actionId: string): Promise<void> {
 export async function openStabilizeEpisode(
   variableId: string,
   objective: string
-): Promise<void> {
+): Promise<Result<void>> {
   const store = createStore();
   const regulator = new Regulator();
 
@@ -76,17 +90,24 @@ export async function openStabilizeEpisode(
   });
 
   if (!result.ok) {
-    throw new Error(result.error);
+    return { ok: false, error: result.error };
   }
 
-  await store.save(result.value);
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
   revalidatePath("/");
+  return okVoid();
 }
 
 /**
  * Opens an Explore episode (not linked to a specific variable).
  */
-export async function openExploreEpisode(objective: string): Promise<void> {
+export async function openExploreEpisode(
+  objective: string,
+): Promise<Result<void>> {
   const store = createStore();
   const regulator = new Regulator();
 
@@ -102,11 +123,16 @@ export async function openExploreEpisode(objective: string): Promise<void> {
   });
 
   if (!result.ok) {
-    throw new Error(result.error);
+    return { ok: false, error: result.error };
   }
 
-  await store.save(result.value);
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
   revalidatePath("/");
+  return okVoid();
 }
 
 /**
@@ -118,7 +144,7 @@ export async function closeEpisode(
   closureNoteContent: string,
   episodeType: EpisodeType,
   modelStatement?: string
-): Promise<void> {
+): Promise<Result<void>> {
   const store = createStore();
   const regulator = new Regulator();
 
@@ -149,11 +175,16 @@ export async function closeEpisode(
   });
 
   if (!result.ok) {
-    throw new Error(result.error);
+    return { ok: false, error: result.error };
   }
 
-  await store.save(result.value);
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
   revalidatePath("/");
+  return okVoid();
 }
 
 /**
@@ -162,7 +193,7 @@ export async function closeEpisode(
 export async function addAction(
   episodeId: string,
   description: string
-): Promise<void> {
+): Promise<Result<void>> {
   const store = createStore();
   const regulator = new Regulator();
 
@@ -176,11 +207,16 @@ export async function addAction(
   });
 
   if (!result.ok) {
-    throw new Error(result.error);
+    return { ok: false, error: result.error };
   }
 
-  await store.save(result.value);
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
   revalidatePath("/");
+  return okVoid();
 }
 
 /**
@@ -190,7 +226,7 @@ export async function addAction(
 export async function signalVariable(
   variableId: string,
   status: VariableStatus
-): Promise<void> {
+): Promise<Result<void>> {
   const store = createStore();
   const regulator = new Regulator();
 
@@ -203,9 +239,14 @@ export async function signalVariable(
   });
 
   if (!result.ok) {
-    throw new Error(result.error);
+    return { ok: false, error: result.error };
   }
 
-  await store.save(result.value);
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
   revalidatePath("/");
+  return okVoid();
 }
