@@ -9,7 +9,13 @@ export default [
   ...tseslint.configs.recommended,
   eslintConfigPrettier,
   {
-    ignores: ["**/node_modules/**", "**/dist/**", "**/data/**", "**/*.d.ts"],
+    ignores: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/data/**",
+      "**/*.d.ts",
+      "src/apps/web/**",
+    ],
   },
   {
     languageOptions: {

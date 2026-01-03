@@ -1,5 +1,7 @@
 # Engineering Standards & AI Directives
 
+> **See also:** `docs/ui-standards.md` for React/Next.js conventions in `src/apps/web/`.
+
 ## 1. Core Philosophy: Iterability & Composability
 
 We value code that is easy to **delete** and **compose** over code that is "clever" or "dry."
