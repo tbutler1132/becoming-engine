@@ -1,0 +1,99 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "test",
+      "type": "npm",
+      "script": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "test:watch",
+      "type": "npm",
+      "script": "test:watch",
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "test:coverage",
+      "type": "npm",
+      "script": "test:coverage",
+      "problemMatcher": []
+    },
+    {
+      "label": "test:memory",
+      "type": "npm",
+      "script": "test:memory",
+      "problemMatcher": []
+    },
+    {
+      "label": "lint",
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": []
+    },
+    {
+      "label": "format",
+      "type": "npm",
+      "script": "format",
+      "problemMatcher": []
+    },
+    {
+      "label": "format:check",
+      "type": "npm",
+      "script": "format:check",
+      "problemMatcher": []
+    },
+    {
+      "label": "check",
+      "type": "npm",
+      "script": "check",
+      "problemMatcher": []
+    },
+    {
+      "label": "becoming",
+      "type": "npm",
+      "script": "becoming",
+      "problemMatcher": []
+    },
+    {
+      "label": "becoming:status",
+      "type": "npm",
+      "script": "becoming:status",
+      "problemMatcher": []
+    },
+    {
+      "label": "becoming:test",
+      "type": "npm",
+      "script": "becoming:test",
+      "problemMatcher": []
+    },
+    {
+      "label": "becoming:status:test",
+      "type": "npm",
+      "script": "becoming:status:test",
+      "problemMatcher": []
+    },
+    {
+      "label": "viewer",
+      "type": "npm",
+      "script": "viewer",
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "dev:web",
+      "type": "npm",
+      "script": "dev:web",
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "dev:web:test",
+      "type": "npm",
+      "script": "dev:web:test",
+      "problemMatcher": [],
+      "isBackground": true
+    }
+  ]
+}
