@@ -17,6 +17,9 @@
     "check": "npm test && npx tsc --noEmit && npm run lint && npm run format:check",
     "becoming:dev": "tsx src/apps/cli/cli.ts",
     "becoming:status": "tsx src/apps/cli/cli.ts status",
+    "state:real": "./scripts/swap-state.sh real",
+    "state:dev": "./scripts/swap-state.sh dev",
+    "state:status": "./scripts/swap-state.sh status",
     "viewer": "npx --yes serve . -l 3000 --config src/apps/viewer/serve.json",
     "prepare": "husky",
     "dev:web": "cd src/apps/web && npm run dev"

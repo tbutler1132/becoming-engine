@@ -110,8 +110,10 @@
       "type": "Stabilize",
       "variableId": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
       "objective": "meal",
-      "status": "Active",
-      "openedAt": "2026-01-03T04:57:02.139Z"
+      "status": "Closed",
+      "openedAt": "2026-01-03T04:57:02.139Z",
+      "closedAt": "2026-01-04T01:57:15.484Z",
+      "closureNoteId": "b464a620-8af1-4e97-b340-bd3be1db5adf"
     }
   ],
   "actions": [
@@ -169,6 +171,12 @@
       "id": "c6edf3d6-74c8-4384-9655-0ff5e04f6f43",
       "content": "my ass",
       "createdAt": "2026-01-03T04:59:46.353Z",
+      "tags": ["closure_note"]
+    },
+    {
+      "id": "b464a620-8af1-4e97-b340-bd3be1db5adf",
+      "content": "Test\n",
+      "createdAt": "2026-01-04T01:57:15.484Z",
       "tags": ["closure_note"]
     }
   ],
