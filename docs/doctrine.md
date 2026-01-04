@@ -98,6 +98,23 @@ There are two kinds:
 No Episode is permanent.
 No intervention becomes identity.
 
+### 5a. Homeostasis and Homeorhesis
+
+This system regulates for both short-term stability and long-term becoming.
+
+**Homeostasis** (Variables): maintaining viability around preferred ranges in the short term. Deviations are corrected. Return to baseline is the goal.
+
+**Homeorhesis** (Episodes): maintaining coherence of _trajectory_ over time. Preferred ranges themselves may evolve. Stability exists along a path, not at a fixed point.
+
+Variables preserve short-term viability.
+Episodes enable long-term becoming.
+
+Preferred ranges are not fixed constants. They are beliefs about what "viable" means _now_, given this organism in this environment. Updating a preferred range is a Model update — deliberate, rare, and governed through an Episode.
+
+During Explore Episodes, temporary excursions outside current preferred ranges are expected. The system does not treat growth as instability.
+
+A growing organism must change its baselines. This is not dysregulation — it is becoming.
+
 ## 6. Explicit Learning
 
 Learning is not implicit or assumed.
@@ -196,6 +213,7 @@ A Variable is a regulated dimension of viability.
 - Variables may be "unknown"
 - "High" is not automatically bad
 - Stability matters more than instantaneous value
+- Preferred ranges are revisable beliefs, not fixed constants (see 5a)
 
 ### Episodes
 
@@ -369,6 +387,10 @@ Sense → Store → Check Procedure → Enforce Constraints → Execute → Log
 - Level 1: Auto-queue with approval
 - Level 2: Auto-execute in narrow envelopes
 - Never: High-stakes judgment or identity-bearing actions
+
+**Automation serves homeostasis, not homeorhesis.**
+
+Automate what preserves baseline. Never automate identity change, growth, or "what you should become." Growth requires awareness and choice — it cannot be delegated to a procedure.
 
 Procedural Models are the only legitimate bridge between sensing and action. They are explicit, bounded, reusable, and earned through learning.
 
