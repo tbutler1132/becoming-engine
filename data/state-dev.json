@@ -8,7 +8,7 @@
         "id": "personal"
       },
       "name": "Agency",
-      "status": "InRange"
+      "status": "High"
     },
     {
       "id": "687aa7d3-7095-40c8-b629-f6e1ebcaaa84",
@@ -20,7 +20,20 @@
       "status": "InRange"
     }
   ],
-  "episodes": [],
+  "episodes": [
+    {
+      "id": "9238c629-393e-4ce1-9d47-682e593e612f",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Stabilize",
+      "variableId": "f4c4fc76-97fb-443b-9f7a-de4c5f7720f3",
+      "objective": "Aw ass",
+      "status": "Active",
+      "openedAt": "2026-01-04T02:51:29.326Z"
+    }
+  ],
   "actions": [],
   "notes": [],
   "models": [],
