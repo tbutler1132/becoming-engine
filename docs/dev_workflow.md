@@ -46,6 +46,7 @@ ESLint enforces these boundaries. Do not bypass the rules.
 
 - `src/libs/*`: organs (pure logic + bounded side effects)
 - `src/apps/*`: executables/interfaces (CLI/UI)
+- `plugins/*`: extensions (integrations, sensors/oracles, procedural model packs)
 - `docs/*`: doctrine + standards + operating manual
 
 ## Configuration

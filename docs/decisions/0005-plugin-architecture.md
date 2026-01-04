@@ -36,6 +36,18 @@ Plugins extend the system's **sensing** and **execution** capabilities, but neve
 - Plugins never open Episodes
 - Plugins never modify Models directly
 
+### Repository Layout (Guardrail)
+
+To keep the constitution small and prevent “integration creep” into core organs:
+
+- **Core organs** live under `src/libs/*` and must remain general and doctrine-aligned.
+- **Interfaces/surfaces** live under `src/apps/*` (CLI, Web UI, etc.).
+- **Extensions** live under `plugins/*` (community + first-party defaults).
+
+Rule of thumb:
+
+- If it targets a **specific external system** (sleep provider, calendar provider, email provider, etc.), it is a **plugin**, not a change to `src/libs/*`.
+
 ### Plugin Types
 
 Plugins fall into three categories, each with distinct contracts:
