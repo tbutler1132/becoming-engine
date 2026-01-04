@@ -1,46 +1,152 @@
+/* Card component - Elevated surfaces with metallic borders and depth */
+
 .card {
   background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  box-shadow: var(--shadow-sm);
-  transition: 
-    box-shadow 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+  border: 1px solid var(--border-emphasis);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-medium);
+  transition:
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================================================
+   Metallic effects - Polished materials
+   ============================================================================ */
+
+/* Metallic top edge */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--gradient-metal);
+  opacity: 0.8;
+}
+
+/* Iridescent glow on hover - alien digital quality */
+.card::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: var(--gradient-iridescent);
+  border-radius: var(--radius-lg);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-deep), var(--shadow-glow);
+  transform: translateY(-2px);
+  border-color: var(--border-metal);
 }
 
-/* Status-based left border accent */
+.card:hover::after {
+  opacity: 0.4;
+}
+
+/* ============================================================================
+   Status variants - Low, InRange, High
+   ============================================================================ */
+
 .card[data-status="Low"] {
-  border-left: 3px solid var(--color-low);
+  border-left: 2px solid var(--color-low);
+  box-shadow:
+    var(--shadow-medium),
+    -4px 0 12px var(--card-shadow-low);
 }
 
 .card[data-status="InRange"] {
-  border-left: 3px solid var(--color-in-range);
+  border-left: 2px solid var(--color-in-range);
+  box-shadow:
+    var(--shadow-medium),
+    -4px 0 12px var(--card-shadow-in-range);
 }
 
 .card[data-status="High"] {
-  border-left: 3px solid var(--color-high);
+  border-left: 2px solid var(--color-high);
+  box-shadow:
+    var(--shadow-medium),
+    -4px 0 12px var(--card-shadow-high);
 }
 
-/* Ensure status cards have proper padding adjustment */
+/* ============================================================================
+   Status card animations - Breathing shimmer (quiet sentience)
+   ============================================================================ */
+
+.card[data-status]::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    currentColor 50%,
+    transparent 100%
+  );
+  width: 200%;
+  left: -100%;
+  animation: cardShimmer 4s ease-in-out infinite;
+}
+
+.card[data-status="Low"]::before {
+  color: var(--color-low);
+}
+
+.card[data-status="InRange"]::before {
+  color: var(--color-in-range);
+}
+
+.card[data-status="High"]::before {
+  color: var(--color-high);
+}
+
+@keyframes cardShimmer {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(50%);
+    opacity: 0.6;
+  }
+}
+
+/* Padding adjustment for status cards (accounting for border) */
 .card[data-status] {
-  padding-left: calc(var(--space-md) - 2px);
+  padding-left: calc(var(--space-lg) - 1px);
 }
 
-/* Focus state for accessibility when card contains interactive elements */
+/* ============================================================================
+   Accessibility - Focus states
+   ============================================================================ */
+
 .card:focus-within {
-  border-color: var(--text-secondary);
-  box-shadow: var(--shadow-md);
+  border-color: var(--accent-cyan);
+  box-shadow:
+    var(--shadow-deep),
+    0 0 0 2px var(--focus-ring);
+  outline: none;
 }
 
-/* Mobile: larger touch targets */
-@media (max-width: 480px) {
+/* ============================================================================
+   Responsive - Mobile adjustments
+   ============================================================================ */
+
+@media (max-width: 640px) {
   .card {
-    padding: var(--space-md) var(--space-md);
+    padding: var(--space-md);
+  }
+
+  .card[data-status] {
+    padding-left: calc(var(--space-md) - 1px);
   }
 }

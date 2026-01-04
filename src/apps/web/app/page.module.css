@@ -1,8 +1,22 @@
-/* Animations */
+/* ============================================================================
+   STATUS PAGE STYLES
+   ============================================================================
+
+   Implements the luxury minimalist + alien digital aesthetic with:
+   - Recursive staggered entrance animations
+   - Generous spacing and asymmetric composition
+   - Refined typography hierarchy
+   - Subtle micro-interactions
+   ============================================================================ */
+
+/* ============================================================================
+   ANIMATIONS - Recursive emergence
+   ============================================================================ */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -19,131 +33,211 @@
   }
 }
 
-/* Page layout */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================================================
+   PAGE LAYOUT - Generous spacing, centered composition
+   ============================================================================ */
+
 .page {
   min-height: 100vh;
-  padding: var(--space-lg);
-  animation: fadeInQuiet 0.4s ease-out;
+  padding: var(--space-2xl) var(--space-lg);
+  animation: fadeInQuiet 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .container {
-  max-width: 640px;
+  max-width: 720px;
   margin: 0 auto;
 }
 
-/* Header */
+/* ============================================================================
+   HEADER - Refined hierarchy
+   ============================================================================ */
+
 .header {
-  margin-bottom: var(--space-xl);
-  animation: fadeIn 0.3s ease-out;
+  margin-bottom: var(--space-2xl);
+  animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .headerContent {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
 .title {
-  font-size: 1.75rem;
+  font-size: 2.5rem;
   color: var(--text-primary);
   margin-bottom: var(--space-xs);
+  font-weight: 400;
+  letter-spacing: -0.03em;
 }
 
 .subtitle {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  font-family: var(--font-body);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 300;
 }
 
-/* Baseline message - calm inline state */
+/* ============================================================================
+   BASELINE MESSAGE - Zen state, no active interventions
+   ============================================================================ */
+
 .baselineMessage {
   text-align: center;
-  padding: var(--space-xl) var(--space-md);
+  padding: var(--space-2xl) var(--space-lg);
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  animation: fadeInQuiet 0.4s ease-out;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-subtle);
+  animation: fadeInQuiet 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Iridescent top edge accent */
+.baselineMessage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--gradient-iridescent);
+  opacity: 0.6;
 }
 
 .baselineText {
-  font-size: 0.9375rem;
-  color: var(--text-muted);
-  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-family: var(--font-display);
   font-style: italic;
+  font-weight: 300;
+  letter-spacing: 0.02em;
 }
 
-/* Section styling */
+/* ============================================================================
+   SECTIONS - Clear separation with staggered entrance
+   ============================================================================ */
+
 .section {
-  margin-bottom: var(--space-xl);
-  animation: fadeIn 0.4s ease-out;
+  margin-bottom: var(--space-2xl);
+  animation: fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .section:nth-child(2) {
-  animation-delay: 0.1s;
+  animation-delay: 0.15s;
+  animation-fill-mode: backwards;
+}
+
+.section:nth-child(3) {
+  animation-delay: 0.25s;
   animation-fill-mode: backwards;
 }
 
 .sectionTitle {
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: 0.625rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.2em;
   color: var(--text-muted);
-  margin-bottom: var(--space-md);
-  font-family: var(--font-body);
+  margin-bottom: var(--space-lg);
+  font-family: var(--font-mono);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-/* Card grids */
+/* ============================================================================
+   CARD LISTS - Elegant vertical spacing
+   ============================================================================ */
+
 .cardList {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
-/* Card entrance stagger */
-.cardList > :nth-child(1) { animation: fadeIn 0.3s ease-out 0.05s backwards; }
-.cardList > :nth-child(2) { animation: fadeIn 0.3s ease-out 0.1s backwards; }
-.cardList > :nth-child(3) { animation: fadeIn 0.3s ease-out 0.15s backwards; }
-.cardList > :nth-child(4) { animation: fadeIn 0.3s ease-out 0.2s backwards; }
-.cardList > :nth-child(5) { animation: fadeIn 0.3s ease-out 0.25s backwards; }
+/* Recursive card entrance - each element emerges with increasing delay */
+.cardList > :nth-child(1) {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+}
+.cardList > :nth-child(2) {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+}
+.cardList > :nth-child(3) {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
+}
+.cardList > :nth-child(4) {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s backwards;
+}
+.cardList > :nth-child(5) {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s backwards;
+}
+.cardList > :nth-child(n+6) {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.6s backwards;
+}
 
-/* Variable card content */
+/* ============================================================================
+   VARIABLE CARDS - Precise alignment
+   ============================================================================ */
+
 .variableContent {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-md);
+  gap: var(--space-lg);
   flex-wrap: wrap;
 }
 
 .variableInfo {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-md);
+  flex: 1;
+  min-width: 0;
 }
 
 .variableName {
-  font-weight: 500;
+  font-weight: 400;
   color: var(--text-primary);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.01em;
 }
 
-/* Episode card content */
+/* ============================================================================
+   EPISODE CARDS - Hierarchical structure
+   ============================================================================ */
+
 .episodeHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xs);
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
 }
 
 .episodeObjective {
-  font-size: 0.9375rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 400;
   color: var(--text-primary);
   flex: 1;
-  line-height: 1.4;
+  line-height: 1.6;
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
 }
 
 .episodeMeta {
@@ -153,68 +247,110 @@
   flex-shrink: 0;
 }
 
+/* ============================================================================
+   EPISODE ACTIONS - Contained action lists
+   ============================================================================ */
+
 .episodeActions {
-  margin-top: var(--space-md);
-  padding-top: var(--space-md);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
   border-top: 1px solid var(--border-subtle);
+  position: relative;
+}
+
+/* Iridescent accent on divider */
+.episodeActions::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 40px;
+  height: 1px;
+  background: var(--gradient-iridescent);
 }
 
 .episodeActionsTitle {
   font-size: 0.625rem;
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.15em;
   color: var(--text-muted);
-  margin-bottom: var(--space-sm);
-  font-family: var(--font-body);
+  margin-bottom: var(--space-md);
+  font-family: var(--font-mono);
 }
 
-/* Action item */
+/* ============================================================================
+   ACTION ITEMS - Clean, functional
+   ============================================================================ */
+
 .actionItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
   padding: var(--space-sm) 0;
+  transition: background-color 0.2s ease;
 }
 
-.actionItem:not(:last-child) {
+.actionItem:not(:last-of-type) {
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.actionDescription {
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  flex: 1;
-  line-height: 1.5;
+/* Subtle hover highlight */
+.actionItem:hover {
+  background-color: var(--hover-highlight);
+  margin-left: calc(-1 * var(--space-sm));
+  margin-right: calc(-1 * var(--space-sm));
+  padding-left: var(--space-sm);
+  padding-right: var(--space-sm);
+  border-radius: var(--radius-sm);
 }
 
-/* Empty states */
+.actionDescription {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  flex: 1;
+  line-height: 1.6;
+  font-family: var(--font-mono);
+  font-weight: 300;
+}
+
+/* ============================================================================
+   EMPTY STATES - Elegant void
+   ============================================================================ */
+
 .emptyState {
   text-align: center;
-  padding: var(--space-xl);
+  padding: var(--space-2xl);
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-style: italic;
+  font-family: var(--font-display);
+  font-weight: 300;
 }
 
-/* Responsive adjustments */
-@media (max-width: 480px) {
+/* ============================================================================
+   RESPONSIVE - Maintain luxury across breakpoints
+   ============================================================================ */
+
+/* Mobile */
+@media (max-width: 640px) {
   .page {
-    padding: var(--space-md);
+    padding: var(--space-xl) var(--space-md);
   }
 
   .title {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
 
-  .baselineTitle {
-    font-size: 2rem;
+  .headerContent {
+    flex-direction: column;
+    gap: var(--space-md);
   }
 
   .episodeHeader {
     flex-direction: column;
-    gap: var(--space-xs);
+    gap: var(--space-sm);
   }
 
   .actionItem {
@@ -232,13 +368,24 @@
   }
 }
 
-/* Tablet and up */
+/* Tablet */
 @media (min-width: 768px) {
+  .container {
+    max-width: 800px;
+  }
+
+  .title {
+    font-size: 3rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
   .page {
     padding: var(--space-2xl);
   }
 
   .container {
-    max-width: 720px;
+    max-width: 900px;
   }
 }
