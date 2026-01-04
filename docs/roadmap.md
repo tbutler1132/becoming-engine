@@ -290,7 +290,14 @@ Extensible platform for community-contributed plugins (oracles/sensors, procedur
 
 Implementation phases: Foundation → Procedural Models → World Models → Sandboxing.
 
-See [Plugin Implementation Priorities](plugin-implementation-priorities.md) for prioritized extension ideas (Security Model, Templates, Testing Framework, Variable Packs, Config UI, etc.).
+**Developer Experience**:
+
+- See [Plugin Developer Experience](plugin-developer-experience.md) for immediate tooling specs (scaffolding, testing, validation)
+- See [Plugin Developer Experience Vision](plugin-developer-experience-vision.md) for long-term vision (visual builder, marketplace, composition tools)
+
+**Extension Ideas**:
+
+- See [Plugin Implementation Priorities](plugin-implementation-priorities.md) for prioritized extension ideas (Security Model, Templates, Testing Framework, Variable Packs, Config UI, etc.)
 
 ### Persisted Observations
 
