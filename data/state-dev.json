@@ -2,16 +2,16 @@
   "schemaVersion": 8,
   "variables": [
     {
-      "id": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
+      "id": "f4c4fc76-97fb-443b-9f7a-de4c5f7720f3",
       "node": {
         "type": "Personal",
         "id": "personal"
       },
       "name": "Agency",
-      "status": "Low"
+      "status": "InRange"
     },
     {
-      "id": "9c06f69d-f75c-46e6-9235-191fc78ad23a",
+      "id": "687aa7d3-7095-40c8-b629-f6e1ebcaaa84",
       "node": {
         "type": "Org",
         "id": "org"
@@ -20,180 +20,10 @@
       "status": "InRange"
     }
   ],
-  "episodes": [
-    {
-      "id": "4bbdc6ff-5835-45bb-90a3-58b3449e0436",
-      "node": {
-        "type": "Personal",
-        "id": "personal"
-      },
-      "type": "Explore",
-      "objective": "Test the CLI rename",
-      "status": "Closed",
-      "openedAt": "2026-01-02T03:40:22.874Z",
-      "closedAt": "2026-01-02T03:40:28.038Z"
-    },
-    {
-      "id": "64e2ad6a-360a-4223-90b0-311b9cc0f9f8",
-      "node": {
-        "type": "Personal",
-        "id": "personal"
-      },
-      "type": "Explore",
-      "objective": "Test audit",
-      "status": "Closed",
-      "openedAt": "2026-01-02T19:36:51.846Z",
-      "closedAt": "2026-01-03T01:54:06.600Z",
-      "closureNoteId": "32e04dd5-4e41-40ca-a3f5-3e5505144401"
-    },
-    {
-      "id": "c6fbab64-d343-4da1-93b8-05dfaea61b61",
-      "node": {
-        "type": "Personal",
-        "id": "personal"
-      },
-      "type": "Stabilize",
-      "variableId": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
-      "objective": "To be stable",
-      "status": "Closed",
-      "openedAt": "2026-01-03T01:50:15.269Z",
-      "closedAt": "2026-01-03T01:50:25.179Z",
-      "closureNoteId": "99d53e79-0938-496b-b986-a53a6d55991a"
-    },
-    {
-      "id": "75d7dd0c-8476-4ae7-8e6f-64cfc881fdc6",
-      "node": {
-        "type": "Personal",
-        "id": "personal"
-      },
-      "type": "Stabilize",
-      "variableId": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
-      "objective": "Like Ear",
-      "status": "Closed",
-      "openedAt": "2026-01-03T01:54:13.541Z",
-      "closedAt": "2026-01-03T02:03:55.751Z",
-      "closureNoteId": "d89d858c-7335-4321-9bf1-8972b308f632"
-    },
-    {
-      "id": "28d9ac3a-c1db-4725-a27f-16214ee10448",
-      "node": {
-        "type": "Personal",
-        "id": "personal"
-      },
-      "type": "Stabilize",
-      "variableId": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
-      "objective": "Ear",
-      "status": "Closed",
-      "openedAt": "2026-01-03T04:56:05.926Z",
-      "closedAt": "2026-01-03T04:56:33.347Z",
-      "closureNoteId": "9187c10e-4a19-4b82-b91c-4bb4c4a00d12"
-    },
-    {
-      "id": "f8290832-29ee-4337-96c9-c18989b79ede",
-      "node": {
-        "type": "Personal",
-        "id": "personal"
-      },
-      "type": "Explore",
-      "objective": "nothing",
-      "status": "Closed",
-      "openedAt": "2026-01-03T04:56:58.432Z",
-      "closedAt": "2026-01-03T04:59:46.353Z",
-      "closureNoteId": "c6edf3d6-74c8-4384-9655-0ff5e04f6f43"
-    },
-    {
-      "id": "49fbf037-c874-4803-ac79-97167ed3f581",
-      "node": {
-        "type": "Personal",
-        "id": "personal"
-      },
-      "type": "Stabilize",
-      "variableId": "cccbb601-f2bc-4f4e-b422-99f7ee014743",
-      "objective": "meal",
-      "status": "Closed",
-      "openedAt": "2026-01-03T04:57:02.139Z",
-      "closedAt": "2026-01-04T01:57:15.484Z",
-      "closureNoteId": "b464a620-8af1-4e97-b340-bd3be1db5adf"
-    }
-  ],
-  "actions": [
-    {
-      "id": "f7761662-0a7e-4058-b1f3-ce869ad8b931",
-      "description": "lick an ear",
-      "status": "Done",
-      "episodeId": "75d7dd0c-8476-4ae7-8e6f-64cfc881fdc6"
-    },
-    {
-      "id": "73fdc88d-8ad5-4b7a-9b0b-6061e5893370",
-      "description": "Meal",
-      "status": "Done",
-      "episodeId": "28d9ac3a-c1db-4725-a27f-16214ee10448"
-    },
-    {
-      "id": "e912b170-3c46-445f-b39f-74c12a62d937",
-      "description": "Sev",
-      "status": "Done",
-      "episodeId": "28d9ac3a-c1db-4725-a27f-16214ee10448"
-    }
-  ],
-  "notes": [
-    {
-      "id": "18628201-cd56-4d6b-b6e0-49c8b26c5eb9",
-      "content": "Testing observe flow",
-      "createdAt": "2026-01-02T19:37:01.988Z",
-      "tags": []
-    },
-    {
-      "id": "99d53e79-0938-496b-b986-a53a6d55991a",
-      "content": "I liked ass",
-      "createdAt": "2026-01-03T01:50:25.179Z",
-      "tags": ["closure_note"]
-    },
-    {
-      "id": "32e04dd5-4e41-40ca-a3f5-3e5505144401",
-      "content": "I won",
-      "createdAt": "2026-01-03T01:54:06.600Z",
-      "tags": ["closure_note"]
-    },
-    {
-      "id": "d89d858c-7335-4321-9bf1-8972b308f632",
-      "content": "I found my love for ear",
-      "createdAt": "2026-01-03T02:03:55.751Z",
-      "tags": ["closure_note"]
-    },
-    {
-      "id": "9187c10e-4a19-4b82-b91c-4bb4c4a00d12",
-      "content": "nothing",
-      "createdAt": "2026-01-03T04:56:33.347Z",
-      "tags": ["closure_note"]
-    },
-    {
-      "id": "c6edf3d6-74c8-4384-9655-0ff5e04f6f43",
-      "content": "my ass",
-      "createdAt": "2026-01-03T04:59:46.353Z",
-      "tags": ["closure_note"]
-    },
-    {
-      "id": "b464a620-8af1-4e97-b340-bd3be1db5adf",
-      "content": "Test\n",
-      "createdAt": "2026-01-04T01:57:15.484Z",
-      "tags": ["closure_note"]
-    }
-  ],
-  "models": [
-    {
-      "id": "36dd3ece-ff1f-44dd-b9e0-386dafe6a157",
-      "type": "Descriptive",
-      "statement": "To follow my heart",
-      "confidence": 0.7
-    },
-    {
-      "id": "7ee2a396-eac2-40ea-a511-2e11497ddc42",
-      "type": "Descriptive",
-      "statement": "ear",
-      "confidence": 0.7
-    }
-  ],
+  "episodes": [],
+  "actions": [],
+  "notes": [],
+  "models": [],
   "links": [],
   "exceptions": []
 }

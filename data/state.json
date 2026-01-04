@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 8,
+  "variables": [
+    {
+      "id": "3e40bf0f-693b-4c29-b4e2-1f5c1cf47020",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "name": "Agency",
+      "status": "InRange"
+    },
+    {
+      "id": "827f06b8-782b-483c-bc42-8855a4d54d07",
+      "node": {
+        "type": "Org",
+        "id": "org"
+      },
+      "name": "Execution Capacity",
+      "status": "InRange"
+    }
+  ],
+  "episodes": [
+    {
+      "id": "720a3afa-6770-43c3-9678-c6a33b28422e",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Stabilize",
+      "variableId": "8a14cc43-ee8d-4747-9e5b-a0cdf7b63002",
+      "objective": "Ear",
+      "status": "Active",
+      "openedAt": "2026-01-04T02:11:07.677Z"
+    }
+  ],
+  "actions": [],
+  "notes": [],
+  "models": [],
+  "links": [],
+  "exceptions": []
+}
