@@ -272,6 +272,10 @@ A web visualization rendering the codebase as a living organism — self-discove
 
 LLM-powered layer converting unstructured input into structured Observations. The AI proposes, human confirms.
 
+### AI-Assisted Plugin Generation
+
+Enable non-technical users to create plugins through natural language prompts. AI generates plugin code as **draft artifacts**; user reviews, edits (if needed), and approves. All validation and doctrine constraints still apply. See [AI Plugin Generation](ai-plugin-generation.md) for full specification.
+
 ### Mobile Companion
 
 Minimal read-only app for glancing at status. If nothing is wrong, it shows almost nothing.
