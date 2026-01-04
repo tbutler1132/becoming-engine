@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 8,
+  "variables": [
+    {
+      "id": "f4c4fc76-97fb-443b-9f7a-de4c5f7720f3",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "name": "Agency",
+      "status": "InRange"
+    },
+    {
+      "id": "687aa7d3-7095-40c8-b629-f6e1ebcaaa84",
+      "node": {
+        "type": "Org",
+        "id": "org"
+      },
+      "name": "Execution Capacity",
+      "status": "InRange"
+    }
+  ],
+  "episodes": [],
+  "actions": [],
+  "notes": [],
+  "models": [],
+  "links": [],
+  "exceptions": []
+}

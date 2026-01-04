@@ -39,7 +39,8 @@ import {
 } from "./internal/fs.js";
 
 const DATA_DIR = "data";
-const STATE_FILE = "state.json";
+const STATE_FILE =
+  process.env.BECOMING_ENV === "dev" ? "state-dev.json" : "state.json";
 
 // Seed state constants (exported for test use)
 export const SEED_PERSONAL_NODE: NodeRef = {
