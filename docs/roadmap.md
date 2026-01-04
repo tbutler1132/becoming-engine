@@ -254,6 +254,7 @@ Phase 1's Regulator is command-driven (user calls `openEpisode`). Phase 3 makes 
 - **Dynamic node creation**: Create Org nodes programmatically
 - **Authentication**: Control who accesses which nodes
 - **Federation**: Nodes exchange signals over the network
+- **Node size limits**: Hard Dunbar constraint (~50 members) that forces mitosis — system becomes unusable until split
 - **Codebase node**: Treat the codebase as a regulated organism
 
 Federation principle: Nodes exchange signals and artifacts, never share state.

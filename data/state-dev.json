@@ -32,6 +32,17 @@
       "objective": "Aw ass",
       "status": "Active",
       "openedAt": "2026-01-04T02:51:29.326Z"
+    },
+    {
+      "id": "076e0954-9469-4166-a421-cd8164a92a5c",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Explore",
+      "objective": "Ear",
+      "status": "Active",
+      "openedAt": "2026-01-04T16:47:11.670Z"
     }
   ],
   "actions": [
