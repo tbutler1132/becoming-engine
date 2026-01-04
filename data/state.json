@@ -30,12 +30,39 @@
       "type": "Stabilize",
       "variableId": "8a14cc43-ee8d-4747-9e5b-a0cdf7b63002",
       "objective": "Ear",
+      "status": "Closed",
+      "openedAt": "2026-01-04T02:11:07.677Z",
+      "closedAt": "2026-01-04T02:19:53.919Z",
+      "closureNoteId": "6fbdcfc0-389e-405e-bd1d-4ce8fd98d075"
+    },
+    {
+      "id": "2b38a17d-95fa-4bd9-af90-c09595cb9fca",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Explore",
+      "objective": "MVP of the system",
       "status": "Active",
-      "openedAt": "2026-01-04T02:11:07.677Z"
+      "openedAt": "2026-01-04T02:20:19.085Z"
     }
   ],
-  "actions": [],
-  "notes": [],
+  "actions": [
+    {
+      "id": "96091cdf-5ad3-4b88-885d-469e333484f0",
+      "description": "Play around with my web app and feel out what it needs to be",
+      "status": "Pending",
+      "episodeId": "2b38a17d-95fa-4bd9-af90-c09595cb9fca"
+    }
+  ],
+  "notes": [
+    {
+      "id": "6fbdcfc0-389e-405e-bd1d-4ce8fd98d075",
+      "content": "Meat\n",
+      "createdAt": "2026-01-04T02:19:53.919Z",
+      "tags": ["closure_note"]
+    }
+  ],
   "models": [],
   "links": [],
   "exceptions": []
