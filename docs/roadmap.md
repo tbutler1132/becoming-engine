@@ -280,6 +280,18 @@ Minimal read-only app for glancing at status. If nothing is wrong, it shows almo
 
 Shareable Variable configurations and custom proxy pipelines for non-native data sources.
 
+### Plugin Architecture
+
+Extensible platform for community-contributed plugins (oracles/sensors, procedural models, world models). See [ADR 0005](decisions/0005-plugin-architecture.md) for architecture design. Enables:
+
+- Sensorium plugins (external data sources → Variable proxies)
+- Procedural Model plugins (shareable automation procedures)
+- World Model plugins (domain-specific schemas and entities)
+
+Implementation phases: Foundation → Procedural Models → World Models → Sandboxing.
+
+See [Plugin Implementation Priorities](plugin-implementation-priorities.md) for prioritized extension ideas (Security Model, Templates, Testing Framework, Variable Packs, Config UI, etc.).
+
 ### Persisted Observations
 
 Currently, Observations are ephemeral intermediate values during CLI execution. A future enhancement could persist Observations to Memory, creating a log of what was sensed. This would enable:
