@@ -241,6 +241,17 @@ export interface RemoveNoteTagParams {
 }
 
 /**
+ * Parameters for updating an existing note's content.
+ * Only the content field can be updated; use addNoteTag/removeNoteTag for tags.
+ */
+export interface UpdateNoteParams {
+  /** The note to update */
+  noteId: string;
+  /** The new content for the note */
+  content: string;
+}
+
+/**
  * Parameters for creating a link between two objects.
  * Links represent typed relationships with optional weights.
  */

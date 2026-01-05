@@ -38,6 +38,7 @@ import type {
   SignalParams,
   StatusData,
   UpdateModelParams,
+  UpdateNoteParams,
   VariableUpdate,
 } from "./types.js";
 import type { RegulatorPolicyForNode } from "./policy.js";
@@ -810,6 +811,43 @@ export function removeNoteTag(
     n.id === params.noteId
       ? { ...n, tags: n.tags.filter((t) => t !== params.tag) }
       : n,
+  );
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      notes: updatedNotes,
+    },
+  };
+}
+
+/**
+ * Updates an existing note's content.
+ * Pure function: does not mutate input state.
+ *
+ * @param state - Current state
+ * @param params - UpdateNoteParams with noteId and new content
+ * @returns Result<State> with updated note or error
+ */
+export function updateNote(
+  state: State,
+  params: UpdateNoteParams,
+): Result<State> {
+  // Find the note
+  const note = state.notes.find((n) => n.id === params.noteId);
+  if (!note) {
+    return { ok: false, error: `Note with id '${params.noteId}' not found` };
+  }
+
+  // Validate content
+  if (!params.content || params.content.trim().length === 0) {
+    return { ok: false, error: "Note content cannot be empty" };
+  }
+
+  // Update the note content
+  const updatedNotes = state.notes.map((n) =>
+    n.id === params.noteId ? { ...n, content: params.content } : n,
   );
 
   return {

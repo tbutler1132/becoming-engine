@@ -16,6 +16,7 @@ import {
   createNote,
   addNoteTag,
   removeNoteTag,
+  updateNote,
   createLink,
   deleteLink,
   logException,
@@ -1770,6 +1771,128 @@ describe("Regulator Logic (Pure Functions)", () => {
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain("not found");
+      }
+    });
+  });
+
+  describe("updateNote", () => {
+    it("updates an existing note's content", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Original content",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: ["inbox"],
+          },
+        ],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateNote(state, {
+        noteId: "n1",
+        content: "Updated content",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes[0]?.content).toBe("Updated content");
+        // Tags and other fields preserved
+        expect(result.value.notes[0]?.tags).toEqual(["inbox"]);
+        expect(result.value.notes[0]?.createdAt).toBe(
+          "2025-01-01T00:00:00.000Z",
+        );
+        // Original state unchanged
+        expect(state.notes[0]?.content).toBe("Original content");
+      }
+    });
+
+    it("fails on non-existent note", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateNote(state, {
+        noteId: "nonexistent",
+        content: "New content",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("not found");
+      }
+    });
+
+    it("fails on empty content", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Original content",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+          },
+        ],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateNote(state, {
+        noteId: "n1",
+        content: "",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("empty");
+      }
+    });
+
+    it("fails on whitespace-only content", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Original content",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+          },
+        ],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateNote(state, {
+        noteId: "n1",
+        content: "   ",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("empty");
       }
     });
   });

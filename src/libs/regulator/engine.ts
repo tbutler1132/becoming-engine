@@ -13,6 +13,7 @@ import type {
   Result,
   OpenEpisodeParams,
   SignalParams,
+  UpdateNoteParams,
 } from "./types.js";
 import * as logic from "./logic.js";
 import type { RegulatorPolicy } from "./policy.js";
@@ -249,6 +250,25 @@ export class Regulator {
       );
     } else {
       this.logger.warn(`Remove tag failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Updates an existing note's content.
+   *
+   * **Intent:** Allows refining note content during review workflow.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with updated state if successful
+   * - Error handling: Returns error if note not found or content empty
+   */
+  updateNote(state: State, params: UpdateNoteParams): Result<State> {
+    const result = logic.updateNote(state, params);
+    if (result.ok) {
+      this.logger.info(`Note updated: ${params.noteId}`);
+    } else {
+      this.logger.warn(`Note update failed: ${result.error}`);
     }
     return result;
   }

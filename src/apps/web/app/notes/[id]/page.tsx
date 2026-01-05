@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
-import type { NoteTag } from "@libs/memory";
+import { NOTE_TAGS } from "@libs/memory";
 import { createStore } from "@/lib/store";
+import { EditableContent } from "./EditableContent";
+import { EditableTags } from "./EditableTags";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -54,50 +56,11 @@ export default async function NotePage({
       >
         <dl style={{ display: "grid", gap: "1rem" }}>
           <Field label="Created" value={formatDate(note.createdAt)} />
-          {note.tags.length > 0 && (
-            <div>
-              <dt
-                style={{
-                  fontSize: "0.75rem",
-                  color: "#666",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  marginBottom: "0.25rem",
-                }}
-              >
-                Tags
-              </dt>
-              <dd style={{ margin: 0, display: "flex", gap: "0.5rem" }}>
-                {note.tags.map((tag) => (
-                  <Tag key={tag} tag={tag} />
-                ))}
-              </dd>
-            </div>
-          )}
+          <EditableTags noteId={note.id} initialTags={note.tags} allTags={NOTE_TAGS} />
         </dl>
       </section>
 
-      <section
-        style={{
-          border: "1px solid #ccc",
-          borderRadius: "4px",
-          padding: "1.5rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "0.75rem",
-            color: "#666",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: "1rem",
-          }}
-        >
-          Content
-        </h2>
-        <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{note.content}</p>
-      </section>
+      <EditableContent noteId={note.id} initialContent={note.content} />
 
       {note.linkedObjects && note.linkedObjects.length > 0 && (
         <section>
@@ -157,26 +120,6 @@ function Field({ label, value }: FieldProps): React.ReactNode {
   );
 }
 
-interface TagProps {
-  tag: NoteTag;
-}
-
-function Tag({ tag }: TagProps): React.ReactNode {
-  return (
-    <span
-      style={{
-        fontSize: "0.75rem",
-        padding: "0.25rem 0.5rem",
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        textTransform: "lowercase",
-      }}
-    >
-      {tag}
-    </span>
-  );
-}
-
 function formatDate(isoString: string): string {
   return new Date(isoString).toLocaleDateString("en-US", {
     year: "numeric",
@@ -186,4 +129,3 @@ function formatDate(isoString: string): string {
     minute: "2-digit",
   });
 }
-

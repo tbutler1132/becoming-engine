@@ -4,7 +4,12 @@ import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { DEFAULT_PERSONAL_NODE } from "@libs/memory";
 import { Regulator } from "@libs/regulator";
-import type { EpisodeType, ModelType, VariableStatus } from "@libs/memory";
+import type {
+  EpisodeType,
+  ModelType,
+  NoteTag,
+  VariableStatus,
+} from "@libs/memory";
 import type { Result } from "@libs/shared";
 import { createStore } from "@/lib/store";
 
@@ -206,6 +211,96 @@ export async function signalVariable(
     node: DEFAULT_PERSONAL_NODE,
     variableId,
     status,
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  return okVoid();
+}
+
+/**
+ * Updates an existing note's content.
+ */
+export async function updateNote(
+  noteId: string,
+  content: string
+): Promise<Result<void>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+
+  const result = regulator.updateNote(state, {
+    noteId,
+    content,
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  return okVoid();
+}
+
+/**
+ * Adds a tag to an existing note.
+ */
+export async function addNoteTag(
+  noteId: string,
+  tag: NoteTag
+): Promise<Result<void>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+
+  const result = regulator.addNoteTag(state, {
+    noteId,
+    tag,
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  return okVoid();
+}
+
+/**
+ * Removes a tag from an existing note.
+ */
+export async function removeNoteTag(
+  noteId: string,
+  tag: NoteTag
+): Promise<Result<void>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+
+  const result = regulator.removeNoteTag(state, {
+    noteId,
+    tag,
   });
 
   if (!result.ok) {
