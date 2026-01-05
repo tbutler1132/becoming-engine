@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { DEFAULT_PERSONAL_NODE } from "@libs/memory";
 import { getStatusData } from "@libs/regulator";
 import type { Action, Episode } from "@libs/memory";
@@ -143,20 +144,28 @@ function EpisodeCard({ episode, actions }: EpisodeCardProps): React.ReactNode {
         marginBottom: "1rem",
       }}
     >
-      <div
+      <Link
+        href={`/episodes/${episode.id}`}
         style={{
-          fontSize: "0.75rem",
-          color: "#666",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          marginBottom: "0.25rem",
+          display: "block",
+          marginBottom: "1rem",
+          color: "inherit",
+          textDecoration: "none",
         }}
       >
-        Episode
-      </div>
-      <div style={{ fontSize: "1rem", marginBottom: "1rem" }}>
-        {episode.objective}
-      </div>
+        <div
+          style={{
+            fontSize: "0.75rem",
+            color: "#666",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            marginBottom: "0.25rem",
+          }}
+        >
+          Episode
+        </div>
+        <div style={{ fontSize: "1rem" }}>{episode.objective}</div>
+      </Link>
 
       <div
         style={{
@@ -182,15 +191,19 @@ interface ActionCardProps {
 
 function ActionCard({ action }: ActionCardProps): React.ReactNode {
   return (
-    <div
+    <Link
+      href={`/actions/${action.id}`}
       style={{
+        display: "block",
         border: "1px solid #ccc",
         borderRadius: "4px",
         padding: "1rem",
         marginBottom: "0.5rem",
+        color: "inherit",
+        textDecoration: "none",
       }}
     >
       {action.description}
-    </div>
+    </Link>
   );
 }

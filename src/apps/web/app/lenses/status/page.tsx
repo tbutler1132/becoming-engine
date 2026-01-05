@@ -156,7 +156,8 @@ interface VariableCardProps {
 
 function VariableCard({ variable }: VariableCardProps): React.ReactNode {
   return (
-    <div
+    <Link
+      href={`/variables/${variable.id}`}
       style={{
         width: "200px",
         height: "200px",
@@ -168,6 +169,8 @@ function VariableCard({ variable }: VariableCardProps): React.ReactNode {
         justifyContent: "space-between",
         alignItems: "center",
         textAlign: "center",
+        color: "inherit",
+        textDecoration: "none",
       }}
     >
       <div style={{ fontSize: "1.125rem", fontWeight: 500 }}>
@@ -182,7 +185,7 @@ function VariableCard({ variable }: VariableCardProps): React.ReactNode {
       >
         {variable.status}
       </div>
-    </div>
+    </Link>
   );
 }
 

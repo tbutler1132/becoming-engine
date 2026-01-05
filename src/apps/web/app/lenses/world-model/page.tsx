@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Note } from "@libs/memory";
 import { createStore } from "@/lib/store";
 
@@ -55,15 +56,19 @@ interface NoteCardProps {
 
 function NoteCard({ note }: NoteCardProps): React.ReactNode {
   return (
-    <div
+    <Link
+      href={`/notes/${note.id}`}
       style={{
+        display: "block",
         border: "1px solid #ccc",
         borderRadius: "4px",
         padding: "1rem",
         marginBottom: "0.5rem",
+        color: "inherit",
+        textDecoration: "none",
       }}
     >
       {note.content}
-    </div>
+    </Link>
   );
 }
