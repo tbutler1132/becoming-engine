@@ -6,21 +6,40 @@ This plan is for "building in public" without turning the project into optimizat
 
 ## Start Here (Literal First Steps)
 
-### Today (1–2 hours)
+### This Week (close current Episode)
 
-**1. Personal node check (5 min)**
+If you have an active Personal Explore Episode (e.g., "mess around with the system"), finish and close it first.
+
+**1. Continue current work**
+
+- Feature work, playing with the system, whatever you're doing.
+
+**2. Friday: close the Episode with learning (15 min)**
+
+- Capture what you learned:
+  - "System is usable (CLI + Web UI work)"
+  - "Gap found: can't add Variables from UI"
+  - "Amplification plan written"
+- Close the Episode in the system.
+
+---
+
+### Next Monday (Week 1 of amplification)
+
+**3. Personal node check (5 min)**
 
 - Open the system (CLI or UI).
 - Glance at your Personal Variables.
-- Ask: "Am I in baseline?" If yes → proceed. If no → open a tiny Stabilize Episode first (do not start the Org push until Personal is stable).
+- Confirm any active Stabilize Episodes are still running.
+- Ask: "If the Org stalls, am I still okay?" If yes → proceed.
 
-**2. Spin up the Org node (10 min)**
+**4. Spin up the Org node (10 min)**
 
 - Create or confirm your Org node exists in the system.
 - Add 3–5 Org Variables (start with: Runway, Execution Capacity, Pipeline, Coherence, Learning Velocity).
 - Set their initial status (even "Unknown" is fine).
 
-**3. Open your first Org Explore Episode (15 min)**
+**5. Open your first Org Explore Episode (15 min)**
 
 - Episode: **"Release Single v1 (Luxury Accessible Pop)"**
 - Hypothesis: "If I ship one polished single with pro collaborators, I learn what creates a step-change in perceived quality."
@@ -29,37 +48,32 @@ This plan is for "building in public" without turning the project into optimizat
   - Set budget ceiling ($30k) + freeze points.
   - Draft producer/topliner outreach message.
 
-**4. First amplification artifact (optional, 30 min)**
+**6. First amplification artifact (30 min)**
 
-- Write a short "What I'm building" post (1–2 paragraphs) announcing the Becoming Engine + the single as first flagship project.
+- Write a short "What I'm building" post (2–3 paragraphs) announcing the Becoming Engine + the single as first flagship project.
 - Publish to one channel (X/Bluesky, blog, or newsletter).
 - This is your "Episode opened" signal—not a content treadmill.
 
-### This Week (by end of Week 1)
+### By end of Week 1
 
-**5. Complete Gate 0 (single)**
+**7. Complete Gate 0 (single)**
 
 - Finalize and send the 1-page brief + refs to producer shortlist.
 - Lock budget ceiling + freeze points in writing.
 
-**6. Weekly Org check-in (10–15 min)**
-
-- Review Org Variables.
-- Review active Episode: on track? need to scope down?
-- Pull next 1–3 Actions only if needed.
-- Capture any learning (even small: "Producer X responded, seems aligned").
-
-**7. First closure artifact (when Gate 0 closes)**
+**8. First closure artifact (when Gate 0 closes)**
 
 - Write a short "Gate 0 closed" note: what's locked, what's next, what you learned.
-- Publish (same channel as #4).
+- Publish (same channel as #6).
 
-### Ongoing rhythm (after Week 1)
+---
+
+### Ongoing rhythm (Weeks 2–8)
 
 - **Daily (1 min)**: Personal check. If baseline → ignore system.
-- **Weekly (10–15 min)**: Org check-in + Episode review.
-- **On closure**: Publish artifact (closure note, learning, or the single itself).
-- **Default cadence**: ~1 published artifact per week is plenty.
+- **Weekly (10–15 min)**: Org check-in + Episode review. Pull next 1–3 Actions. Capture learning.
+- **On closure**: Publish artifact (closure note, gate note, or the single itself).
+- **Default cadence**: ~1 published artifact per week is plenty. If you're posting more, something is off.
 
 ---
 
