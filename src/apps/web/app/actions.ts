@@ -164,21 +164,23 @@ export async function closeEpisode(
 }
 
 /**
- * Adds an action to an episode.
+ * Adds an action, optionally linked to an episode.
+ * Returns the new action ID on success.
  */
 export async function addAction(
-  episodeId: string,
-  description: string
-): Promise<Result<void>> {
+  description: string,
+  episodeId?: string
+): Promise<Result<string>> {
   const store = createStore();
   const regulator = new Regulator();
 
   const state = await store.load();
+  const actionId = crypto.randomUUID();
 
   const result = regulator.act(state, {
-    actionId: crypto.randomUUID(),
+    actionId,
     node: DEFAULT_PERSONAL_NODE,
-    episodeId,
+    ...(episodeId ? { episodeId } : {}),
     description,
   });
 
@@ -192,7 +194,7 @@ export async function addAction(
     return { ok: false, error: getErrorMessage(error) };
   }
   revalidatePath("/");
-  return okVoid();
+  return { ok: true, value: actionId };
 }
 
 /**
@@ -314,4 +316,29 @@ export async function removeNoteTag(
   }
   revalidatePath("/");
   return okVoid();
+}
+
+/**
+ * Episode option for dropdown display.
+ */
+export interface EpisodeOption {
+  id: string;
+  objective: string;
+  type: string;
+}
+
+/**
+ * Gets all active episodes for dropdown selection.
+ */
+export async function getActiveEpisodes(): Promise<EpisodeOption[]> {
+  const store = createStore();
+  const state = await store.load();
+
+  return state.episodes
+    .filter((e) => e.status === "Active")
+    .map((e) => ({
+      id: e.id,
+      objective: e.objective,
+      type: e.type,
+    }));
 }
