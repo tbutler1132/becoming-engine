@@ -18,6 +18,24 @@
       },
       "name": "Execution Capacity",
       "status": "InRange"
+    },
+    {
+      "id": "a1b2c3d4-5678-4abc-9def-111111111111",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "name": "Optionality",
+      "status": "InRange"
+    },
+    {
+      "id": "b2c3d4e5-6789-4bcd-aef0-222222222222",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "name": "Continuity",
+      "status": "InRange"
     }
   ],
   "episodes": [
@@ -43,6 +61,18 @@
       "objective": "Ear",
       "status": "Active",
       "openedAt": "2026-01-04T16:47:11.670Z"
+    },
+    {
+      "id": "c3d4e5f6-7890-4cde-bef1-333333333333",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Stabilize",
+      "variableId": "a1b2c3d4-5678-4abc-9def-111111111111",
+      "objective": "Expand career options",
+      "status": "Active",
+      "openedAt": "2026-01-04T21:00:00.000Z"
     }
   ],
   "actions": [
@@ -51,9 +81,40 @@
       "description": "Like ass",
       "status": "Pending",
       "episodeId": "9238c629-393e-4ce1-9d47-682e593e612f"
+    },
+    {
+      "id": "2b64656d-99a8-44d5-9e9b-8cfc7ee9f5a2",
+      "description": "Run",
+      "status": "Pending",
+      "episodeId": "076e0954-9469-4166-a421-cd8164a92a5c"
+    },
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "description": "Sketch out the World Model lens layout",
+      "status": "Pending",
+      "episodeId": "076e0954-9469-4166-a421-cd8164a92a5c"
+    },
+    {
+      "id": "d4e5f6a7-8901-4def-cf12-444444444444",
+      "description": "Research side project ideas",
+      "status": "Pending",
+      "episodeId": "c3d4e5f6-7890-4cde-bef1-333333333333"
     }
   ],
-  "notes": [],
+  "notes": [
+    {
+      "id": "e5f6a7b8-9012-4ef0-d123-555555555555",
+      "content": "Maybe I should learn Rust for systems programming",
+      "createdAt": "2026-01-04T20:00:00.000Z",
+      "tags": ["inbox"]
+    },
+    {
+      "id": "f6a7b8c9-0123-4f01-e234-666666666666",
+      "content": "Interesting article about cybernetics and self-regulation",
+      "createdAt": "2026-01-04T20:30:00.000Z",
+      "tags": ["inbox"]
+    }
+  ],
   "models": [],
   "links": [],
   "exceptions": []

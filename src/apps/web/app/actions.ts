@@ -1,38 +1,12 @@
 "use server";
 
 import crypto from "crypto";
-import path from "path";
 import { revalidatePath } from "next/cache";
-import { JsonStore, DEFAULT_PERSONAL_NODE } from "@libs/memory";
+import { DEFAULT_PERSONAL_NODE } from "@libs/memory";
 import { Regulator } from "@libs/regulator";
 import type { EpisodeType, ModelType, VariableStatus } from "@libs/memory";
 import type { Result } from "@libs/shared";
-
-/**
- * Get the project root path.
- * The web app is at src/apps/web, so we go up 3 levels from cwd.
- * This handles both `npm run dev:web` (from root) and direct runs.
- */
-function getProjectRoot(): string {
-  // When running via `npm run dev:web`, cwd is src/apps/web
-  // When running directly from web folder, cwd is also src/apps/web
-  // Either way, we need to go up 3 levels to reach the project root
-  const cwd = process.cwd();
-  if (cwd.endsWith("src/apps/web") || cwd.includes("/src/apps/web")) {
-    return path.resolve(cwd, "../../..");
-  }
-  // If somehow running from project root, use it directly
-  return cwd;
-}
-
-const PROJECT_ROOT = getProjectRoot();
-
-/**
- * Create a JsonStore pointing to the project root.
- */
-function createStore(): JsonStore {
-  return new JsonStore({ basePath: PROJECT_ROOT });
-}
+import { createStore } from "@/lib/store";
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown error";
@@ -44,8 +18,6 @@ function okVoid(): Result<void> {
 
 /**
  * Marks an action as Done.
- *
- * **Pattern**: Load → Mutate → Save → Revalidate
  */
 export async function completeAction(actionId: string): Promise<Result<void>> {
   const store = createStore();
@@ -106,7 +78,7 @@ export async function openStabilizeEpisode(
  * Opens an Explore episode (not linked to a specific variable).
  */
 export async function openExploreEpisode(
-  objective: string,
+  objective: string
 ): Promise<Result<void>> {
   const store = createStore();
   const regulator = new Regulator();
@@ -137,7 +109,7 @@ export async function openExploreEpisode(
 
 /**
  * Closes an episode with a closure note.
- * For Explore episodes, a model statement is required (learning must be explicit).
+ * For Explore episodes, a model statement is required.
  */
 export async function closeEpisode(
   episodeId: string,
@@ -151,7 +123,6 @@ export async function closeEpisode(
   const state = await store.load();
   const closedAt = new Date().toISOString();
 
-  // Build model updates for Explore episodes
   const modelUpdates =
     episodeType === "Explore" && modelStatement
       ? [
@@ -199,8 +170,6 @@ export async function addAction(
 
   const state = await store.load();
 
-  //TODO: Goes through Sensorium first?
-  
   const result = regulator.act(state, {
     actionId: crypto.randomUUID(),
     node: DEFAULT_PERSONAL_NODE,
@@ -223,7 +192,6 @@ export async function addAction(
 
 /**
  * Signals a new status for a variable.
- * This is a manual override — eventually proxies will drive this.
  */
 export async function signalVariable(
   variableId: string,
