@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { DEFAULT_PERSONAL_NODE, formatNodeRef } from "@libs/memory";
 import { getStatusData } from "@libs/regulator";
 import type { Variable, Episode } from "@libs/memory";
@@ -81,36 +82,45 @@ interface ExploreCardProps {
 }
 
 function ExploreCard({ episode }: ExploreCardProps): React.ReactNode {
-  return (
-    <div
-      style={{
-        padding: "1.5rem",
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-      }}
-    >
-      {episode ? (
-        <>
-          <div
-            style={{
-              fontSize: "0.75rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              color: "#666",
-              marginBottom: "0.5rem",
-            }}
-          >
-            Active Explore
-          </div>
-          <div>{episode.objective}</div>
-        </>
-      ) : (
-        <div style={{ color: "#999", textAlign: "center" }}>
-          No active explore episode
-        </div>
-      )}
+  const content = episode ? (
+    <>
+      <div
+        style={{
+          fontSize: "0.75rem",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          color: "#666",
+          marginBottom: "0.5rem",
+        }}
+      >
+        Active Explore
+      </div>
+      <div>{episode.objective}</div>
+    </>
+  ) : (
+    <div style={{ color: "#999", textAlign: "center" }}>
+      No active explore episode
     </div>
   );
+
+  const cardStyle = {
+    padding: "1.5rem",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    display: "block",
+    color: "inherit",
+    textDecoration: "none",
+  };
+
+  if (episode) {
+    return (
+      <Link href={`/episodes/${episode.id}`} style={cardStyle}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div style={cardStyle}>{content}</div>;
 }
 
 interface VariableSectionProps {
@@ -182,7 +192,8 @@ interface StabilizeCardProps {
 
 function StabilizeCard({ episode }: StabilizeCardProps): React.ReactNode {
   return (
-    <div
+    <Link
+      href={`/episodes/${episode.id}`}
       style={{
         marginTop: "0.75rem",
         padding: "1rem 1.5rem",
@@ -190,6 +201,9 @@ function StabilizeCard({ episode }: StabilizeCardProps): React.ReactNode {
         borderRadius: "4px",
         maxWidth: "300px",
         textAlign: "center",
+        display: "block",
+        color: "inherit",
+        textDecoration: "none",
       }}
     >
       <div
@@ -204,6 +218,6 @@ function StabilizeCard({ episode }: StabilizeCardProps): React.ReactNode {
         Stabilizing
       </div>
       <div style={{ fontSize: "0.875rem" }}>{episode.objective}</div>
-    </div>
+    </Link>
   );
 }
