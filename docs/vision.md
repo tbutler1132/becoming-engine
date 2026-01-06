@@ -125,7 +125,11 @@ Organizations are treated as real organisms, not just teams:
 - shared Episodes (bounded interventions)
 - shared Models (explicit learning)
 
-Over time, this can support “tribe-like” containers: human-scale groups with shared stewardship and creative output. This is aspirational, but it shapes the architecture: **legibility, boundedness, and anti‑capture** must hold at the org level too.
+Over time, this can support "tribe-like" containers: human-scale groups (50-150 people, Dunbar's number) with shared stewardship and creative output. Groups collaborate to produce creative artifacts together—not as individuals competing for attention, but as organisms regulating viability and learning explicitly.
+
+**Artifact sharing through signals**: Groups share their creative work with other groups through signal-based coordination, not social media feeds. When a group completes an Episode, they emit a "completion" signal with artifacts attached (Models, Notes, or external links). Other groups consume signals they care about—pull-based, not push-based. No engagement metrics, no ranking algorithms, no attention optimization. Quality emerges from groups regulating their own viability and learning explicitly, not from competing for visibility.
+
+This is aspirational, but it shapes the architecture: **legibility, boundedness, and anti‑capture** must hold at the org level too. The system consolidates content (reduces quantity, increases quality) by operating at the group level rather than individual level, while preserving natural social dynamics over competitive individualism.
 
 ## 8) Aesthetic direction (mythic, baroque-modern)
 

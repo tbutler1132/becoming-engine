@@ -254,10 +254,11 @@ Phase 1's Regulator is command-driven (user calls `openEpisode`). Phase 3 makes 
 - **Dynamic node creation**: Create Org nodes programmatically
 - **Authentication**: Control who accesses which nodes
 - **Federation**: Nodes exchange signals over the network
-- **Node size limits**: Hard Dunbar constraint (~50 members) that forces mitosis — system becomes unusable until split
+- **Node size limits**: Hard Dunbar constraint (50-150 members) that forces mitosis — system becomes unusable until split
+- **Artifact sharing**: Groups emit "completion" signals with creative artifacts attached (Models, Notes, external links). Other groups consume signals they care about—pull-based discovery, not algorithmic feeds. No engagement metrics, no ranking algorithms.
 - **Codebase node**: Treat the codebase as a regulated organism
 
-Federation principle: Nodes exchange signals and artifacts, never share state.
+Federation principle: Nodes exchange signals and artifacts, never share state. Artifact sharing consolidates content at the group level (reducing quantity, increasing quality) while preserving natural social dynamics over competitive individualism.
 
 ---
 

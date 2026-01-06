@@ -80,6 +80,41 @@ interface Variable {
 
 **Anti-capture check:** Shared variables must not create hidden pressure. Signals are visible. No silent scoring.
 
+#### Phase 4: Artifact Sharing
+
+Groups share creative artifacts through completion signals, not social media feeds.
+
+```typescript
+// Completion signal with artifact attachment
+interface CompletionSignal extends SignalEvent {
+  type: "completion";
+  payload: {
+    episodeId: string;
+    artifactType: "model" | "note" | "external";
+    artifactId?: string; // For Models/Notes in this node
+    externalUrl?: string; // For external artifacts
+    description: string; // Human-readable summary
+  };
+}
+
+// Artifact discovery (pull-based, not push)
+interface ArtifactDiscovery {
+  nodeId: NodeRef;
+  consumedSignals: string[]; // Which signals this node has seen
+  subscribedNodes?: NodeRef[]; // Optional: auto-consume from these nodes
+}
+```
+
+**Key moves:**
+
+1. When Episode closes, optionally emit completion signal with artifact attached
+2. Other nodes consume signals they care about (pull-based)
+3. UI: "Artifacts" view showing consumed completion signals
+4. No feed algorithm, no ranking, no engagement metrics
+5. Groups opt-in to see others' work—explicit subscriptions, not algorithmic discovery
+
+**Anti-capture check:** Artifact sharing must remain pull-based. No algorithmic feeds optimized for engagement. No hidden ranking. No comparison dynamics that pressure groups to produce more. Quality emerges from regulation and explicit learning, not from competing for visibility. The system consolidates content at the group level (reducing quantity, increasing quality) while preserving natural social dynamics over competitive individualism.
+
 ---
 
 ## 2. Automation Doctrine: Earned Trust Levels
@@ -339,5 +374,9 @@ Per the vision, explicitly avoid:
 - ❌ Hidden rankings or comparisons between nodes
 - ❌ Features that require daily check-in to feel "okay"
 - ❌ Optimization targets masquerading as viability indicators
+- ❌ Social media feed algorithms (push-based, engagement-optimized)
+- ❌ Like/comment/share mechanics that create engagement loops
+- ❌ Follower counts, view counts, or any metrics that pressure production
+- ❌ Algorithmic discovery that optimizes for attention rather than relevance
 
-The system succeeds by disappearing when not needed. Build accordingly.
+**Artifact sharing is pull-based signal consumption, not social media.** Groups explicitly opt-in to see others' work. No feeds, no algorithms, no engagement optimization. The system succeeds by disappearing when not needed. Build accordingly.

@@ -46,7 +46,7 @@ This is where we are. The system helps individuals:
 
 ## Phase 2: The Tribal Container (2-5 years)
 
-**Scope:** Human-scale groups (5-150 people) operating as shared organisms.
+**Scope:** Human-scale groups (50-150 people, Dunbar's number) operating as shared organisms.
 
 This is where it gets interesting. The system enables:
 
@@ -54,12 +54,15 @@ This is where it gets interesting. The system enables:
 - **Shared Episodes**: The group can open bounded interventions together. "We're exploring X for 6 weeks" with explicit closure.
 - **Shared Models**: Explicit beliefs that evolve. "We learned that Y doesn't work for us." Tribal knowledge that compounds.
 - **Signal Networks**: Multiple tribes can coordinate without merging. Intent, status, completion—not surveillance.
+- **Creative Artifact Sharing**: Groups produce creative artifacts collaboratively (not as individuals competing for attention). When Episodes close, groups emit "completion" signals with artifacts attached. Other groups consume signals they care about—pull-based discovery, not algorithmic feeds. Quality emerges from regulation and explicit learning, not engagement metrics or ranking algorithms.
 
-**Civilizational function:** Demonstrate that groups can coordinate without becoming corporations. That shared work doesn't require hierarchical optimization. That "tribe" is a real organizational form, not nostalgia.
+**The consolidation effect**: By operating at the group level (50-150 people) rather than individual level, the system naturally consolidates content. Instead of thousands of individuals producing fragmented output, you have dozens of groups producing curated, collaborative artifacts. This reduces quantity and increases quality—not through competition, but through natural social dynamics and shared stewardship.
 
-**Success marker:** 10-50 functioning "tribes" (studios, collectives, cooperatives, research groups) that use shared Becoming Engines as their coordination layer. They outperform comparable groups on sustainability, creative output, and member wellbeing.
+**Civilizational function:** Demonstrate that groups can coordinate without becoming corporations. That shared work doesn't require hierarchical optimization. That "tribe" is a real organizational form, not nostalgia. That creative collaboration can happen without social media capture mechanics.
 
-**Anti-capture check:** Tribes must not become cults. The system must support exit. Boundaries are explicit, not coercive.
+**Success marker:** 10-50 functioning "tribes" (studios, collectives, cooperatives, research groups) that use shared Becoming Engines as their coordination layer. They outperform comparable groups on sustainability, creative output, and member wellbeing. Groups share artifacts with each other through signals, creating a network of creative work without engagement loops or attention optimization.
+
+**Anti-capture check:** Tribes must not become cults. The system must support exit. Boundaries are explicit, not coercive. Artifact sharing must remain pull-based (groups opt-in to see others' work), never push-based feeds optimized for engagement. No hidden scoring, no ranking algorithms, no comparison dynamics that pressure behavior.
 
 ---
 
@@ -71,12 +74,15 @@ At this scale:
 
 - **Signal federation**: Tribes can signal to each other without centralization. No platform owns the network.
 - **Model propagation**: Useful beliefs spread between tribes. "The X Collective learned that Y works for creative teams"—explicit, attributable, adoptable.
+- **Artifact networks**: Groups share creative work through completion signals. The network becomes a distributed gallery/library of collaborative artifacts—not a feed optimized for engagement, but a pull-based discovery layer where groups find work they care about.
 - **Economic coordination**: Tribes can coordinate economic activity without becoming corporations or platforms. Shared projects, resource flows, mutual aid—all visible and bounded.
 - **Resistance infrastructure**: The network becomes hard to capture because no single entity controls it. Anti-fragile by design.
 
-**Civilizational function:** Demonstrate an alternative to platform capitalism. A coordination layer that doesn't extract, doesn't surveill, doesn't optimize humans into resources.
+**The alternative to social media**: Instead of platforms where individuals compete for attention through engagement metrics, you have a network of groups sharing artifacts through explicit signals. No algorithmic feeds, no hidden ranking, no dopamine loops. Groups discover each other's work through pull-based consumption of signals they're interested in. Quality and relevance emerge from explicit Models and shared learning, not from optimization algorithms.
 
-**Success marker:** A network of 1,000+ nodes that handles meaningful economic and creative coordination. Participants report higher agency, lower anxiety, and sustainable creative output compared to platform-mediated alternatives.
+**Civilizational function:** Demonstrate an alternative to platform capitalism. A coordination layer that doesn't extract, doesn't surveill, doesn't optimize humans into resources. A creative network that consolidates content at the group level, reducing noise and increasing quality through natural social dynamics rather than competitive individualism.
+
+**Success marker:** A network of 1,000+ nodes that handles meaningful economic and creative coordination. Participants report higher agency, lower anxiety, and sustainable creative output compared to platform-mediated alternatives. The network demonstrates that creative collaboration can scale without social media capture mechanics.
 
 ---
 
