@@ -119,6 +119,12 @@
       "content": "Interesting article about cybernetics and self-regulation",
       "createdAt": "2026-01-04T20:30:00.000Z",
       "tags": ["inbox"]
+    },
+    {
+      "id": "a36a44e7-b177-49db-a65e-62e693119d3f",
+      "content": "I like trains",
+      "createdAt": "2026-01-06T02:20:19.580Z",
+      "tags": ["inbox"]
     }
   ],
   "models": [],
