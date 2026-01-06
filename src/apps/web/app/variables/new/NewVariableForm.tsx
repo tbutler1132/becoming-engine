@@ -5,23 +5,46 @@ import { useRouter } from "next/navigation";
 import { createVariable } from "@/app/actions";
 import type { MeasurementCadence, NodeType } from "@libs/memory";
 
+/**
+ * Initial values for the form, optionally derived from a template.
+ */
+interface FormInitialValues {
+  name: string;
+  description: string;
+  preferredRange: string;
+  measurementCadence: MeasurementCadence | "";
+  /** Whether these values came from a template (shows 'customize this' cues) */
+  fromTemplate: boolean;
+}
+
 interface NewVariableFormProps {
   nodeTypes: readonly string[];
   measurementCadences: readonly string[];
+  /** Optional initial values from a template */
+  initialValues?: FormInitialValues;
 }
 
 export function NewVariableForm({
   nodeTypes,
   measurementCadences,
+  initialValues,
 }: NewVariableFormProps): React.ReactNode {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initialValues?.name ?? "");
   const [nodeType, setNodeType] = useState<NodeType>("Personal");
-  const [description, setDescription] = useState("");
-  const [preferredRange, setPreferredRange] = useState("");
-  const [measurementCadence, setMeasurementCadence] = useState("");
+  const [description, setDescription] = useState(
+    initialValues?.description ?? ""
+  );
+  const [preferredRange, setPreferredRange] = useState(
+    initialValues?.preferredRange ?? ""
+  );
+  const [measurementCadence, setMeasurementCadence] = useState(
+    initialValues?.measurementCadence ?? ""
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const fromTemplate = initialValues?.fromTemplate ?? false;
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
@@ -240,12 +263,13 @@ export function NewVariableForm({
           <p
             style={{
               fontSize: "0.75rem",
-              color: "#666",
+              color: fromTemplate ? "#92400e" : "#666",
               marginTop: "0.5rem",
             }}
           >
-            Qualitative belief about what &quot;in range&quot; means for this
-            dimension.
+            {fromTemplate
+              ? "This is a suggested starting point — customize for YOUR context."
+              : "Qualitative belief about what \"in range\" means for this dimension."}
           </p>
         </div>
 

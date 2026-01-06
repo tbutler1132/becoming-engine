@@ -1,5 +1,9 @@
-import { MEASUREMENT_CADENCES, NODE_TYPES } from "@libs/memory";
-import { NewVariableForm } from "./NewVariableForm";
+import {
+  MEASUREMENT_CADENCES,
+  NODE_TYPES,
+  BUILTIN_TEMPLATES,
+} from "@libs/memory";
+import { NewVariableWithTemplates } from "./NewVariableWithTemplates";
 
 export default function NewVariablePage(): React.ReactNode {
   return (
@@ -25,7 +29,8 @@ export default function NewVariablePage(): React.ReactNode {
         <h1 style={{ fontSize: "1.5rem" }}>Create Variable</h1>
       </header>
 
-      <NewVariableForm
+      <NewVariableWithTemplates
+        templates={BUILTIN_TEMPLATES}
         nodeTypes={NODE_TYPES}
         measurementCadences={MEASUREMENT_CADENCES}
       />
