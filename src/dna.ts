@@ -25,7 +25,16 @@ export const DEFAULT_PERSONAL_NODE_ID = "personal" as const;
 export const DEFAULT_ORG_NODE_ID = "org" as const;
 
 /** The valid variable statuses (homeostatic states) */
-export const VARIABLE_STATUSES = ["Low", "InRange", "High"] as const;
+export const VARIABLE_STATUSES = ["Low", "InRange", "High", "Unknown"] as const;
+
+/** The valid measurement cadences for Variables (how often to evaluate) */
+export const MEASUREMENT_CADENCES = [
+  "daily",
+  "weekly",
+  "monthly",
+  "quarterly",
+  "asNeeded",
+] as const;
 
 /** The valid episode types (temporary interventions) */
 export const EPISODE_TYPES = ["Stabilize", "Explore"] as const;
@@ -91,7 +100,7 @@ export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Current schema version — increment when State shape changes */
-export const SCHEMA_VERSION = 9 as const;
+export const SCHEMA_VERSION = 10 as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MEMBRANE — Exception tracking for constraint bypasses

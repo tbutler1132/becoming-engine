@@ -202,10 +202,12 @@ A Variable is a regulated dimension of viability.
 **Fields:**
 
 - id, name, status (Low / InRange / High / Unknown)
-- preferredRange (min, max) — target bounds
+- description — what this variable regulates (optional)
+- preferredRange — qualitative belief about what "in range" means (optional)
+- measurementCadence — how often to evaluate (daily/weekly/monthly/quarterly/asNeeded)
 - stability — how stable over time (0.0 to 1.0)
 - confidence — how confident in the reading (0.0 to 1.0)
-- proxies — what signals inform this variable
+- proxies — concrete signals that inform this variable (quantifiable metrics belong here)
 
 **Invariants:**
 

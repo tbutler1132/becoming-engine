@@ -8,6 +8,7 @@ export {
   DEFAULT_PERSONAL_NODE_ID,
   DEFAULT_ORG_NODE_ID,
   VARIABLE_STATUSES,
+  MEASUREMENT_CADENCES,
   EPISODE_TYPES,
   EPISODE_STATUSES,
   ACTION_STATUSES,
@@ -27,6 +28,7 @@ import {
   DEFAULT_PERSONAL_NODE_ID,
   DEFAULT_ORG_NODE_ID,
   VARIABLE_STATUSES,
+  MEASUREMENT_CADENCES,
   EPISODE_TYPES,
   EPISODE_STATUSES,
   ACTION_STATUSES,
@@ -43,6 +45,7 @@ import {
 // Type derivations from DNA constants
 export type NodeType = (typeof NODE_TYPES)[number];
 export type VariableStatus = (typeof VARIABLE_STATUSES)[number];
+export type MeasurementCadence = (typeof MEASUREMENT_CADENCES)[number];
 export type EpisodeType = (typeof EPISODE_TYPES)[number];
 export type EpisodeStatus = (typeof EPISODE_STATUSES)[number];
 export type ActionStatus = (typeof ACTION_STATUSES)[number];
@@ -85,6 +88,12 @@ export interface Variable {
   node: NodeRef;
   name: string;
   status: VariableStatus;
+  /** What this variable regulates */
+  description?: string;
+  /** Qualitative belief: what "in range" means for this dimension */
+  preferredRange?: string;
+  /** How often to evaluate this variable */
+  measurementCadence?: MeasurementCadence;
 }
 
 export interface Episode {

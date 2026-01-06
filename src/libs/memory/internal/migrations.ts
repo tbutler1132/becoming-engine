@@ -10,6 +10,7 @@ import type {
   StateV6,
   StateV7,
   StateV8,
+  StateV9,
 } from "./validation.js";
 import { nodeRefFromLegacy } from "./validation.js";
 
@@ -121,9 +122,21 @@ export function migrateV7ToV8(v7: StateV7): StateV8 {
  * This is a no-op migration since timeboxDays is optional.
  * Episodes without timeboxDays remain valid in v9.
  */
-export function migrateV8ToV9(v8: StateV8): State {
+export function migrateV8ToV9(v8: StateV8): StateV9 {
   return {
     ...v8,
+    schemaVersion: 9 as const,
+  };
+}
+
+/**
+ * Migrates v9 state to v10.
+ * This is a no-op migration since new Variable fields are optional.
+ * Variables without description/preferredRange/measurementCadence remain valid in v10.
+ */
+export function migrateV9ToV10(v9: StateV9): State {
+  return {
+    ...v9,
     schemaVersion: SCHEMA_VERSION,
   };
 }

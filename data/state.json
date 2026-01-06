@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 8,
+  "schemaVersion": 9,
   "variables": [
     {
       "id": "3e40bf0f-693b-4c29-b4e2-1f5c1cf47020",
@@ -61,6 +61,24 @@
       "content": "Meat\n",
       "createdAt": "2026-01-04T02:19:53.919Z",
       "tags": ["closure_note"]
+    },
+    {
+      "id": "0e2667f8-2ac5-4fb2-b112-707acb0d5f45",
+      "content": "Need better nav, need to be able to close out Actions",
+      "createdAt": "2026-01-06T19:29:30.696Z",
+      "tags": []
+    },
+    {
+      "id": "41e2537a-4452-48e0-859c-3f8b6a3c7c12",
+      "content": "Need better Nav, Close out Actions, Autopopulate inbox tag",
+      "createdAt": "2026-01-06T19:30:08.272Z",
+      "tags": ["inbox"]
+    },
+    {
+      "id": "1ce85335-c7bb-4ed1-8bbd-f6db24ea4bfd",
+      "content": "Ability to configure Variables",
+      "createdAt": "2026-01-06T19:30:52.936Z",
+      "tags": ["inbox"]
     }
   ],
   "models": [],

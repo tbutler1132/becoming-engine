@@ -15,6 +15,7 @@ import {
   isValidLegacyStateV4,
   isValidLegacyStateV6,
   isValidLegacyStateV8,
+  isValidLegacyStateV9,
   nodeRefFromLegacy,
 } from "./validation.js";
 import {
@@ -23,6 +24,7 @@ import {
   migrateV6ToV7,
   migrateV7ToV8,
   migrateV8ToV9,
+  migrateV9ToV10,
 } from "./migrations.js";
 import {
   SCHEMA_VERSION,
@@ -30,6 +32,7 @@ import {
   EPISODE_STATUSES,
   EPISODE_TYPES,
   VARIABLE_STATUSES,
+  MEASUREMENT_CADENCES,
   MODEL_TYPES,
   MODEL_SCOPES,
   ENFORCEMENT_LEVELS,
@@ -605,6 +608,118 @@ describe("isValidState", () => {
         episodes: [],
         actions: [],
         notes: [],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
+
+    it("accepts variable with all optional fields", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Energy",
+            status: VARIABLE_STATUSES[1],
+            description: "Physical and mental energy levels",
+            preferredRange:
+              "Enough to complete planned work with capacity for unexpected demands",
+            measurementCadence: MEASUREMENT_CADENCES[1], // "weekly"
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+      expect(isValidState(state)).toBe(true);
+    });
+
+    it("accepts variable with Unknown status", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: "Unknown",
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+      expect(isValidState(state)).toBe(true);
+    });
+
+    it("rejects variable with non-string description", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: VARIABLE_STATUSES[1],
+            description: 123,
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
+
+    it("rejects variable with non-string preferredRange", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: VARIABLE_STATUSES[1],
+            preferredRange: { min: 0, max: 10 },
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+      expect(isValidState(state)).toBe(false);
+    });
+
+    it("rejects variable with invalid measurementCadence", () => {
+      const state = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: VARIABLE_STATUSES[1],
+            measurementCadence: "invalid_cadence",
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
       };
       expect(isValidState(state)).toBe(false);
     });
@@ -1856,7 +1971,7 @@ describe("migrateV6ToV7", () => {
     expect(isValidLegacyStateV8(v8State)).toBe(true);
   });
 
-  it("full migration chain V4 -> V5 -> V6 -> V7 -> V8 -> V9 produces valid state", () => {
+  it("full migration chain V4 -> V5 -> V6 -> V7 -> V8 -> V9 -> V10 produces valid state", () => {
     const v4State = {
       schemaVersion: 4 as const,
       variables: [
@@ -1881,17 +1996,19 @@ describe("migrateV6ToV7", () => {
       notes: [{ id: "n1", content: "Note" }],
     };
 
-    const v9State = migrateV8ToV9(
-      migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State)))),
+    const v10State = migrateV9ToV10(
+      migrateV8ToV9(
+        migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State)))),
+      ),
     );
 
-    expect(v9State.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(v9State.models).toEqual([]);
-    expect(v9State.links).toEqual([]);
-    expect(v9State.exceptions).toEqual([]);
-    expect(v9State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
-    expect(v9State.notes[0]?.tags).toEqual([]);
-    expect(isValidState(v9State)).toBe(true);
+    expect(v10State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v10State.models).toEqual([]);
+    expect(v10State.links).toEqual([]);
+    expect(v10State.exceptions).toEqual([]);
+    expect(v10State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
+    expect(v10State.notes[0]?.tags).toEqual([]);
+    expect(isValidState(v10State)).toBe(true);
   });
 });
 
@@ -1971,7 +2088,7 @@ describe("migrateV7ToV8", () => {
 // ============================================================================
 
 describe("migrateV8ToV9", () => {
-  it("sets schemaVersion to 9 (current)", () => {
+  it("sets schemaVersion to 9", () => {
     const v8State = {
       schemaVersion: 8 as const,
       variables: [
@@ -1999,7 +2116,7 @@ describe("migrateV8ToV9", () => {
 
     const v9State = migrateV8ToV9(v8State);
 
-    expect(v9State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v9State.schemaVersion).toBe(9);
     // Preserves existing data
     expect(v9State.variables).toEqual(v8State.variables);
     expect(v9State.notes).toEqual(v8State.notes);
@@ -2007,7 +2124,7 @@ describe("migrateV8ToV9", () => {
     expect(v9State.exceptions).toEqual(v8State.exceptions);
   });
 
-  it("produces valid current state", () => {
+  it("produces valid V9 state (for further migration)", () => {
     const v8State = {
       schemaVersion: 8 as const,
       variables: [
@@ -2035,7 +2152,80 @@ describe("migrateV8ToV9", () => {
 
     const v9State = migrateV8ToV9(v8State);
 
-    expect(isValidState(v9State)).toBe(true);
+    expect(isValidLegacyStateV9(v9State)).toBe(true);
+  });
+});
+
+// ============================================================================
+// migrateV9ToV10 Tests
+// ============================================================================
+
+describe("migrateV9ToV10", () => {
+  it("sets schemaVersion to 10 (current)", () => {
+    const v9State = {
+      schemaVersion: 9 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+      links: [],
+      exceptions: [],
+    };
+
+    const v10State = migrateV9ToV10(v9State);
+
+    expect(v10State.schemaVersion).toBe(SCHEMA_VERSION);
+    // Preserves existing data
+    expect(v10State.variables).toEqual(v9State.variables);
+    expect(v10State.notes).toEqual(v9State.notes);
+    expect(v10State.links).toEqual(v9State.links);
+    expect(v10State.exceptions).toEqual(v9State.exceptions);
+  });
+
+  it("produces valid current state", () => {
+    const v9State = {
+      schemaVersion: 9 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+      links: [],
+      exceptions: [],
+    };
+
+    const v10State = migrateV9ToV10(v9State);
+
+    expect(isValidState(v10State)).toBe(true);
   });
 });
 

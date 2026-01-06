@@ -6,6 +6,7 @@ import {
   EPISODE_STATUSES,
   EPISODE_TYPES,
   LINK_RELATIONS,
+  MEASUREMENT_CADENCES,
   MODEL_SCOPES,
   MODEL_TYPES,
   MUTATION_TYPES,
@@ -21,6 +22,7 @@ import type {
   EpisodeStatus,
   EpisodeType,
   LinkRelation,
+  MeasurementCadence,
   ModelScope,
   ModelType,
   MutationType,
@@ -41,6 +43,7 @@ const LEGACY_SCHEMA_VERSION_V5 = 5 as const;
 const LEGACY_SCHEMA_VERSION_V6 = 6 as const;
 const LEGACY_SCHEMA_VERSION_V7 = 7 as const;
 const LEGACY_SCHEMA_VERSION_V8 = 8 as const;
+const LEGACY_SCHEMA_VERSION_V9 = 9 as const;
 
 export type StateV2 = Omit<State, "schemaVersion" | "models" | "links"> & {
   schemaVersion: typeof LEGACY_SCHEMA_VERSION_V2;
@@ -100,6 +103,20 @@ export type EpisodeV8 = {
 export type StateV8 = Omit<State, "schemaVersion" | "episodes"> & {
   schemaVersion: typeof LEGACY_SCHEMA_VERSION_V8;
   episodes: EpisodeV8[];
+};
+
+/** V9 Variable without description, preferredRange, measurementCadence fields */
+export type VariableV9 = {
+  id: string;
+  node: NodeRef;
+  name: string;
+  status: VariableStatus;
+};
+
+/** V9 State without new Variable fields (description, preferredRange, measurementCadence) */
+export type StateV9 = Omit<State, "schemaVersion" | "variables"> & {
+  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V9;
+  variables: VariableV9[];
 };
 
 /** V3 Episode without timestamp fields */
@@ -294,6 +311,16 @@ function isLegacySchemaVersionV8(
   value: unknown,
 ): value is typeof LEGACY_SCHEMA_VERSION_V8 {
   return value === LEGACY_SCHEMA_VERSION_V8;
+}
+
+function isLegacySchemaVersionV9(
+  value: unknown,
+): value is typeof LEGACY_SCHEMA_VERSION_V9 {
+  return value === LEGACY_SCHEMA_VERSION_V9;
+}
+
+function isMeasurementCadence(value: unknown): value is MeasurementCadence {
+  return typeof value === "string" && isMember(MEASUREMENT_CADENCES, value);
 }
 
 function hasUniqueIds(items: readonly unknown[]): boolean {
@@ -1481,7 +1508,250 @@ export function isValidLegacyStateV8(data: unknown): data is StateV8 {
 }
 
 /**
- * Validates the current state schema (V9, with timeboxDays on episodes).
+ * Validates a V9 state (schema version 9, variables without description/preferredRange/measurementCadence).
+ * Used for migration from V9 to V10.
+ */
+export function isValidLegacyStateV9(data: unknown): data is StateV9 {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+  const obj = data as Record<string, unknown>;
+  if (!isLegacySchemaVersionV9(obj.schemaVersion)) {
+    return false;
+  }
+  if (
+    !Array.isArray(obj.variables) ||
+    !Array.isArray(obj.episodes) ||
+    !Array.isArray(obj.actions) ||
+    !Array.isArray(obj.notes) ||
+    !Array.isArray(obj.models) ||
+    !Array.isArray(obj.links) ||
+    !Array.isArray(obj.exceptions)
+  ) {
+    return false;
+  }
+
+  if (
+    !hasUniqueIds(obj.variables) ||
+    !hasUniqueIds(obj.episodes) ||
+    !hasUniqueIds(obj.actions) ||
+    !hasUniqueIds(obj.notes) ||
+    !hasUniqueIds(obj.models) ||
+    !hasUniqueIds(obj.links) ||
+    !hasUniqueIds(obj.exceptions) ||
+    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
+  ) {
+    return false;
+  }
+
+  // V9 variables don't have description, preferredRange, measurementCadence
+  for (const variable of obj.variables) {
+    if (
+      typeof variable !== "object" ||
+      variable === null ||
+      typeof (variable as Record<string, unknown>).id !== "string" ||
+      !isNodeRef((variable as Record<string, unknown>).node) ||
+      typeof (variable as Record<string, unknown>).name !== "string" ||
+      !isVariableStatus((variable as Record<string, unknown>).status)
+    ) {
+      return false;
+    }
+  }
+
+  for (const episode of obj.episodes) {
+    if (typeof episode !== "object" || episode === null) {
+      return false;
+    }
+    const e = episode as Record<string, unknown>;
+    if (
+      typeof e.id !== "string" ||
+      !isNodeRef(e.node) ||
+      !isEpisodeType(e.type) ||
+      typeof e.objective !== "string" ||
+      !isEpisodeStatus(e.status)
+    ) {
+      return false;
+    }
+    if (e.variableId !== undefined && typeof e.variableId !== "string") {
+      return false;
+    }
+    if (typeof e.openedAt !== "string") {
+      return false;
+    }
+    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
+      return false;
+    }
+    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
+      return false;
+    }
+    if (e.timeboxDays !== undefined && typeof e.timeboxDays !== "number") {
+      return false;
+    }
+  }
+
+  for (const action of obj.actions) {
+    if (typeof action !== "object" || action === null) {
+      return false;
+    }
+    const a = action as Record<string, unknown>;
+    if (
+      typeof a.id !== "string" ||
+      typeof a.description !== "string" ||
+      !isActionStatus(a.status)
+    ) {
+      return false;
+    }
+    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
+      return false;
+    }
+  }
+
+  for (const note of obj.notes) {
+    if (typeof note !== "object" || note === null) {
+      return false;
+    }
+    const n = note as Record<string, unknown>;
+    if (
+      typeof n.id !== "string" ||
+      typeof n.content !== "string" ||
+      typeof n.createdAt !== "string" ||
+      !Array.isArray(n.tags)
+    ) {
+      return false;
+    }
+    for (const tag of n.tags) {
+      if (!isNoteTag(tag)) {
+        return false;
+      }
+    }
+    if (n.linkedObjects !== undefined) {
+      if (!Array.isArray(n.linkedObjects)) {
+        return false;
+      }
+      for (const linked of n.linkedObjects) {
+        if (typeof linked !== "string") {
+          return false;
+        }
+      }
+    }
+  }
+
+  for (const model of obj.models) {
+    if (typeof model !== "object" || model === null) {
+      return false;
+    }
+    const m = model as Record<string, unknown>;
+    if (
+      typeof m.id !== "string" ||
+      !isModelType(m.type) ||
+      typeof m.statement !== "string"
+    ) {
+      return false;
+    }
+    if (m.confidence !== undefined) {
+      if (
+        typeof m.confidence !== "number" ||
+        m.confidence < 0 ||
+        m.confidence > 1
+      ) {
+        return false;
+      }
+    }
+    if (m.scope !== undefined && !isModelScope(m.scope)) {
+      return false;
+    }
+    if (m.enforcement !== undefined && !isEnforcementLevel(m.enforcement)) {
+      return false;
+    }
+    if (
+      m.exceptionsAllowed !== undefined &&
+      typeof m.exceptionsAllowed !== "boolean"
+    ) {
+      return false;
+    }
+  }
+
+  // Build set of all valid object IDs for referential integrity
+  const allObjectIds = new Set<string>();
+  for (const variable of obj.variables) {
+    allObjectIds.add((variable as Record<string, unknown>).id as string);
+  }
+  for (const episode of obj.episodes) {
+    allObjectIds.add((episode as Record<string, unknown>).id as string);
+  }
+  for (const action of obj.actions) {
+    allObjectIds.add((action as Record<string, unknown>).id as string);
+  }
+  for (const note of obj.notes) {
+    allObjectIds.add((note as Record<string, unknown>).id as string);
+  }
+  for (const model of obj.models) {
+    allObjectIds.add((model as Record<string, unknown>).id as string);
+  }
+  for (const link of obj.links) {
+    allObjectIds.add((link as Record<string, unknown>).id as string);
+  }
+  for (const exception of obj.exceptions) {
+    allObjectIds.add((exception as Record<string, unknown>).id as string);
+  }
+
+  // Validate links
+  for (const link of obj.links) {
+    if (typeof link !== "object" || link === null) {
+      return false;
+    }
+    const l = link as Record<string, unknown>;
+    if (
+      typeof l.id !== "string" ||
+      typeof l.sourceId !== "string" ||
+      typeof l.targetId !== "string" ||
+      !isLinkRelation(l.relation)
+    ) {
+      return false;
+    }
+    if (l.weight !== undefined) {
+      if (typeof l.weight !== "number" || l.weight < 0 || l.weight > 1) {
+        return false;
+      }
+    }
+    if (!allObjectIds.has(l.sourceId) || !allObjectIds.has(l.targetId)) {
+      return false;
+    }
+  }
+
+  // Build set of model IDs for exception referential integrity
+  const modelIds = new Set<string>();
+  for (const model of obj.models) {
+    modelIds.add((model as Record<string, unknown>).id as string);
+  }
+
+  // Validate exceptions
+  for (const exception of obj.exceptions) {
+    if (typeof exception !== "object" || exception === null) {
+      return false;
+    }
+    const ex = exception as Record<string, unknown>;
+    if (
+      typeof ex.id !== "string" ||
+      typeof ex.modelId !== "string" ||
+      !isOverrideDecision(ex.originalDecision) ||
+      typeof ex.justification !== "string" ||
+      !isMutationType(ex.mutationType) ||
+      typeof ex.mutationId !== "string" ||
+      typeof ex.createdAt !== "string"
+    ) {
+      return false;
+    }
+    if (!modelIds.has(ex.modelId)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Validates the current state schema (V10, with Variable enrichments).
  */
 //TODO: Decompose
 export function isValidState(data: unknown): data is State {
@@ -1518,13 +1788,34 @@ export function isValidState(data: unknown): data is State {
   }
 
   for (const variable of obj.variables) {
+    if (typeof variable !== "object" || variable === null) {
+      return false;
+    }
+    const v = variable as Record<string, unknown>;
+    // Required fields: id, node, name, status
     if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
+      typeof v.id !== "string" ||
+      !isNodeRef(v.node) ||
+      typeof v.name !== "string" ||
+      !isVariableStatus(v.status)
+    ) {
+      return false;
+    }
+    // description is optional, must be string if present
+    if (v.description !== undefined && typeof v.description !== "string") {
+      return false;
+    }
+    // preferredRange is optional, must be string if present
+    if (
+      v.preferredRange !== undefined &&
+      typeof v.preferredRange !== "string"
+    ) {
+      return false;
+    }
+    // measurementCadence is optional, must be valid enum if present
+    if (
+      v.measurementCadence !== undefined &&
+      !isMeasurementCadence(v.measurementCadence)
     ) {
       return false;
     }

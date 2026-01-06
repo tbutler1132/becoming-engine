@@ -15,6 +15,7 @@ import {
   DEFAULT_PERSONAL_NODE_ID,
   DEFAULT_ORG_NODE_ID,
   VARIABLE_STATUSES,
+  MEASUREMENT_CADENCES,
   EPISODE_TYPES,
   EPISODE_STATUSES,
   ACTION_STATUSES,
@@ -44,7 +45,17 @@ describe("DNA Integrity (Tripwire)", () => {
     });
 
     it("has expected variable statuses", () => {
-      expect(VARIABLE_STATUSES).toEqual(["Low", "InRange", "High"]);
+      expect(VARIABLE_STATUSES).toEqual(["Low", "InRange", "High", "Unknown"]);
+    });
+
+    it("has expected measurement cadences", () => {
+      expect(MEASUREMENT_CADENCES).toEqual([
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "asNeeded",
+      ]);
     });
 
     it("has expected episode types", () => {
@@ -123,7 +134,7 @@ describe("DNA Integrity (Tripwire)", () => {
 
   describe("Schema Version", () => {
     it("has expected schema version", () => {
-      expect(SCHEMA_VERSION).toBe(9);
+      expect(SCHEMA_VERSION).toBe(10);
     });
   });
 });
