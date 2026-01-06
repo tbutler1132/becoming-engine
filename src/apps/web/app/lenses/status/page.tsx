@@ -3,6 +3,7 @@ import { DEFAULT_PERSONAL_NODE, formatNodeRef } from "@libs/memory";
 import { getStatusData } from "@libs/regulator";
 import type { Variable, Episode } from "@libs/memory";
 import { createStore } from "@/lib/store";
+import { OpenExploreForm } from "./OpenExploreForm";
 
 export default async function StatusLensPage(): Promise<React.ReactNode> {
   const store = createStore();
@@ -45,7 +46,11 @@ export default async function StatusLensPage(): Promise<React.ReactNode> {
         </p>
       </header>
 
-      <ExploreCard episode={activeExplore} />
+      {activeExplore ? (
+        <ExploreCard episode={activeExplore} />
+      ) : (
+        <OpenExploreForm />
+      )}
 
       <section style={{ marginTop: "2rem" }}>
         <h2
@@ -78,12 +83,22 @@ export default async function StatusLensPage(): Promise<React.ReactNode> {
 }
 
 interface ExploreCardProps {
-  episode: Episode | undefined;
+  episode: Episode;
 }
 
 function ExploreCard({ episode }: ExploreCardProps): React.ReactNode {
-  const content = episode ? (
-    <>
+  return (
+    <Link
+      href={`/episodes/${episode.id}`}
+      style={{
+        padding: "1.5rem",
+        border: "1px solid #ccc",
+        borderRadius: "4px",
+        display: "block",
+        color: "inherit",
+        textDecoration: "none",
+      }}
+    >
       <div
         style={{
           fontSize: "0.75rem",
@@ -96,31 +111,8 @@ function ExploreCard({ episode }: ExploreCardProps): React.ReactNode {
         Active Explore
       </div>
       <div>{episode.objective}</div>
-    </>
-  ) : (
-    <div style={{ color: "#999", textAlign: "center" }}>
-      No active explore episode
-    </div>
+    </Link>
   );
-
-  const cardStyle = {
-    padding: "1.5rem",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    display: "block",
-    color: "inherit",
-    textDecoration: "none",
-  };
-
-  if (episode) {
-    return (
-      <Link href={`/episodes/${episode.id}`} style={cardStyle}>
-        {content}
-      </Link>
-    );
-  }
-
-  return <div style={cardStyle}>{content}</div>;
 }
 
 interface VariableSectionProps {

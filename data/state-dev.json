@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 8,
+  "schemaVersion": 9,
   "variables": [
     {
       "id": "f4c4fc76-97fb-443b-9f7a-de4c5f7720f3",
@@ -73,6 +73,18 @@
       "objective": "Expand career options",
       "status": "Active",
       "openedAt": "2026-01-04T21:00:00.000Z"
+    },
+    {
+      "id": "259b29ba-c940-4e36-bc76-9c909370e433",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Stabilize",
+      "variableId": "b2c3d4e5-6789-4bcd-aef0-222222222222",
+      "objective": "I wanna win..",
+      "status": "Active",
+      "openedAt": "2026-01-06T19:20:48.045Z"
     }
   ],
   "actions": [
@@ -124,6 +136,12 @@
       "id": "a36a44e7-b177-49db-a65e-62e693119d3f",
       "content": "I like trains",
       "createdAt": "2026-01-06T02:20:19.580Z",
+      "tags": ["inbox"]
+    },
+    {
+      "id": "f8bea0cd-22e6-4021-9f5e-f79d9324477e",
+      "content": "Just added another note",
+      "createdAt": "2026-01-06T19:09:10.192Z",
       "tags": ["inbox"]
     }
   ],

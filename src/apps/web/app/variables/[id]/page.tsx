@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Episode } from "@libs/memory";
 import { formatNodeRef } from "@libs/memory";
 import { createStore } from "@/lib/store";
+import { OpenStabilizeForm } from "./OpenStabilizeForm";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -23,6 +24,11 @@ export default async function VariablePage({
   // Get Stabilize episodes scoped to this variable
   const stabilizeEpisodes = state.episodes.filter(
     (e) => e.type === "Stabilize" && e.variableId === id
+  );
+
+  // Check if there's already an active stabilize episode for this variable
+  const hasActiveStabilize = stabilizeEpisodes.some(
+    (e) => e.status === "Active"
   );
 
   return (
@@ -62,24 +68,30 @@ export default async function VariablePage({
         </dl>
       </section>
 
-      {stabilizeEpisodes.length > 0 && (
-        <section>
-          <h2
-            style={{
-              fontSize: "0.75rem",
-              color: "#666",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              marginBottom: "1rem",
-            }}
-          >
-            Stabilize Episodes
-          </h2>
-          {stabilizeEpisodes.map((episode) => (
-            <EpisodeCard key={episode.id} episode={episode} />
-          ))}
-        </section>
-      )}
+      <section>
+        <h2
+          style={{
+            fontSize: "0.75rem",
+            color: "#666",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            marginBottom: "1rem",
+          }}
+        >
+          Stabilize Episodes
+        </h2>
+        {stabilizeEpisodes.map((episode) => (
+          <EpisodeCard key={episode.id} episode={episode} />
+        ))}
+        {!hasActiveStabilize && (
+          <div style={{ marginTop: stabilizeEpisodes.length > 0 ? "1rem" : 0 }}>
+            <OpenStabilizeForm
+              variableId={id}
+              variableName={variable.name}
+            />
+          </div>
+        )}
+      </section>
     </main>
   );
 }
