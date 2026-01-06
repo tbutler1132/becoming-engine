@@ -21,3 +21,18 @@ Each post should:
 ## Index
 
 Add new posts to [`index.md`](./index.md) with a brief description.
+
+## Sharing
+
+GitHub is the canonical source. Link directly to posts:
+
+- **Individual post**: `https://github.com/yourusername/becoming-engine-v/blob/main/docs/blog/YYYY-MM-DD-slug.md`
+- **Blog index**: `https://github.com/yourusername/becoming-engine-v/blob/main/docs/blog/index.md`
+
+**Workflow:**
+
+1. Write post in `docs/blog/`
+2. Update `index.md` with the new post
+3. Optionally cross-post to broadcast channel (X/Bluesky) linking back to GitHub
+
+GitHub renders markdown nicely, so readers can view posts directly. No additional setup needed—keep surfaces minimal per the amplification plan.
