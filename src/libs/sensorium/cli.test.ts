@@ -226,6 +226,86 @@ describe("Sensorium CLI parsing", () => {
         expect(result.error).toContain("--note");
       }
     });
+
+    it("parses add-variable command with name only (defaults to Unknown status)", () => {
+      const result = parseCli(["add-variable", "--name", "Runway"]);
+      expect(result.ok).toBe(true);
+      if (result.ok && result.value.kind === "add-variable") {
+        expect(result.value.node).toEqual(DEFAULT_PERSONAL_NODE);
+        expect(result.value.name).toBe("Runway");
+        expect(result.value.status).toBe("Unknown");
+      }
+    });
+
+    it("parses add-variable command with explicit status", () => {
+      const result = parseCli([
+        "add-variable",
+        "--name",
+        "Runway",
+        "--status",
+        "InRange",
+      ]);
+      expect(result.ok).toBe(true);
+      if (result.ok && result.value.kind === "add-variable") {
+        expect(result.value.name).toBe("Runway");
+        expect(result.value.status).toBe("InRange");
+      }
+    });
+
+    it("parses add-variable command with explicit node", () => {
+      const result = parseCli([
+        "add-variable",
+        "--node",
+        "Org:org",
+        "--name",
+        "Runway",
+      ]);
+      expect(result.ok).toBe(true);
+      if (result.ok && result.value.kind === "add-variable") {
+        expect(result.value.node).toEqual(DEFAULT_ORG_NODE);
+        expect(result.value.name).toBe("Runway");
+        expect(result.value.status).toBe("Unknown");
+      }
+    });
+
+    it("trims whitespace from name in add-variable", () => {
+      const result = parseCli(["add-variable", "--name", "  Runway  "]);
+      expect(result.ok).toBe(true);
+      if (result.ok && result.value.kind === "add-variable") {
+        expect(result.value.name).toBe("Runway");
+      }
+    });
+
+    it("fails add-variable without name", () => {
+      const result = parseCli(["add-variable"]);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("--name");
+      }
+    });
+
+    it("fails add-variable with empty name", () => {
+      const result = parseCli(["add-variable", "--name", "   "]);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("--name");
+      }
+    });
+
+    it("fails add-variable with invalid status", () => {
+      const result = parseCli([
+        "add-variable",
+        "--name",
+        "Runway",
+        "--status",
+        "InvalidStatus",
+      ]);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("Invalid status");
+        expect(result.error).toContain("InvalidStatus");
+      }
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════

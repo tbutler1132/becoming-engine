@@ -20,6 +20,7 @@ import {
   createLink,
   deleteLink,
   logException,
+  createVariable,
 } from "./logic.js";
 import {
   DEFAULT_PERSONAL_NODE,
@@ -2517,6 +2518,244 @@ describe("Regulator Logic (Pure Functions)", () => {
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain("already exists");
+      }
+    });
+  });
+
+  describe("createVariable", () => {
+    it("creates a variable with valid params", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = createVariable(state, {
+        variableId: "v1",
+        node: DEFAULT_PERSONAL_NODE,
+        name: "Runway",
+        status: VARIABLE_STATUSES[3], // Unknown
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.variables).toHaveLength(1);
+        expect(result.value.variables[0]?.id).toBe("v1");
+        expect(result.value.variables[0]?.name).toBe("Runway");
+        expect(result.value.variables[0]?.status).toBe(VARIABLE_STATUSES[3]);
+        expect(result.value.variables[0]?.node).toEqual(DEFAULT_PERSONAL_NODE);
+        // Original state unchanged (pure function)
+        expect(state.variables).toHaveLength(0);
+      }
+    });
+
+    it("trims whitespace from name", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = createVariable(state, {
+        variableId: "v1",
+        node: DEFAULT_PERSONAL_NODE,
+        name: "  Runway  ",
+        status: VARIABLE_STATUSES[3],
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.variables[0]?.name).toBe("Runway");
+      }
+    });
+
+    it("fails on empty name", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = createVariable(state, {
+        variableId: "v1",
+        node: DEFAULT_PERSONAL_NODE,
+        name: "",
+        status: VARIABLE_STATUSES[3],
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("name cannot be empty");
+      }
+    });
+
+    it("fails on whitespace-only name", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = createVariable(state, {
+        variableId: "v1",
+        node: DEFAULT_PERSONAL_NODE,
+        name: "   ",
+        status: VARIABLE_STATUSES[3],
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("name cannot be empty");
+      }
+    });
+
+    it("fails on duplicate name within same node (case-insensitive)", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = createVariable(state, {
+        variableId: "v2",
+        node: DEFAULT_PERSONAL_NODE,
+        name: "AGENCY", // Same name, different case
+        status: VARIABLE_STATUSES[3],
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("already exists");
+      }
+    });
+
+    it("allows same name on different nodes", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Runway",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = createVariable(state, {
+        variableId: "v2",
+        node: DEFAULT_ORG_NODE,
+        name: "Runway", // Same name, different node
+        status: VARIABLE_STATUSES[3],
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.variables).toHaveLength(2);
+      }
+    });
+
+    it("fails on duplicate variable ID", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = createVariable(state, {
+        variableId: "v1", // Duplicate ID
+        node: DEFAULT_ORG_NODE,
+        name: "New Variable",
+        status: VARIABLE_STATUSES[3],
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("already exists");
+      }
+    });
+
+    it("preserves existing variables when adding new one", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "v1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Agency",
+            status: VARIABLE_STATUSES[1],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = createVariable(state, {
+        variableId: "v2",
+        node: DEFAULT_PERSONAL_NODE,
+        name: "Runway",
+        status: VARIABLE_STATUSES[3],
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.variables).toHaveLength(2);
+        expect(result.value.variables[0]?.name).toBe("Agency");
+        expect(result.value.variables[1]?.name).toBe("Runway");
       }
     });
   });

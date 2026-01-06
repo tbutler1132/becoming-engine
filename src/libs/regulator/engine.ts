@@ -8,6 +8,7 @@ import type {
   CompleteActionParams,
   CreateActionParams,
   CreateNoteParams,
+  CreateVariableParams,
   LogExceptionParams,
   RemoveNoteTagParams,
   Result,
@@ -151,6 +152,28 @@ export class Regulator {
       );
     } else {
       this.logger.warn(`Signal failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Creates a new Variable.
+   *
+   * **Intent:** Adds a new dimension of viability to track.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with new state if successful
+   * - Validates: name not empty, no duplicate name on same node
+   * - Error handling: Returns error if validation fails
+   */
+  createVariable(state: State, params: CreateVariableParams): Result<State> {
+    const result = logic.createVariable(state, params);
+    if (result.ok) {
+      this.logger.info(
+        `Variable created: ${params.name} on ${params.node.type}:${params.node.id}`,
+      );
+    } else {
+      this.logger.warn(`Variable creation failed: ${result.error}`);
     }
     return result;
   }

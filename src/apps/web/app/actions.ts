@@ -6,7 +6,9 @@ import { DEFAULT_PERSONAL_NODE } from "@libs/memory";
 import { Regulator } from "@libs/regulator";
 import type {
   EpisodeType,
+  MeasurementCadence,
   ModelType,
+  NodeType,
   NoteTag,
   VariableStatus,
 } from "@libs/memory";
@@ -226,6 +228,61 @@ export async function signalVariable(
   }
   revalidatePath("/");
   return okVoid();
+}
+
+/**
+ * Input for creating a variable with all fields.
+ */
+export interface CreateVariableInput {
+  name: string;
+  nodeType: NodeType;
+  description?: string;
+  preferredRange?: string;
+  measurementCadence?: MeasurementCadence;
+}
+
+/**
+ * Creates a new variable.
+ * Returns the new variable ID on success.
+ */
+export async function createVariable(
+  input: CreateVariableInput
+): Promise<Result<string>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+  const variableId = crypto.randomUUID();
+
+  // Build node reference based on nodeType
+  const node =
+    input.nodeType === "Personal"
+      ? DEFAULT_PERSONAL_NODE
+      : { type: input.nodeType as NodeType, id: input.nodeType.toLowerCase() };
+
+  const result = regulator.createVariable(state, {
+    variableId,
+    node,
+    name: input.name,
+    status: "Unknown",
+    ...(input.description ? { description: input.description } : {}),
+    ...(input.preferredRange ? { preferredRange: input.preferredRange } : {}),
+    ...(input.measurementCadence
+      ? { measurementCadence: input.measurementCadence }
+      : {}),
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  return { ok: true, value: variableId };
 }
 
 /**

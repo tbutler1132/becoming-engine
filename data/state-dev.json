@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 9,
+  "schemaVersion": 10,
   "variables": [
     {
       "id": "f4c4fc76-97fb-443b-9f7a-de4c5f7720f3",
@@ -36,6 +36,18 @@
       },
       "name": "Continuity",
       "status": "InRange"
+    },
+    {
+      "id": "f3371591-2962-48bc-8b55-1cc96e488072",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "name": "Coherence",
+      "status": "High",
+      "description": "Coherence",
+      "preferredRange": "To be coherent",
+      "measurementCadence": "weekly"
     }
   ],
   "episodes": [

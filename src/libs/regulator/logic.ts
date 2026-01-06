@@ -29,6 +29,7 @@ import type {
   CreateLinkParams,
   CreateModelParams,
   CreateNoteParams,
+  CreateVariableParams,
   DeleteLinkParams,
   LogExceptionParams,
   ModelUpdate,
@@ -969,6 +970,72 @@ export function deleteLink(
     value: {
       ...state,
       links: state.links.filter((l) => l.id !== params.linkId),
+    },
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VARIABLE CREATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Creates a new variable.
+ * Returns a new State with the variable added.
+ * Pure function: does not mutate input state.
+ *
+ * @param state - Current state
+ * @param params - CreateVariableParams with variableId, node, name, and status
+ * @returns Result<State> with new variable or error
+ */
+export function createVariable(
+  state: State,
+  params: CreateVariableParams,
+): Result<State> {
+  // Validate name is not empty
+  if (!params.name || params.name.trim().length === 0) {
+    return { ok: false, error: "Variable name cannot be empty" };
+  }
+
+  // Check for duplicate variable name on same node
+  const duplicateName = state.variables.some(
+    (v) =>
+      v.name.toLowerCase() === params.name.toLowerCase() &&
+      nodeRefEquals(v.node, params.node),
+  );
+  if (duplicateName) {
+    return {
+      ok: false,
+      error: `Variable with name '${params.name}' already exists on node ${formatNodeRef(params.node)}`,
+    };
+  }
+
+  // Check for duplicate ID
+  if (state.variables.some((v) => v.id === params.variableId)) {
+    return {
+      ok: false,
+      error: `Variable with id '${params.variableId}' already exists`,
+    };
+  }
+
+  const newVariable: Variable = {
+    id: params.variableId,
+    node: params.node,
+    name: params.name.trim(),
+    status: params.status,
+    ...(params.description ? { description: params.description.trim() } : {}),
+    ...(params.preferredRange
+      ? { preferredRange: params.preferredRange.trim() }
+      : {}),
+    ...(params.measurementCadence
+      ? { measurementCadence: params.measurementCadence }
+      : {}),
+  };
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      variables: [...state.variables, newVariable],
     },
   };
 }

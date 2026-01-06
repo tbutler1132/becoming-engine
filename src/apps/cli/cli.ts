@@ -441,6 +441,25 @@ async function main(): Promise<void> {
     console.log(`Episode closed: ${command.episodeId}`);
     return;
   }
+
+  if (command.kind === "add-variable") {
+    const variableId = crypto.randomUUID();
+    const result = regulator.createVariable(state, {
+      variableId,
+      node: command.node,
+      name: command.name,
+      status: command.status,
+    });
+
+    if (!result.ok) {
+      console.error(result.error);
+      process.exit(1);
+    }
+
+    await store.save(result.value);
+    console.log(`Variable created: ${command.name}`);
+    return;
+  }
 }
 
 main().catch((err: unknown) => {
