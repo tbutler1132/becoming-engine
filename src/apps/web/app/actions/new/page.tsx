@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   addAction,
   getActiveEpisodes,
@@ -10,8 +10,11 @@ import {
 
 export default function NewActionPage(): React.ReactNode {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const preselectedEpisodeId = searchParams.get("episodeId") ?? "";
+
   const [description, setDescription] = useState("");
-  const [episodeId, setEpisodeId] = useState("");
+  const [episodeId, setEpisodeId] = useState(preselectedEpisodeId);
   const [episodes, setEpisodes] = useState<EpisodeOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

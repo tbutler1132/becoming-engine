@@ -40,6 +40,18 @@ export default async function VariablePage({
         margin: "0 auto",
       }}
     >
+      <Link
+        href="/lenses/status"
+        style={{
+          display: "inline-block",
+          marginBottom: "1rem",
+          fontSize: "0.875rem",
+          color: "#666",
+          textDecoration: "none",
+        }}
+      >
+        ← Back to Status
+      </Link>
       <header style={{ marginBottom: "2rem" }}>
         <p
           style={{

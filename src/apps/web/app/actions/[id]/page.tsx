@@ -32,6 +32,18 @@ export default async function ActionPage({
         margin: "0 auto",
       }}
     >
+      <Link
+        href="/lenses/actions"
+        style={{
+          display: "inline-block",
+          marginBottom: "1rem",
+          fontSize: "0.875rem",
+          color: "#666",
+          textDecoration: "none",
+        }}
+      >
+        ← Back to Actions
+      </Link>
       <header style={{ marginBottom: "2rem" }}>
         <p
           style={{

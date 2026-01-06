@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Note } from "@libs/memory";
+import type { Model, Note } from "@libs/memory";
 import { createStore } from "@/lib/store";
 
 export default async function WorldModelLensPage(): Promise<React.ReactNode> {
@@ -47,6 +47,30 @@ export default async function WorldModelLensPage(): Promise<React.ReactNode> {
         ))}
       </section>
 
+      <section style={{ marginTop: "2rem" }}>
+        <h2
+          style={{
+            fontSize: "0.75rem",
+            color: "#666",
+            marginBottom: "1rem",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          }}
+        >
+          Models
+        </h2>
+
+        {state.models.length === 0 && (
+          <p style={{ color: "#999", textAlign: "center" }}>
+            No models yet. Close an Explore episode to create one.
+          </p>
+        )}
+
+        {state.models.map((model) => (
+          <ModelCard key={model.id} model={model} />
+        ))}
+      </section>
+
       <Link
         href="/notes/new"
         style={{
@@ -90,5 +114,63 @@ function NoteCard({ note }: NoteCardProps): React.ReactNode {
     >
       {note.content}
     </Link>
+  );
+}
+
+interface ModelCardProps {
+  model: Model;
+}
+
+function ModelCard({ model }: ModelCardProps): React.ReactNode {
+  const typeColors: Record<string, string> = {
+    Descriptive: "#2563eb",
+    Procedural: "#059669",
+    Normative: "#dc2626",
+  };
+
+  return (
+    <div
+      style={{
+        border: "1px solid #ccc",
+        borderRadius: "4px",
+        padding: "1rem",
+        marginBottom: "0.5rem",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          marginBottom: "0.5rem",
+        }}
+      >
+        <span
+          style={{
+            fontSize: "0.625rem",
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            padding: "0.125rem 0.375rem",
+            borderRadius: "2px",
+            background: typeColors[model.type] ?? "#666",
+            color: "#fff",
+          }}
+        >
+          {model.type}
+        </span>
+        {model.confidence !== undefined && (
+          <span
+            style={{
+              fontSize: "0.75rem",
+              color: "#666",
+            }}
+          >
+            {Math.round(model.confidence * 100)}% confidence
+          </span>
+        )}
+      </div>
+      <p style={{ margin: 0 }}>{model.statement}</p>
+    </div>
   );
 }

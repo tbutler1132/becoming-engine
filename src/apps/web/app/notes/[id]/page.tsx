@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { NOTE_TAGS } from "@libs/memory";
 import { createStore } from "@/lib/store";
@@ -27,6 +28,18 @@ export default async function NotePage({
         margin: "0 auto",
       }}
     >
+      <Link
+        href="/lenses/world-model"
+        style={{
+          display: "inline-block",
+          marginBottom: "1rem",
+          fontSize: "0.875rem",
+          color: "#666",
+          textDecoration: "none",
+        }}
+      >
+        ← Back to World Model
+      </Link>
       <NoteEditor
         noteId={note.id}
         initialContent={note.content}
