@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { Episode } from "@libs/memory";
+import type { Episode, VariableStatus } from "@libs/memory";
 import { formatNodeRef } from "@libs/memory";
 import { createStore } from "@/lib/store";
 import { OpenStabilizeForm } from "./OpenStabilizeForm";
+import { StatusSelector } from "./StatusSelector";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -63,8 +64,35 @@ export default async function VariablePage({
         }}
       >
         <dl style={{ display: "grid", gap: "1rem" }}>
-          <Field label="Status" value={variable.status} />
+          <div>
+            <dt
+              style={{
+                fontSize: "0.75rem",
+                color: "#666",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Status
+            </dt>
+            <dd style={{ margin: 0 }}>
+              <StatusSelector
+                variableId={id}
+                currentStatus={variable.status as VariableStatus}
+              />
+            </dd>
+          </div>
           <Field label="Node" value={formatNodeRef(variable.node)} />
+          {variable.description && (
+            <Field label="Description" value={variable.description} />
+          )}
+          {variable.preferredRange && (
+            <Field label="Preferred Range" value={variable.preferredRange} />
+          )}
+          {variable.measurementCadence && (
+            <Field label="Measurement Cadence" value={variable.measurementCadence} />
+          )}
         </dl>
       </section>
 

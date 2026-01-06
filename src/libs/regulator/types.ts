@@ -11,6 +11,7 @@ import type {
   EnforcementLevel,
   Episode,
   LinkRelation,
+  MeasurementCadence,
   ModelScope,
   ModelType,
   MutationType,
@@ -274,6 +275,27 @@ export interface CreateLinkParams {
 export interface DeleteLinkParams {
   /** The link to delete */
   linkId: string;
+}
+
+/**
+ * Parameters for creating a new variable.
+ * Variables are dimensions of viability that the system monitors.
+ */
+export interface CreateVariableParams {
+  /** Unique identifier for the new variable */
+  variableId: string;
+  /** The node this variable belongs to */
+  node: NodeRef;
+  /** Human-readable name for this variable */
+  name: string;
+  /** Initial status (typically "Unknown" for new variables) */
+  status: VariableStatus;
+  /** What this variable regulates */
+  description?: string;
+  /** Qualitative belief: what "in range" means for this dimension */
+  preferredRange?: string;
+  /** How often to evaluate this variable */
+  measurementCadence?: MeasurementCadence;
 }
 
 /**

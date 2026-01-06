@@ -77,6 +77,22 @@ export default async function StatusLensPage(): Promise<React.ReactNode> {
             No variables defined
           </p>
         )}
+        <Link
+          href="/variables/new"
+          style={{
+            display: "inline-block",
+            padding: "0.5rem 1rem",
+            fontSize: "0.875rem",
+            border: "1px dashed #ccc",
+            borderRadius: "4px",
+            background: "transparent",
+            color: "#666",
+            textDecoration: "none",
+            marginTop: "1rem",
+          }}
+        >
+          + Add Variable
+        </Link>
       </section>
     </main>
   );

@@ -52,6 +52,12 @@ export type CliCommand =
       noteContent: string;
       /** Optional model for Explore episode closure (type + statement) */
       model?: { type: ModelType; statement: string };
+    }
+  | {
+      kind: "add-variable";
+      node: NodeRef;
+      name: string;
+      status: VariableStatus;
     };
 
 function isNodeType(value: string): value is NodeType {
@@ -278,9 +284,40 @@ export function parseCli(argv: readonly string[]): Result<CliCommand> {
     };
   }
 
+  if (command === "add-variable") {
+    const name = getFlagValue(argv, "--name");
+    const statusRaw = getFlagValue(argv, "--status");
+
+    if (!name || name.trim().length === 0) {
+      return { ok: false, error: "Missing required flag: --name" };
+    }
+
+    // Default status to Unknown if not provided
+    let status: VariableStatus = "Unknown";
+    if (statusRaw) {
+      if (!isVariableStatus(statusRaw)) {
+        return {
+          ok: false,
+          error: `Invalid status '${statusRaw}'. Expected one of: ${VARIABLE_STATUSES.join(", ")}`,
+        };
+      }
+      status = statusRaw;
+    }
+
+    return {
+      ok: true,
+      value: {
+        kind: "add-variable",
+        node,
+        name: name.trim(),
+        status,
+      },
+    };
+  }
+
   return {
     ok: false,
-    error: `Unknown command '${command}'. Expected one of: status, signal, act, open, close, observe`,
+    error: `Unknown command '${command}'. Expected one of: status, signal, act, open, close, add-variable, observe`,
   };
 }
 
