@@ -194,6 +194,12 @@
       "content": "It was cool",
       "createdAt": "2026-01-06T20:39:40.137Z",
       "tags": ["closure_note"]
+    },
+    {
+      "id": "d4213a1f-ba8e-46e4-9fef-49b427240b3c",
+      "content": "## Summary\nNotes currently store content as plain strings, which already supports markdown syntax. The UI just needs to render it properly.\n\n## Current Behavior\n- `EditableContent.tsx` renders note content with `whiteSpace: pre-wrap`\n- Markdown syntax appears as raw text\n\n## Proposed Change\n- Install `react-markdown` in the web app\n- Update view mode in `EditableContent.tsx` to render through ReactMarkdown\n- Add prose styling for proper markdown appearance\n\n## Files to Modify\n- `src/apps/web/package.json` (add react-markdown dependency)\n- `src/apps/web/app/notes/[id]/EditableContent.tsx` (use ReactMarkdown in view mode)\n\n## Notes\n- No schema or type changes needed\n- Edit mode stays as textarea (good for writing markdown)\n- Consider adding `@tailwindcss/typography` for prose styling",
+      "createdAt": "2026-01-06T21:55:25.720Z",
+      "tags": []
     }
   ],
   "models": [

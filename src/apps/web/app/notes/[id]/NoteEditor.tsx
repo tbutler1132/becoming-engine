@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { updateNote, addNoteTag, removeNoteTag } from "@/app/actions";
 import type { NoteTag } from "@libs/memory";
 
@@ -31,10 +32,10 @@ export function NoteEditor({
 
   const availableTags = allTags.filter((t) => !tags.includes(t));
 
-  // Title is derived from content (first 50 chars)
+  // Title is derived from content (first 50 chars), with markdown stripped
   const displayContent = isEditing ? content : savedContent;
-  const title =
-    displayContent.slice(0, 50) + (displayContent.length > 50 ? "…" : "");
+  const plainText = stripMarkdown(displayContent);
+  const title = plainText.slice(0, 50) + (plainText.length > 50 ? "…" : "");
 
   function handleEdit(): void {
     setIsEditing(true);
@@ -362,7 +363,9 @@ export function NoteEditor({
             }}
           />
         ) : (
-          <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{savedContent}</p>
+          <div className="prose">
+            <ReactMarkdown>{savedContent}</ReactMarkdown>
+          </div>
         )}
       </section>
     </>
@@ -377,4 +380,31 @@ function formatDate(isoString: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function stripMarkdown(text: string): string {
+  return (
+    text
+      // Remove headings (# ## ### etc.)
+      .replace(/^#{1,6}\s+/gm, "")
+      // Remove bold/italic markers
+      .replace(/(\*\*|__)(.*?)\1/g, "$2")
+      .replace(/(\*|_)(.*?)\1/g, "$2")
+      // Remove strikethrough
+      .replace(/~~(.*?)~~/g, "$1")
+      // Remove inline code
+      .replace(/`([^`]+)`/g, "$1")
+      // Remove links but keep text
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      // Remove images
+      .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+      // Remove blockquote markers
+      .replace(/^>\s+/gm, "")
+      // Remove list markers
+      .replace(/^[\s]*[-*+]\s+/gm, "")
+      .replace(/^[\s]*\d+\.\s+/gm, "")
+      // Collapse multiple spaces/newlines
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 }
