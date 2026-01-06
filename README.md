@@ -81,6 +81,7 @@ Refer to the `docs/` directory for the core principles:
 - [Engineering Standards](./docs/standards.md): Coding rules and AI directives.
 - [Operating Manual](./docs/operating-manual.md): Practical day-to-day usage guide.
 - [Roadmap](./docs/roadmap.md): A non-binding sequence of next micro-projects.
+- [Blog](./docs/blog/index.md): Essays, case studies, and doctrine clarifications.
 
 ## 🔮 Vision: Three-Phase Evolution
 
