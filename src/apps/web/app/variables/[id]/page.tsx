@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { Episode, VariableStatus } from "@libs/memory";
+import type { VariableStatus } from "@libs/memory";
 import { formatNodeRef } from "@libs/memory";
 import { createStore } from "@/lib/store";
+import { Field, EpisodeCard } from "@/components";
 import { OpenStabilizeForm } from "./OpenStabilizeForm";
 import { StatusSelector } from "./StatusSelector";
 
@@ -136,55 +137,4 @@ export default async function VariablePage({
   );
 }
 
-interface FieldProps {
-  label: string;
-  value: string;
-}
-
-function Field({ label, value }: FieldProps): React.ReactNode {
-  return (
-    <div>
-      <dt
-        style={{
-          fontSize: "0.75rem",
-          color: "#666",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          marginBottom: "0.25rem",
-        }}
-      >
-        {label}
-      </dt>
-      <dd style={{ margin: 0 }}>{value}</dd>
-    </div>
-  );
-}
-
-interface EpisodeCardProps {
-  episode: Episode;
-}
-
-function EpisodeCard({ episode }: EpisodeCardProps): React.ReactNode {
-  return (
-    <Link
-      href={`/episodes/${episode.id}`}
-      style={{
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        padding: "1rem",
-        marginBottom: "0.5rem",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        color: "inherit",
-        textDecoration: "none",
-      }}
-    >
-      <span>{episode.objective}</span>
-      <span style={{ fontSize: "0.75rem", color: "#666" }}>
-        {episode.status}
-      </span>
-    </Link>
-  );
-}
 

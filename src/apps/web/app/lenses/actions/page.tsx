@@ -3,6 +3,7 @@ import { DEFAULT_PERSONAL_NODE } from "@libs/memory";
 import { getStatusData } from "@libs/regulator";
 import type { Action, Episode } from "@libs/memory";
 import { createStore } from "@/lib/store";
+import { ActionCard } from "@/components";
 
 interface EpisodeWithActions {
   episode: Episode;
@@ -199,31 +200,9 @@ function EpisodeCard({ episode, actions }: EpisodeCardProps): React.ReactNode {
         Actions
       </div>
       {actions.map((action) => (
-        <ActionCard key={action.id} action={action} />
+        <ActionCard key={action.id} action={action} showStatus={false} />
       ))}
     </div>
   );
 }
 
-interface ActionCardProps {
-  action: Action;
-}
-
-function ActionCard({ action }: ActionCardProps): React.ReactNode {
-  return (
-    <Link
-      href={`/actions/${action.id}`}
-      style={{
-        display: "block",
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        padding: "1rem",
-        marginBottom: "0.5rem",
-        color: "inherit",
-        textDecoration: "none",
-      }}
-    >
-      {action.description}
-    </Link>
-  );
-}

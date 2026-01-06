@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createStore } from "@/lib/store";
+import { Field } from "@/components";
 import { ActionCompleteButton } from "./ActionCompleteButton";
 
 interface PageProps {
@@ -112,27 +113,4 @@ export default async function ActionPage({
   );
 }
 
-interface FieldProps {
-  label: string;
-  value: string;
-}
-
-function Field({ label, value }: FieldProps): React.ReactNode {
-  return (
-    <div>
-      <dt
-        style={{
-          fontSize: "0.75rem",
-          color: "#666",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          marginBottom: "0.25rem",
-        }}
-      >
-        {label}
-      </dt>
-      <dd style={{ margin: 0 }}>{value}</dd>
-    </div>
-  );
-}
 

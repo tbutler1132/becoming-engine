@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { Action, EpisodeType } from "@libs/memory";
+import type { EpisodeType } from "@libs/memory";
 import { createStore } from "@/lib/store";
+import { Field, ActionCard } from "@/components";
 import { CloseEpisodeForm } from "./CloseEpisodeForm";
 
 interface PageProps {
@@ -157,55 +158,6 @@ export default async function EpisodePage({
   );
 }
 
-interface FieldProps {
-  label: string;
-  value: string;
-}
-
-function Field({ label, value }: FieldProps): React.ReactNode {
-  return (
-    <div>
-      <dt
-        style={{
-          fontSize: "0.75rem",
-          color: "#666",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          marginBottom: "0.25rem",
-        }}
-      >
-        {label}
-      </dt>
-      <dd style={{ margin: 0 }}>{value}</dd>
-    </div>
-  );
-}
-
-interface ActionCardProps {
-  action: Action;
-}
-
-function ActionCard({ action }: ActionCardProps): React.ReactNode {
-  return (
-    <Link
-      href={`/actions/${action.id}`}
-      style={{
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        padding: "1rem",
-        marginBottom: "0.5rem",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        color: "inherit",
-        textDecoration: "none",
-      }}
-    >
-      <span>{action.description}</span>
-      <span style={{ fontSize: "0.75rem", color: "#666" }}>{action.status}</span>
-    </Link>
-  );
-}
 
 function formatDate(isoString: string): string {
   return new Date(isoString).toLocaleDateString("en-US", {
