@@ -48,19 +48,21 @@ export async function completeAction(actionId: string): Promise<Result<void>> {
 
 /**
  * Opens a Stabilize episode linked to a Variable.
+ * Returns the new episode ID on success.
  */
 export async function openStabilizeEpisode(
   variableId: string,
   objective: string
-): Promise<Result<void>> {
+): Promise<Result<string>> {
   const store = createStore();
   const regulator = new Regulator();
 
   const state = await store.load();
   const episodeType: EpisodeType = "Stabilize";
+  const episodeId = crypto.randomUUID();
 
   const result = regulator.openEpisode(state, {
-    episodeId: crypto.randomUUID(),
+    episodeId,
     node: DEFAULT_PERSONAL_NODE,
     type: episodeType,
     variableId,
@@ -78,23 +80,25 @@ export async function openStabilizeEpisode(
     return { ok: false, error: getErrorMessage(error) };
   }
   revalidatePath("/");
-  return okVoid();
+  return { ok: true, value: episodeId };
 }
 
 /**
  * Opens an Explore episode (not linked to a specific variable).
+ * Returns the new episode ID on success.
  */
 export async function openExploreEpisode(
   objective: string
-): Promise<Result<void>> {
+): Promise<Result<string>> {
   const store = createStore();
   const regulator = new Regulator();
 
   const state = await store.load();
   const episodeType: EpisodeType = "Explore";
+  const episodeId = crypto.randomUUID();
 
   const result = regulator.openEpisode(state, {
-    episodeId: crypto.randomUUID(),
+    episodeId,
     node: DEFAULT_PERSONAL_NODE,
     type: episodeType,
     objective,
@@ -111,7 +115,7 @@ export async function openExploreEpisode(
     return { ok: false, error: getErrorMessage(error) };
   }
   revalidatePath("/");
-  return okVoid();
+  return { ok: true, value: episodeId };
 }
 
 /**
@@ -432,4 +436,25 @@ export async function getActiveEpisodes(): Promise<EpisodeOption[]> {
       objective: e.objective,
       type: e.type,
     }));
+}
+
+/**
+ * Variable option for dropdown display.
+ */
+export interface VariableOption {
+  id: string;
+  name: string;
+}
+
+/**
+ * Gets all variables for dropdown selection.
+ */
+export async function getVariables(): Promise<VariableOption[]> {
+  const store = createStore();
+  const state = await store.load();
+
+  return state.variables.map((v) => ({
+    id: v.id,
+    name: v.name,
+  }));
 }

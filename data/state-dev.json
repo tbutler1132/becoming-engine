@@ -101,6 +101,29 @@
       "openedAt": "2026-01-06T19:20:48.045Z",
       "closedAt": "2026-01-06T20:38:51.246Z",
       "closureNoteId": "71a45cb8-79cb-4636-ad7f-13ca6202faca"
+    },
+    {
+      "id": "906c582e-c794-485a-bd7c-7c44aa3a261f",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Explore",
+      "objective": "Morning workout",
+      "status": "Active",
+      "openedAt": "2026-01-06T20:44:18.775Z"
+    },
+    {
+      "id": "56710f14-f9ac-439a-b7be-b766c25081f3",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Stabilize",
+      "variableId": "f3371591-2962-48bc-8b55-1cc96e488072",
+      "objective": "Run",
+      "status": "Active",
+      "openedAt": "2026-01-06T20:44:28.845Z"
     }
   ],
   "actions": [
