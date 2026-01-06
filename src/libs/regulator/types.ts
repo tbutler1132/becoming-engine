@@ -111,6 +111,20 @@ export interface CloseEpisodeParams {
 }
 
 /**
+ * Parameters for updating an existing episode.
+ * Only Active or Closing episodes can be edited.
+ * Only provided fields are updated; others remain unchanged.
+ */
+export interface UpdateEpisodeParams {
+  /** The episode to update */
+  episodeId: string;
+  /** New objective (optional) */
+  objective?: string;
+  /** New timebox in days (optional, null to remove) */
+  timeboxDays?: number | null;
+}
+
+/**
  * Parameters for signaling a variable status change.
  * This updates a variable's homeostatic status.
  */

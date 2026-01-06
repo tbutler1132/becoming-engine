@@ -38,6 +38,7 @@ import type {
   OpenEpisodeParams,
   SignalParams,
   StatusData,
+  UpdateEpisodeParams,
   UpdateModelParams,
   UpdateNoteParams,
   VariableUpdate,
@@ -540,6 +541,94 @@ export function closeEpisode(
       variables: applyVariableUpdates(state.variables, variableUpdates),
       notes: [...state.notes, newNote],
       models: applyModelUpdates(state.models, modelUpdates),
+    },
+  };
+}
+
+/**
+ * Updates an existing episode.
+ * Returns a new State with the episode updated.
+ * Pure function: does not mutate input state.
+ *
+ * Only Active episodes can be edited. Closed episodes are immutable.
+ *
+ * @param state - Current state
+ * @param params - UpdateEpisodeParams with episodeId and optional fields to update
+ * @returns Result<State> with updated episode or error
+ */
+export function updateEpisode(
+  state: State,
+  params: UpdateEpisodeParams,
+): Result<State> {
+  // Find the episode
+  const episode = state.episodes.find((e) => e.id === params.episodeId);
+  if (!episode) {
+    return {
+      ok: false,
+      error: `Episode with id '${params.episodeId}' not found`,
+    };
+  }
+
+  // Only Active episodes can be edited
+  if (episode.status !== ACTIVE_STATUS) {
+    return {
+      ok: false,
+      error: `Episode '${params.episodeId}' cannot be edited: only Active episodes can be modified`,
+    };
+  }
+
+  // Validate objective if provided
+  if (params.objective !== undefined) {
+    if (!params.objective || params.objective.trim().length === 0) {
+      return { ok: false, error: "Episode objective cannot be empty" };
+    }
+  }
+
+  // Validate timeboxDays if provided
+  if (params.timeboxDays !== undefined) {
+    if (params.timeboxDays !== null && params.timeboxDays <= 0) {
+      return {
+        ok: false,
+        error: "Episode timeboxDays must be positive if provided",
+      };
+    }
+  }
+
+  // Update the episode with provided fields
+  const updatedEpisodes = state.episodes.map((e) => {
+    if (e.id !== params.episodeId) {
+      return e;
+    }
+
+    const updates: Partial<Episode> = {};
+    if (params.objective !== undefined) {
+      updates.objective = params.objective;
+    }
+    if (params.timeboxDays !== undefined) {
+      if (params.timeboxDays === null) {
+        // Remove timeboxDays by omitting it
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { timeboxDays: _unused, ...rest } = e;
+        return {
+          ...rest,
+          ...updates,
+        };
+      } else {
+        updates.timeboxDays = params.timeboxDays;
+      }
+    }
+
+    return {
+      ...e,
+      ...updates,
+    };
+  });
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      episodes: updatedEpisodes,
     },
   };
 }

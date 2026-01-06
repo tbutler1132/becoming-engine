@@ -4,6 +4,7 @@ import type { EpisodeType } from "@libs/memory";
 import { createStore } from "@/lib/store";
 import { Field, ActionCard } from "@/components";
 import { CloseEpisodeForm } from "./CloseEpisodeForm";
+import { EpisodeEditor } from "./EpisodeEditor";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -49,20 +50,12 @@ export default async function EpisodePage({
       >
         ← Back to Status
       </Link>
-      <header style={{ marginBottom: "2rem" }}>
-        <p
-          style={{
-            fontSize: "0.75rem",
-            color: "#666",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: "0.25rem",
-          }}
-        >
-          Episode
-        </p>
-        <h1 style={{ fontSize: "1.5rem" }}>{episode.objective}</h1>
-      </header>
+      <EpisodeEditor
+        episodeId={id}
+        initialObjective={episode.objective}
+        initialTimeboxDays={episode.timeboxDays}
+        openedAt={episode.openedAt}
+      />
 
       <section
         style={{

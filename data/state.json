@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 9,
+  "schemaVersion": 10,
   "variables": [
     {
       "id": "3e40bf0f-693b-4c29-b4e2-1f5c1cf47020",
@@ -18,6 +18,42 @@
       },
       "name": "Execution Capacity",
       "status": "InRange"
+    },
+    {
+      "id": "f99f4620-186b-4770-ad46-2df911e6cb06",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "name": "Continuity",
+      "status": "InRange",
+      "description": "Ability to continue functioning without collapse across physical, psychological, and material dimensions.",
+      "preferredRange": "Sleep is consistent, energy is usable most days, finances are not a constant background stress, and my nervous system feels basically steady.",
+      "measurementCadence": "weekly"
+    },
+    {
+      "id": "9ffbfede-1748-45dc-a57f-b86ac7eae29d",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "name": "Coherence",
+      "status": "InRange",
+      "description": "Degree of internal consistency and integration across beliefs, actions, and identity over time.",
+      "preferredRange": "My actions align with my stated beliefs; I don't feel fragmented or contradictory across contexts.",
+      "measurementCadence": "monthly"
+    },
+    {
+      "id": "cb908933-0cbe-4c06-8706-7a38450a4c2a",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "name": "Social Embeddedness",
+      "status": "Low",
+      "description": "Degree of stable integration into ongoing social systems and relationships that persist over time.",
+      "preferredRange": "I feel socially held by persistent relationships and contexts, such that week-to-week variability does not threaten my sense of belonging or continuity.",
+      "measurementCadence": "weekly"
     }
   ],
   "episodes": [
@@ -42,15 +78,40 @@
         "id": "personal"
       },
       "type": "Explore",
-      "objective": "MVP of the system",
+      "objective": "Assess what a software MVP of the system would do",
       "status": "Active",
-      "openedAt": "2026-01-04T02:20:19.085Z"
+      "openedAt": "2026-01-04T02:20:19.085Z",
+      "timeboxDays": 7
+    },
+    {
+      "id": "54c01e7a-36fa-45bd-b2c3-45cf31294a79",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Stabilize",
+      "variableId": "cb908933-0cbe-4c06-8706-7a38450a4c2a",
+      "objective": "Stabilize social calibration via low stakes contexts",
+      "status": "Active",
+      "openedAt": "2026-01-06T22:07:33.093Z"
     }
   ],
   "actions": [
     {
       "id": "96091cdf-5ad3-4b88-885d-469e333484f0",
       "description": "Play around with my web app and feel out what it needs to be",
+      "status": "Done",
+      "episodeId": "2b38a17d-95fa-4bd9-af90-c09595cb9fca"
+    },
+    {
+      "id": "40b8c7eb-a067-4ee5-b030-d72b4daaebb5",
+      "description": "Go to pharmatrix",
+      "status": "Pending",
+      "episodeId": "54c01e7a-36fa-45bd-b2c3-45cf31294a79"
+    },
+    {
+      "id": "ac1dce31-8492-4f86-8562-b1fc3a3f7456",
+      "description": "Use the system for real for the rest of the week",
       "status": "Pending",
       "episodeId": "2b38a17d-95fa-4bd9-af90-c09595cb9fca"
     }

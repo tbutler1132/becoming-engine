@@ -14,6 +14,7 @@ import type {
   Result,
   OpenEpisodeParams,
   SignalParams,
+  UpdateEpisodeParams,
   UpdateNoteParams,
 } from "./types.js";
 import * as logic from "./logic.js";
@@ -137,6 +138,36 @@ export class Regulator {
       );
     } else {
       this.logger.warn(`Episode close failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Updates an existing episode.
+   *
+   * **Intent:** Allows refining episode objective or adjusting timebox during active episodes.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with updated state if successful
+   * - Parameters: UpdateEpisodeParams (episodeId, optional objective, optional timeboxDays)
+   * - Side effects: Logs episode update (if logger provided)
+   * - Error handling: Returns error if episode not found, not Active, or validation fails
+   */
+  updateEpisode(state: State, params: UpdateEpisodeParams): Result<State> {
+    const result = logic.updateEpisode(state, params);
+    if (result.ok) {
+      const updates: string[] = [];
+      if (params.objective !== undefined) {
+        updates.push("objective");
+      }
+      if (params.timeboxDays !== undefined) {
+        updates.push("timeboxDays");
+      }
+      this.logger.info(
+        `Episode updated: ${params.episodeId} (${updates.join(", ")})`,
+      );
+    } else {
+      this.logger.warn(`Episode update failed: ${result.error}`);
     }
     return result;
   }

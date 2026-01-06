@@ -11,6 +11,7 @@ import {
   validateEpisodeParams,
   openEpisode,
   closeEpisode,
+  updateEpisode,
   createModel,
   updateModel,
   createNote,
@@ -1895,6 +1896,408 @@ describe("Regulator Logic (Pure Functions)", () => {
       if (!result.ok) {
         expect(result.error).toContain("empty");
       }
+    });
+  });
+
+  describe("updateEpisode", () => {
+    it("updates an existing episode's objective", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Original objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        objective: "Updated objective",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.episodes[0]?.objective).toBe("Updated objective");
+        // Other fields preserved
+        expect(result.value.episodes[0]?.id).toBe("e1");
+        expect(result.value.episodes[0]?.status).toBe(ACTIVE_STATUS);
+        expect(result.value.episodes[0]?.openedAt).toBe(
+          "2025-01-01T00:00:00.000Z",
+        );
+        // Original state unchanged
+        expect(state.episodes[0]?.objective).toBe("Original objective");
+      }
+    });
+
+    it("updates an existing episode's timeboxDays", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+            timeboxDays: 7,
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        timeboxDays: 14,
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.episodes[0]?.timeboxDays).toBe(14);
+        // Objective preserved
+        expect(result.value.episodes[0]?.objective).toBe("Test objective");
+        // Original state unchanged
+        expect(state.episodes[0]?.timeboxDays).toBe(7);
+      }
+    });
+
+    it("updates both objective and timeboxDays together", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Original objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+            timeboxDays: 7,
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        objective: "Updated objective",
+        timeboxDays: 21,
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.episodes[0]?.objective).toBe("Updated objective");
+        expect(result.value.episodes[0]?.timeboxDays).toBe(21);
+      }
+    });
+
+    it("removes timeboxDays when set to null", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+            timeboxDays: 7,
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        timeboxDays: null,
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.episodes[0]?.timeboxDays).toBeUndefined();
+      }
+    });
+
+    it("preserves other episode fields", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[1],
+            variableId: "v1",
+            objective: "Original objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+            timeboxDays: 7,
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        objective: "Updated objective",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        const episode = result.value.episodes[0];
+        expect(episode?.id).toBe("e1");
+        expect(episode?.node).toEqual(DEFAULT_PERSONAL_NODE);
+        expect(episode?.type).toBe(EPISODE_TYPES[1]);
+        expect(episode?.variableId).toBe("v1");
+        expect(episode?.status).toBe(ACTIVE_STATUS);
+        expect(episode?.openedAt).toBe("2025-01-01T00:00:00.000Z");
+        expect(episode?.timeboxDays).toBe(7);
+      }
+    });
+
+    it("fails on non-existent episode", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "nonexistent",
+        objective: "New objective",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("not found");
+      }
+    });
+
+    it("fails on empty objective", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Original objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        objective: "",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("empty");
+      }
+    });
+
+    it("fails on whitespace-only objective", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Original objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        objective: "   ",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("empty");
+      }
+    });
+
+    it("fails on negative timeboxDays", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        timeboxDays: -1,
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("positive");
+      }
+    });
+
+    it("fails on zero timeboxDays", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Test objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        timeboxDays: 0,
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("positive");
+      }
+    });
+
+    it("fails on closed episode", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Original objective",
+            status: CLOSED_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+            closedAt: "2025-01-15T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        objective: "Updated objective",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("cannot be edited");
+        expect(result.error).toContain("Active");
+      }
+    });
+
+    it("allows editing Active episodes", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Original objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = updateEpisode(state, {
+        episodeId: "e1",
+        objective: "Updated objective",
+      });
+
+      expect(result.ok).toBe(true);
     });
   });
 

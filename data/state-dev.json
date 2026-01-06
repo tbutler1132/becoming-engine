@@ -110,8 +110,10 @@
       },
       "type": "Explore",
       "objective": "Morning workout",
-      "status": "Active",
-      "openedAt": "2026-01-06T20:44:18.775Z"
+      "status": "Closed",
+      "openedAt": "2026-01-06T20:44:18.775Z",
+      "closedAt": "2026-01-06T22:01:33.608Z",
+      "closureNoteId": "72fed10f-bc5e-4dae-bde5-393738a25a56"
     },
     {
       "id": "56710f14-f9ac-439a-b7be-b766c25081f3",
@@ -124,6 +126,17 @@
       "objective": "Run",
       "status": "Active",
       "openedAt": "2026-01-06T20:44:28.845Z"
+    },
+    {
+      "id": "5e737b4c-6de0-4f15-9a2a-105a3811f1d5",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "type": "Explore",
+      "objective": "Lear about meal",
+      "status": "Active",
+      "openedAt": "2026-01-06T22:02:07.102Z"
     }
   ],
   "actions": [
@@ -200,6 +213,12 @@
       "content": "## Summary\nNotes currently store content as plain strings, which already supports markdown syntax. The UI just needs to render it properly.\n\n## Current Behavior\n- `EditableContent.tsx` renders note content with `whiteSpace: pre-wrap`\n- Markdown syntax appears as raw text\n\n## Proposed Change\n- Install `react-markdown` in the web app\n- Update view mode in `EditableContent.tsx` to render through ReactMarkdown\n- Add prose styling for proper markdown appearance\n\n## Files to Modify\n- `src/apps/web/package.json` (add react-markdown dependency)\n- `src/apps/web/app/notes/[id]/EditableContent.tsx` (use ReactMarkdown in view mode)\n\n## Notes\n- No schema or type changes needed\n- Edit mode stays as textarea (good for writing markdown)\n- Consider adding `@tailwindcss/typography` for prose styling",
       "createdAt": "2026-01-06T21:55:25.720Z",
       "tags": []
+    },
+    {
+      "id": "72fed10f-bc5e-4dae-bde5-393738a25a56",
+      "content": "Ear",
+      "createdAt": "2026-01-06T22:01:33.608Z",
+      "tags": ["closure_note"]
     }
   ],
   "models": [
@@ -207,6 +226,12 @@
       "id": "3785cf6f-045a-4d21-8e82-65c08d4a36ab",
       "type": "Descriptive",
       "statement": "That the real win was the friends we made along the way",
+      "confidence": 0.7
+    },
+    {
+      "id": "1ecaf068-eacd-4ee0-942f-fccbda7b1e0e",
+      "type": "Descriptive",
+      "statement": "Meal",
       "confidence": 0.7
     }
   ],

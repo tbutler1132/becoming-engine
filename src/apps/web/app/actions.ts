@@ -170,6 +170,40 @@ export async function closeEpisode(
 }
 
 /**
+ * Updates an existing episode.
+ * Only Active episodes can be edited.
+ */
+export async function updateEpisode(
+  episodeId: string,
+  objective?: string,
+  timeboxDays?: number | null
+): Promise<Result<void>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+
+  const result = regulator.updateEpisode(state, {
+    episodeId,
+    ...(objective !== undefined ? { objective } : {}),
+    ...(timeboxDays !== undefined ? { timeboxDays } : {}),
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  revalidatePath(`/episodes/${episodeId}`);
+  return okVoid();
+}
+
+/**
  * Adds an action, optionally linked to an episode.
  * Returns the new action ID on success.
  */

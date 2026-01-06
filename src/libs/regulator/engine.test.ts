@@ -363,6 +363,111 @@ describe("Regulator (Class Integration)", () => {
     });
   });
 
+  describe("updateEpisode", () => {
+    it("calls logic function correctly", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Original objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const regulator = new Regulator();
+      const result = regulator.updateEpisode(state, {
+        episodeId: "e1",
+        objective: "Updated objective",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.episodes[0]?.objective).toBe("Updated objective");
+      }
+    });
+
+    it("logs on success", () => {
+      const mockLogger: Logger = {
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      };
+
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [
+          {
+            id: "e1",
+            node: DEFAULT_PERSONAL_NODE,
+            type: EPISODE_TYPES[0],
+            objective: "Original objective",
+            status: ACTIVE_STATUS,
+            openedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const regulator = new Regulator({ logger: mockLogger });
+      regulator.updateEpisode(state, {
+        episodeId: "e1",
+        objective: "Updated objective",
+      });
+
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.stringContaining("Episode updated"),
+      );
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.stringContaining("objective"),
+      );
+    });
+
+    it("logs on failure", () => {
+      const mockLogger: Logger = {
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      };
+
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const regulator = new Regulator({ logger: mockLogger });
+      regulator.updateEpisode(state, {
+        episodeId: "nonexistent",
+        objective: "Updated objective",
+      });
+
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("Episode update failed"),
+      );
+    });
+  });
+
   // =========================================================================
   // Acceptance Test: Closing Explore Creates Model (MP6)
   // =========================================================================
