@@ -229,6 +229,40 @@ export async function signalVariable(
 }
 
 /**
+ * Creates a new note.
+ * Returns the new note ID on success.
+ */
+export async function createNote(
+  content: string,
+  tags?: NoteTag[]
+): Promise<Result<string>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+  const noteId = crypto.randomUUID();
+
+  const result = regulator.createNote(state, {
+    noteId,
+    content,
+    createdAt: new Date().toISOString(),
+    ...(tags && tags.length > 0 ? { tags } : {}),
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  return { ok: true, value: noteId };
+}
+
+/**
  * Updates an existing note's content.
  */
 export async function updateNote(
