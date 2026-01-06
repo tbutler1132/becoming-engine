@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createStore } from "@/lib/store";
+import { ActionCompleteButton } from "./ActionCompleteButton";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -59,8 +60,11 @@ export default async function ActionPage({
         </dl>
       </section>
 
+      {/* Regulatory Action Section */}
+      <ActionCompleteButton actionId={id} currentStatus={action.status} />
+
       {episode && (
-        <section>
+        <section style={{ marginTop: "1.5rem" }}>
           <h2
             style={{
               fontSize: "0.75rem",

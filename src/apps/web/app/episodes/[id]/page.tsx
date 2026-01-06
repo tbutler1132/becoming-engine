@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import type { Action } from "@libs/memory";
+import type { Action, EpisodeType } from "@libs/memory";
 import { createStore } from "@/lib/store";
+import { CloseEpisodeForm } from "./CloseEpisodeForm";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -67,6 +68,13 @@ export default async function EpisodePage({
           )}
         </dl>
       </section>
+
+      {/* Regulatory Action Section */}
+      <CloseEpisodeForm
+        episodeId={id}
+        episodeType={episode.type as EpisodeType}
+        currentStatus={episode.status}
+      />
 
       {linkedActions.length > 0 && (
         <section>

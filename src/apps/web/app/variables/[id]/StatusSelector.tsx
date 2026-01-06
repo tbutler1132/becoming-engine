@@ -39,7 +39,30 @@ export function StatusSelector({
   }
 
   return (
-    <div>
+    <div
+      style={{
+        padding: "1rem",
+        border: "2px solid #6366f1",
+        borderRadius: "8px",
+        background: "rgba(99, 102, 241, 0.05)",
+      }}
+    >
+      <p
+        style={{
+          fontSize: "0.65rem",
+          color: "#6366f1",
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+          fontWeight: 600,
+          marginBottom: "0.75rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.35rem",
+        }}
+      >
+        <span style={{ fontSize: "0.875rem" }}>↗</span>
+        Signal Status
+      </p>
       <div
         style={{
           display: "flex",
@@ -56,9 +79,12 @@ export function StatusSelector({
             style={{
               padding: "0.5rem 0.75rem",
               fontSize: "0.875rem",
-              border: "1px solid #ccc",
+              border:
+                status === currentStatus
+                  ? "2px solid #6366f1"
+                  : "1px solid #ccc",
               borderRadius: "4px",
-              background: status === currentStatus ? "#000" : "transparent",
+              background: status === currentStatus ? "#6366f1" : "transparent",
               color: status === currentStatus ? "#fff" : "inherit",
               cursor: isUpdating ? "not-allowed" : "pointer",
               fontWeight: status === currentStatus ? 500 : 400,

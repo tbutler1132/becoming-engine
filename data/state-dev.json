@@ -71,8 +71,10 @@
       },
       "type": "Explore",
       "objective": "Ear",
-      "status": "Active",
-      "openedAt": "2026-01-04T16:47:11.670Z"
+      "status": "Closed",
+      "openedAt": "2026-01-04T16:47:11.670Z",
+      "closedAt": "2026-01-06T20:39:40.137Z",
+      "closureNoteId": "0301d231-dd7e-45b1-a94f-c8ff57f41113"
     },
     {
       "id": "c3d4e5f6-7890-4cde-bef1-333333333333",
@@ -95,8 +97,10 @@
       "type": "Stabilize",
       "variableId": "b2c3d4e5-6789-4bcd-aef0-222222222222",
       "objective": "I wanna win..",
-      "status": "Active",
-      "openedAt": "2026-01-06T19:20:48.045Z"
+      "status": "Closed",
+      "openedAt": "2026-01-06T19:20:48.045Z",
+      "closedAt": "2026-01-06T20:38:51.246Z",
+      "closureNoteId": "71a45cb8-79cb-4636-ad7f-13ca6202faca"
     }
   ],
   "actions": [
@@ -109,13 +113,13 @@
     {
       "id": "2b64656d-99a8-44d5-9e9b-8cfc7ee9f5a2",
       "description": "Run",
-      "status": "Pending",
+      "status": "Done",
       "episodeId": "076e0954-9469-4166-a421-cd8164a92a5c"
     },
     {
       "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
       "description": "Sketch out the World Model lens layout",
-      "status": "Pending",
+      "status": "Done",
       "episodeId": "076e0954-9469-4166-a421-cd8164a92a5c"
     },
     {
@@ -127,7 +131,7 @@
     {
       "id": "2e1709fd-19c7-4383-a01f-1607b9c80fc0",
       "description": "It likes ass",
-      "status": "Pending",
+      "status": "Done",
       "episodeId": "9238c629-393e-4ce1-9d47-682e593e612f"
     }
   ],
@@ -155,9 +159,28 @@
       "content": "Just added another note",
       "createdAt": "2026-01-06T19:09:10.192Z",
       "tags": ["inbox"]
+    },
+    {
+      "id": "71a45cb8-79cb-4636-ad7f-13ca6202faca",
+      "content": "It was cool",
+      "createdAt": "2026-01-06T20:38:51.246Z",
+      "tags": ["closure_note"]
+    },
+    {
+      "id": "0301d231-dd7e-45b1-a94f-c8ff57f41113",
+      "content": "It was cool",
+      "createdAt": "2026-01-06T20:39:40.137Z",
+      "tags": ["closure_note"]
     }
   ],
-  "models": [],
+  "models": [
+    {
+      "id": "3785cf6f-045a-4d21-8e82-65c08d4a36ab",
+      "type": "Descriptive",
+      "statement": "That the real win was the friends we made along the way",
+      "confidence": 0.7
+    }
+  ],
   "links": [],
   "exceptions": []
 }
