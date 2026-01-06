@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { NOTE_TAGS } from "@libs/memory";
 import { createStore } from "@/lib/store";
-import { EditableContent } from "./EditableContent";
-import { EditableTags } from "./EditableTags";
+import { NoteEditor } from "./NoteEditor";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -28,39 +27,13 @@ export default async function NotePage({
         margin: "0 auto",
       }}
     >
-      <header style={{ marginBottom: "2rem" }}>
-        <p
-          style={{
-            fontSize: "0.75rem",
-            color: "#666",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: "0.25rem",
-          }}
-        >
-          Note
-        </p>
-        <h1 style={{ fontSize: "1.5rem" }}>
-          {note.content.slice(0, 50)}
-          {note.content.length > 50 ? "…" : ""}
-        </h1>
-      </header>
-
-      <section
-        style={{
-          border: "1px solid #ccc",
-          borderRadius: "4px",
-          padding: "1.5rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <dl style={{ display: "grid", gap: "1rem" }}>
-          <Field label="Created" value={formatDate(note.createdAt)} />
-          <EditableTags noteId={note.id} initialTags={note.tags} allTags={NOTE_TAGS} />
-        </dl>
-      </section>
-
-      <EditableContent noteId={note.id} initialContent={note.content} />
+      <NoteEditor
+        noteId={note.id}
+        initialContent={note.content}
+        initialTags={note.tags}
+        allTags={NOTE_TAGS}
+        createdAt={note.createdAt}
+      />
 
       {note.linkedObjects && note.linkedObjects.length > 0 && (
         <section>
@@ -94,38 +67,4 @@ export default async function NotePage({
       )}
     </main>
   );
-}
-
-interface FieldProps {
-  label: string;
-  value: string;
-}
-
-function Field({ label, value }: FieldProps): React.ReactNode {
-  return (
-    <div>
-      <dt
-        style={{
-          fontSize: "0.75rem",
-          color: "#666",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          marginBottom: "0.25rem",
-        }}
-      >
-        {label}
-      </dt>
-      <dd style={{ margin: 0 }}>{value}</dd>
-    </div>
-  );
-}
-
-function formatDate(isoString: string): string {
-  return new Date(isoString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
