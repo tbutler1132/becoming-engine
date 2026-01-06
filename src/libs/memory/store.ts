@@ -21,6 +21,7 @@ import {
   isValidLegacyStateV5,
   isValidLegacyStateV6,
   isValidLegacyStateV7,
+  isValidLegacyStateV8,
   isValidState,
 } from "./internal/validation.js";
 import {
@@ -31,6 +32,7 @@ import {
   migrateV5ToV6,
   migrateV6ToV7,
   migrateV7ToV8,
+  migrateV8ToV9,
 } from "./internal/migrations.js";
 import {
   acquireLock,
@@ -93,46 +95,64 @@ export class JsonStore {
         return data;
       }
 
+      if (isValidLegacyStateV8(data)) {
+        return migrateV8ToV9(data);
+      }
+
       if (isValidLegacyStateV7(data)) {
-        return migrateV7ToV8(data);
+        return migrateV8ToV9(migrateV7ToV8(data));
       }
 
       if (isValidLegacyStateV6(data)) {
-        return migrateV7ToV8(migrateV6ToV7(data));
+        return migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(data)));
       }
 
       if (isValidLegacyStateV5(data)) {
-        return migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(data)));
+        return migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(data))));
       }
 
       if (isValidLegacyStateV4(data)) {
-        return migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(data))));
+        return migrateV8ToV9(
+          migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(data)))),
+        );
       }
 
       if (isValidLegacyStateV3(data)) {
-        return migrateV7ToV8(
-          migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(data)))),
+        return migrateV8ToV9(
+          migrateV7ToV8(
+            migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(data)))),
+          ),
         );
       }
 
       if (isValidLegacyStateV2(data)) {
-        return migrateV7ToV8(
-          migrateV6ToV7(
-            migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(data)))),
+        return migrateV8ToV9(
+          migrateV7ToV8(
+            migrateV6ToV7(
+              migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(data)))),
+            ),
           ),
         );
       }
 
       if (isValidLegacyStateV1(data)) {
-        return migrateV7ToV8(
-          migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data)))),
+        return migrateV8ToV9(
+          migrateV7ToV8(
+            migrateV6ToV7(
+              migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+            ),
+          ),
         );
       }
 
       if (isValidLegacyStateV0(data)) {
         // Backward-compatible: files without schemaVersion are treated as v0 (legacy).
-        return migrateV7ToV8(
-          migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data)))),
+        return migrateV8ToV9(
+          migrateV7ToV8(
+            migrateV6ToV7(
+              migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+            ),
+          ),
         );
       }
 

@@ -91,7 +91,7 @@ export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Current schema version — increment when State shape changes */
-export const SCHEMA_VERSION = 8 as const;
+export const SCHEMA_VERSION = 9 as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MEMBRANE — Exception tracking for constraint bypasses

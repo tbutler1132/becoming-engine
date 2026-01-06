@@ -123,7 +123,7 @@ describe("DNA Integrity (Tripwire)", () => {
 
   describe("Schema Version", () => {
     it("has expected schema version", () => {
-      expect(SCHEMA_VERSION).toBe(8);
+      expect(SCHEMA_VERSION).toBe(9);
     });
   });
 });

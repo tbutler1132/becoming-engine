@@ -14,6 +14,7 @@ import {
   isValidLegacyStateV0,
   isValidLegacyStateV4,
   isValidLegacyStateV6,
+  isValidLegacyStateV8,
   nodeRefFromLegacy,
 } from "./validation.js";
 import {
@@ -21,6 +22,7 @@ import {
   migrateV5ToV6,
   migrateV6ToV7,
   migrateV7ToV8,
+  migrateV8ToV9,
 } from "./migrations.js";
 import {
   SCHEMA_VERSION,
@@ -1851,10 +1853,10 @@ describe("migrateV6ToV7", () => {
     const v7State = migrateV6ToV7(v6State);
     const v8State = migrateV7ToV8(v7State);
 
-    expect(isValidState(v8State)).toBe(true);
+    expect(isValidLegacyStateV8(v8State)).toBe(true);
   });
 
-  it("full migration chain V4 -> V5 -> V6 -> V7 -> V8 produces valid state", () => {
+  it("full migration chain V4 -> V5 -> V6 -> V7 -> V8 -> V9 produces valid state", () => {
     const v4State = {
       schemaVersion: 4 as const,
       variables: [
@@ -1879,17 +1881,17 @@ describe("migrateV6ToV7", () => {
       notes: [{ id: "n1", content: "Note" }],
     };
 
-    const v8State = migrateV7ToV8(
-      migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State))),
+    const v9State = migrateV8ToV9(
+      migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State)))),
     );
 
-    expect(v8State.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(v8State.models).toEqual([]);
-    expect(v8State.links).toEqual([]);
-    expect(v8State.exceptions).toEqual([]);
-    expect(v8State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
-    expect(v8State.notes[0]?.tags).toEqual([]);
-    expect(isValidState(v8State)).toBe(true);
+    expect(v9State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v9State.models).toEqual([]);
+    expect(v9State.links).toEqual([]);
+    expect(v9State.exceptions).toEqual([]);
+    expect(v9State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
+    expect(v9State.notes[0]?.tags).toEqual([]);
+    expect(isValidState(v9State)).toBe(true);
   });
 });
 
@@ -1925,7 +1927,7 @@ describe("migrateV7ToV8", () => {
 
     const v8State = migrateV7ToV8(v7State);
 
-    expect(v8State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v8State.schemaVersion).toBe(8);
     expect(v8State.exceptions).toEqual([]);
     // Preserves existing data
     expect(v8State.variables).toEqual(v7State.variables);
@@ -1933,7 +1935,7 @@ describe("migrateV7ToV8", () => {
     expect(v8State.links).toEqual(v7State.links);
   });
 
-  it("produces valid current state", () => {
+  it("produces valid V8 state (for further migration)", () => {
     const v7State = {
       schemaVersion: 7 as const,
       variables: [
@@ -1960,7 +1962,80 @@ describe("migrateV7ToV8", () => {
 
     const v8State = migrateV7ToV8(v7State);
 
-    expect(isValidState(v8State)).toBe(true);
+    expect(isValidLegacyStateV8(v8State)).toBe(true);
+  });
+});
+
+// ============================================================================
+// migrateV8ToV9 Tests
+// ============================================================================
+
+describe("migrateV8ToV9", () => {
+  it("sets schemaVersion to 9 (current)", () => {
+    const v8State = {
+      schemaVersion: 8 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+      links: [],
+      exceptions: [],
+    };
+
+    const v9State = migrateV8ToV9(v8State);
+
+    expect(v9State.schemaVersion).toBe(SCHEMA_VERSION);
+    // Preserves existing data
+    expect(v9State.variables).toEqual(v8State.variables);
+    expect(v9State.notes).toEqual(v8State.notes);
+    expect(v9State.links).toEqual(v8State.links);
+    expect(v9State.exceptions).toEqual(v8State.exceptions);
+  });
+
+  it("produces valid current state", () => {
+    const v8State = {
+      schemaVersion: 8 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+      links: [],
+      exceptions: [],
+    };
+
+    const v9State = migrateV8ToV9(v8State);
+
+    expect(isValidState(v9State)).toBe(true);
   });
 });
 

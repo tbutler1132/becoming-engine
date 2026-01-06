@@ -104,6 +104,8 @@ export interface Episode {
   closedAt?: string;
   /** Optional link to closure note (set on close, prep for MP5) */
   closureNoteId?: string;
+  /** Optional timebox in days — episode should close/expire after this duration */
+  timeboxDays?: number;
 }
 
 export interface Action {

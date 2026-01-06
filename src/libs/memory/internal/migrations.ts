@@ -9,6 +9,7 @@ import type {
   StateV5,
   StateV6,
   StateV7,
+  StateV8,
 } from "./validation.js";
 import { nodeRefFromLegacy } from "./validation.js";
 
@@ -107,10 +108,22 @@ export function migrateV6ToV7(v6: StateV6): StateV7 {
 /**
  * Migrates v7 state to v8 by adding an empty exceptions array.
  */
-export function migrateV7ToV8(v7: StateV7): State {
+export function migrateV7ToV8(v7: StateV7): StateV8 {
   return {
     ...v7,
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: 8 as const,
     exceptions: [],
+  };
+}
+
+/**
+ * Migrates v8 state to v9.
+ * This is a no-op migration since timeboxDays is optional.
+ * Episodes without timeboxDays remain valid in v9.
+ */
+export function migrateV8ToV9(v8: StateV8): State {
+  return {
+    ...v8,
+    schemaVersion: SCHEMA_VERSION,
   };
 }
