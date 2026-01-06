@@ -95,6 +95,26 @@ export default async function ActionsLensPage(): Promise<React.ReactNode> {
           ))}
         </section>
       )}
+
+      <Link
+        href="/actions/new"
+        style={{
+          position: "fixed",
+          bottom: "2rem",
+          right: "2rem",
+          padding: "1rem 2rem",
+          fontSize: "1rem",
+          fontWeight: 600,
+          border: "none",
+          borderRadius: "8px",
+          background: "#000",
+          color: "#fff",
+          textDecoration: "none",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+        }}
+      >
+        + Add Action
+      </Link>
     </main>
   );
 }
