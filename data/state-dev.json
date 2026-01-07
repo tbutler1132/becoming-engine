@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 10,
+  "schemaVersion": 11,
   "variables": [
     {
       "id": "f4c4fc76-97fb-443b-9f7a-de4c5f7720f3",
@@ -8,7 +8,7 @@
         "id": "personal"
       },
       "name": "Agency",
-      "status": "InRange"
+      "status": "Low"
     },
     {
       "id": "687aa7d3-7095-40c8-b629-f6e1ebcaaa84",
@@ -241,6 +241,27 @@
       "content": "I like dirty ear",
       "createdAt": "2026-01-07T00:20:28.745Z",
       "tags": ["processed"]
+    },
+    {
+      "id": "953caa03-b06b-4e42-b32a-4c5244a8aee4",
+      "content": "Status changed: InRange → Low. Average value (4.00) is below threshold (5) based on 1 reading(s)",
+      "createdAt": "2026-01-07T20:56:48.658Z",
+      "tags": ["audit"],
+      "linkedObjects": ["f4c4fc76-97fb-443b-9f7a-de4c5f7720f3"]
+    },
+    {
+      "id": "25ff7544-b5c2-42e4-9ddf-d61eefb10b80",
+      "content": "Status changed: Low → InRange",
+      "createdAt": "2026-01-07T20:58:19.099Z",
+      "tags": ["audit"],
+      "linkedObjects": ["f4c4fc76-97fb-443b-9f7a-de4c5f7720f3"]
+    },
+    {
+      "id": "5b05a1ab-b26a-4b48-a17e-d05110f7963c",
+      "content": "Status changed: InRange → Low. Average value (3.50) is below threshold (5) based on 2 reading(s)",
+      "createdAt": "2026-01-07T20:58:36.031Z",
+      "tags": ["audit"],
+      "linkedObjects": ["f4c4fc76-97fb-443b-9f7a-de4c5f7720f3"]
     }
   ],
   "models": [
@@ -258,5 +279,88 @@
     }
   ],
   "links": [],
-  "exceptions": []
+  "exceptions": [],
+  "proxies": [
+    {
+      "id": "1c9aefb3-ac7a-4f53-98c0-ba4d548b7587",
+      "variableId": "f4c4fc76-97fb-443b-9f7a-de4c5f7720f3",
+      "name": "Free Time",
+      "valueType": "boolean",
+      "description": "Do I have enough free time?"
+    },
+    {
+      "id": "4a04223b-481d-49cf-acf9-5e344ad80e41",
+      "variableId": "f4c4fc76-97fb-443b-9f7a-de4c5f7720f3",
+      "name": "Contacts",
+      "valueType": "numeric",
+      "description": "How many reliable contacts do I have?",
+      "unit": "People",
+      "thresholds": {
+        "lowBelow": 5,
+        "highAbove": 10
+      }
+    }
+  ],
+  "proxyReadings": [
+    {
+      "id": "391ddbfc-8829-4906-9296-a9586806ccd0",
+      "proxyId": "1c9aefb3-ac7a-4f53-98c0-ba4d548b7587",
+      "value": {
+        "type": "boolean",
+        "value": true
+      },
+      "recordedAt": "2026-01-07T20:55:16.803Z",
+      "source": "manual"
+    },
+    {
+      "id": "b6a599cd-19b1-4472-96a3-4dd1287ce14a",
+      "proxyId": "4a04223b-481d-49cf-acf9-5e344ad80e41",
+      "value": {
+        "type": "numeric",
+        "value": 4
+      },
+      "recordedAt": "2026-01-07T20:56:15.285Z",
+      "source": "manual"
+    },
+    {
+      "id": "2fb777cc-87df-4a91-9d5d-440e2e969c46",
+      "proxyId": "1c9aefb3-ac7a-4f53-98c0-ba4d548b7587",
+      "value": {
+        "type": "boolean",
+        "value": false
+      },
+      "recordedAt": "2026-01-07T20:56:33.097Z",
+      "source": "manual"
+    },
+    {
+      "id": "c4553800-59c8-4560-8c85-525e62cede4e",
+      "proxyId": "4a04223b-481d-49cf-acf9-5e344ad80e41",
+      "value": {
+        "type": "numeric",
+        "value": 3
+      },
+      "recordedAt": "2026-01-07T20:56:58.890Z",
+      "source": "manual"
+    },
+    {
+      "id": "3c7b756f-e0f6-4db2-8c79-82da6d20af84",
+      "proxyId": "1c9aefb3-ac7a-4f53-98c0-ba4d548b7587",
+      "value": {
+        "type": "boolean",
+        "value": false
+      },
+      "recordedAt": "2026-01-07T20:57:10.065Z",
+      "source": "manual"
+    },
+    {
+      "id": "6f6ca516-d2ae-4242-b50c-51960b4bacbe",
+      "proxyId": "4a04223b-481d-49cf-acf9-5e344ad80e41",
+      "value": {
+        "type": "numeric",
+        "value": 2
+      },
+      "recordedAt": "2026-01-07T20:58:30.830Z",
+      "source": "manual"
+    }
+  ]
 }

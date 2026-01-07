@@ -156,7 +156,7 @@ This roadmap describes **small, composable micro-projects** that move the system
 
 ---
 
-### MP14 — Variable Proxies
+### MP14 — Variable Proxies ✅
 
 **Goal**: Make Variables feel alive by connecting them to real data sources.
 
@@ -176,6 +176,38 @@ This roadmap describes **small, composable micro-projects** that move the system
 - Add a proxy to a Variable
 - Proxy data influences Variable status (with user confirmation or auto)
 - Clear audit trail of what changed the Variable
+
+---
+
+### MP15 — Proxy Templates
+
+**Goal**: Provide shareable vocabulary for common measurement signals.
+
+**Product intent**
+
+- Just as Variable Templates suggest how to frame viability dimensions, Proxy Templates suggest how to measure them
+- Reduce friction: "I want to track sleep" → system offers pre-configured Sleep Hours proxy
+- Enable community sharing of effective measurement patterns
+
+**Scope**
+
+- `ProxyTemplate` type (global, not scoped to specific Variables)
+- Builtin templates for common signals (sleep hours, energy levels, social interactions, etc.)
+- Template instantiation: select template → creates Proxy linked to chosen Variable
+- User can customize thresholds after instantiation
+
+**Design notes**
+
+- Templates are NOT state — they are articulation artifacts (like Variable Templates)
+- Global scope: same proxy template can be instantiated for different Variables (sleep might inform Continuity for one user, Energy for another)
+- Suggested pairings: templates can hint which Variables they commonly inform
+
+**Acceptance**
+
+- `ProxyTemplate` interface with name, description, valueType, suggested thresholds, rationale
+- At least 5 builtin proxy templates covering common measurements
+- UI: when adding a proxy, user can pick from templates or create custom
+- Instantiated proxy is independent of template (can be customized)
 
 ---
 
@@ -284,7 +316,11 @@ Minimal read-only app for glancing at status. If nothing is wrong, it shows almo
 
 ### Templates & Extensions
 
-Shareable Variable configurations and custom proxy pipelines for non-native data sources.
+Shareable Variable and Proxy configurations. MP15 (Proxy Templates) is the first step. Future extensions:
+
+- Variable Template packs (domain-specific, e.g., "Creative Practice", "Parenting")
+- Proxy Template packs with suggested Variable pairings
+- Custom proxy pipelines for non-native data sources
 
 ### Plugin Architecture
 
