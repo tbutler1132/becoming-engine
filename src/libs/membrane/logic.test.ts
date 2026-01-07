@@ -20,6 +20,8 @@ function emptyState(): State {
     models: [],
     links: [],
     exceptions: [],
+    proxies: [],
+    proxyReadings: [],
   };
 }
 

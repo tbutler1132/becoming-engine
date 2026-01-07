@@ -1,7 +1,13 @@
 // The Regulator class: thin wrapper over pure logic functions
 // Provides the public interface for the cybernetic control loop
 
-import type { State, Variable, NodeRef } from "../memory/index.js";
+import type {
+  State,
+  Variable,
+  NodeRef,
+  Proxy,
+  ProxyReading,
+} from "../memory/index.js";
 import type {
   AddNoteLinkedObjectParams,
   AddNoteTagParams,
@@ -9,14 +15,18 @@ import type {
   CompleteActionParams,
   CreateActionParams,
   CreateNoteParams,
+  CreateProxyParams,
   CreateVariableParams,
+  DeleteProxyParams,
   LogExceptionParams,
+  LogProxyReadingParams,
   RemoveNoteTagParams,
   Result,
   OpenEpisodeParams,
   SignalParams,
   UpdateEpisodeParams,
   UpdateNoteParams,
+  UpdateProxyParams,
 } from "./types.js";
 import * as logic from "./logic.js";
 import type { RegulatorPolicy } from "./policy.js";
@@ -375,5 +385,109 @@ export class Regulator {
       this.logger.warn(`Exception logging failed: ${result.error}`);
     }
     return result;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PROXY OPERATIONS (MP14)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Creates a new proxy for a Variable.
+   *
+   * **Intent:** Proxies are concrete signals that inform Variables.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with new proxy appended
+   * - Validates: variableId exists, proxyId is unique, name is not empty
+   * - Error handling: Returns error if validation fails
+   */
+  createProxy(state: State, params: CreateProxyParams): Result<State> {
+    const result = logic.createProxy(state, params);
+    if (result.ok) {
+      this.logger.info(
+        `Proxy created: ${params.name} for variable ${params.variableId}`,
+      );
+    } else {
+      this.logger.warn(`Proxy creation failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Updates an existing proxy.
+   *
+   * **Intent:** Allow modifying proxy metadata without deleting and recreating.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with updated proxy
+   * - Validates: proxyId exists
+   * - Error handling: Returns error if validation fails
+   */
+  updateProxy(state: State, params: UpdateProxyParams): Result<State> {
+    const result = logic.updateProxy(state, params);
+    if (result.ok) {
+      this.logger.info(`Proxy updated: ${params.proxyId}`);
+    } else {
+      this.logger.warn(`Proxy update failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Deletes a proxy and its associated readings.
+   *
+   * **Intent:** Remove a proxy that is no longer relevant.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with proxy and readings removed
+   * - Validates: proxyId exists
+   * - Error handling: Returns error if validation fails
+   */
+  deleteProxy(state: State, params: DeleteProxyParams): Result<State> {
+    const result = logic.deleteProxy(state, params);
+    if (result.ok) {
+      this.logger.info(`Proxy deleted: ${params.proxyId}`);
+    } else {
+      this.logger.warn(`Proxy deletion failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Logs a proxy reading.
+   *
+   * **Intent:** Record a timestamped measurement from a proxy.
+   *
+   * **Contract:**
+   * - Returns: Result<State> with new reading appended
+   * - Validates: proxyId exists, value type matches proxy
+   * - Error handling: Returns error if validation fails
+   */
+  logProxyReading(state: State, params: LogProxyReadingParams): Result<State> {
+    const result = logic.logProxyReading(state, params);
+    if (result.ok) {
+      this.logger.info(`Reading logged for proxy: ${params.proxyId}`);
+    } else {
+      this.logger.warn(`Reading logging failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Gets all proxies for a Variable.
+   */
+  getProxiesForVariable(state: State, variableId: string): Proxy[] {
+    return logic.getProxiesForVariable(state, variableId);
+  }
+
+  /**
+   * Gets recent readings for a proxy.
+   */
+  getRecentReadings(
+    state: State,
+    proxyId: string,
+    limit?: number,
+  ): ProxyReading[] {
+    return logic.getRecentReadings(state, proxyId, limit);
   }
 }

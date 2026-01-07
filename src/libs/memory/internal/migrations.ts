@@ -11,6 +11,7 @@ import type {
   StateV7,
   StateV8,
   StateV9,
+  StateV10,
 } from "./validation.js";
 import {
   nodeRefFromLegacy,
@@ -24,6 +25,7 @@ import {
   isValidLegacyStateV7,
   isValidLegacyStateV8,
   isValidLegacyStateV9,
+  isValidLegacyStateV10,
   isValidState,
 } from "./validation.js";
 
@@ -147,10 +149,22 @@ export function migrateV8ToV9(v8: StateV8): StateV9 {
  * This is a no-op migration since new Variable fields are optional.
  * Variables without description/preferredRange/measurementCadence remain valid in v10.
  */
-export function migrateV9ToV10(v9: StateV9): State {
+export function migrateV9ToV10(v9: StateV9): StateV10 {
   return {
     ...v9,
+    schemaVersion: 10 as const,
+  };
+}
+
+/**
+ * Migrates v10 state to v11 by adding empty proxies and proxyReadings arrays.
+ */
+export function migrateV10ToV11(v10: StateV10): State {
+  return {
+    ...v10,
     schemaVersion: SCHEMA_VERSION,
+    proxies: [],
+    proxyReadings: [],
   };
 }
 
@@ -190,74 +204,93 @@ export function migrateToLatest(data: unknown): MigrationResult {
     return { status: "current", state: data };
   }
 
-  // V9 → V10
+  // V10 → V11
+  if (isValidLegacyStateV10(data)) {
+    return {
+      status: "migrated",
+      state: migrateV10ToV11(data),
+      fromVersion: 10,
+    };
+  }
+
+  // V9 → V10 → V11
   if (isValidLegacyStateV9(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(data),
+      state: migrateV10ToV11(migrateV9ToV10(data)),
       fromVersion: 9,
     };
   }
 
-  // V8 → V9 → V10
+  // V8 → V9 → V10 → V11
   if (isValidLegacyStateV8(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(migrateV8ToV9(data)),
+      state: migrateV10ToV11(migrateV9ToV10(migrateV8ToV9(data))),
       fromVersion: 8,
     };
   }
 
-  // V7 → V8 → V9 → V10
+  // V7 → V8 → V9 → V10 → V11
   if (isValidLegacyStateV7(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(migrateV8ToV9(migrateV7ToV8(data))),
+      state: migrateV10ToV11(
+        migrateV9ToV10(migrateV8ToV9(migrateV7ToV8(data))),
+      ),
       fromVersion: 7,
     };
   }
 
-  // V6 → V7 → V8 → V9 → V10
+  // V6 → V7 → V8 → V9 → V10 → V11
   if (isValidLegacyStateV6(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(data)))),
+      state: migrateV10ToV11(
+        migrateV9ToV10(migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(data)))),
+      ),
       fromVersion: 6,
     };
   }
 
-  // V5 → V6 → V7 → V8 → V9 → V10
+  // V5 → V6 → V7 → V8 → V9 → V10 → V11
   if (isValidLegacyStateV5(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(
-        migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(data)))),
+      state: migrateV10ToV11(
+        migrateV9ToV10(
+          migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(data)))),
+        ),
       ),
       fromVersion: 5,
     };
   }
 
-  // V4 → V5 → V6 → V7 → V8 → V9 → V10
+  // V4 → V5 → V6 → V7 → V8 → V9 → V10 → V11
   if (isValidLegacyStateV4(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(
-        migrateV8ToV9(
-          migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(data)))),
+      state: migrateV10ToV11(
+        migrateV9ToV10(
+          migrateV8ToV9(
+            migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(data)))),
+          ),
         ),
       ),
       fromVersion: 4,
     };
   }
 
-  // V3 → V4 → V5 → V6 → V7 → V8 → V9 → V10
+  // V3 → V4 → V5 → V6 → V7 → V8 → V9 → V10 → V11
   if (isValidLegacyStateV3(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(
-        migrateV8ToV9(
-          migrateV7ToV8(
-            migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(data)))),
+      state: migrateV10ToV11(
+        migrateV9ToV10(
+          migrateV8ToV9(
+            migrateV7ToV8(
+              migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(data)))),
+            ),
           ),
         ),
       ),
@@ -265,15 +298,19 @@ export function migrateToLatest(data: unknown): MigrationResult {
     };
   }
 
-  // V2 → V3 → V4 → V5 → V6 → V7 → V8 → V9 → V10
+  // V2 → V3 → V4 → V5 → V6 → V7 → V8 → V9 → V10 → V11
   if (isValidLegacyStateV2(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(
-        migrateV8ToV9(
-          migrateV7ToV8(
-            migrateV6ToV7(
-              migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(data)))),
+      state: migrateV10ToV11(
+        migrateV9ToV10(
+          migrateV8ToV9(
+            migrateV7ToV8(
+              migrateV6ToV7(
+                migrateV5ToV6(
+                  migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(data))),
+                ),
+              ),
             ),
           ),
         ),
@@ -282,15 +319,17 @@ export function migrateToLatest(data: unknown): MigrationResult {
     };
   }
 
-  // V1 (legacy with schemaVersion: 1) → V4 → ... → V10
+  // V1 (legacy with schemaVersion: 1) → V4 → ... → V11
   if (isValidLegacyStateV1(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(
-        migrateV8ToV9(
-          migrateV7ToV8(
-            migrateV6ToV7(
-              migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+      state: migrateV10ToV11(
+        migrateV9ToV10(
+          migrateV8ToV9(
+            migrateV7ToV8(
+              migrateV6ToV7(
+                migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+              ),
             ),
           ),
         ),
@@ -299,15 +338,17 @@ export function migrateToLatest(data: unknown): MigrationResult {
     };
   }
 
-  // V0 (legacy without schemaVersion) → V4 → ... → V10
+  // V0 (legacy without schemaVersion) → V4 → ... → V11
   if (isValidLegacyStateV0(data)) {
     return {
       status: "migrated",
-      state: migrateV9ToV10(
-        migrateV8ToV9(
-          migrateV7ToV8(
-            migrateV6ToV7(
-              migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+      state: migrateV10ToV11(
+        migrateV9ToV10(
+          migrateV8ToV9(
+            migrateV7ToV8(
+              migrateV6ToV7(
+                migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+              ),
             ),
           ),
         ),

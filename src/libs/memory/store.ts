@@ -153,6 +153,8 @@ export class JsonStore {
       models: [],
       links: [],
       exceptions: [],
+      proxies: [],
+      proxyReadings: [],
     };
   }
 

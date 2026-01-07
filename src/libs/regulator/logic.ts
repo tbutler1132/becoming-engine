@@ -12,6 +12,8 @@ import {
 } from "../memory/index.js";
 import type {
   Action,
+  Proxy,
+  ProxyReading,
   State,
   Variable,
   Episode,
@@ -31,9 +33,12 @@ import type {
   CreateLinkParams,
   CreateModelParams,
   CreateNoteParams,
+  CreateProxyParams,
   CreateVariableParams,
   DeleteLinkParams,
+  DeleteProxyParams,
   LogExceptionParams,
+  LogProxyReadingParams,
   ModelUpdate,
   RemoveNoteTagParams,
   Result,
@@ -43,6 +48,7 @@ import type {
   UpdateEpisodeParams,
   UpdateModelParams,
   UpdateNoteParams,
+  UpdateProxyParams,
   VariableUpdate,
 } from "./types.js";
 import type { RegulatorPolicyForNode } from "./policy.js";
@@ -205,6 +211,8 @@ export function canCreateAction(
  * Applies a signal to update a variable's status.
  * Returns a new State if successful.
  */
+const AUDIT_NOTE_TAG: NoteTag = "audit";
+
 export function applySignal(state: State, params: SignalParams): Result<State> {
   const variable = state.variables.find((v) => v.id === params.variableId);
   if (!variable) {
@@ -217,10 +225,41 @@ export function applySignal(state: State, params: SignalParams): Result<State> {
     };
   }
 
+  const oldStatus = variable.status;
+  const newStatus = params.status;
+
   const updatedVariables = state.variables.map((v) =>
     v.id === params.variableId ? { ...v, status: params.status } : v,
   );
 
+  // If status actually changed, create an audit Note
+  if (oldStatus !== newStatus) {
+    const noteId = params.auditNoteId ?? crypto.randomUUID();
+    const timestamp = params.auditTimestamp ?? new Date().toISOString();
+    const reason = params.reason ?? "";
+    const content = reason
+      ? `Status changed: ${oldStatus} → ${newStatus}. ${reason}`
+      : `Status changed: ${oldStatus} → ${newStatus}`;
+
+    const auditNote: Note = {
+      id: noteId,
+      content,
+      createdAt: timestamp,
+      tags: [AUDIT_NOTE_TAG],
+      linkedObjects: [params.variableId],
+    };
+
+    return {
+      ok: true,
+      value: {
+        ...state,
+        variables: updatedVariables,
+        notes: [...state.notes, auditNote],
+      },
+    };
+  }
+
+  // No status change, no audit note needed
   return {
     ok: true,
     value: {
@@ -1172,6 +1211,287 @@ export function createVariable(
       variables: [...state.variables, newVariable],
     },
   };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROXY OPERATIONS (MP14)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Creates a new proxy for a Variable.
+ *
+ * **Intent:** Proxies are concrete signals that inform Variables.
+ * They provide measurable data points for status inference.
+ *
+ * **Contract:**
+ * - Returns: Result<State> with new proxy appended
+ * - Validates: variableId exists, proxyId is unique, name is not empty
+ * - Pure function: does not mutate input state
+ */
+export function createProxy(
+  state: State,
+  params: CreateProxyParams,
+): Result<State> {
+  // Validate name is not empty
+  if (!params.name || params.name.trim().length === 0) {
+    return { ok: false, error: "Proxy name cannot be empty" };
+  }
+
+  // Validate variableId exists
+  const variableExists = state.variables.some(
+    (v) => v.id === params.variableId,
+  );
+  if (!variableExists) {
+    return {
+      ok: false,
+      error: `Variable with id '${params.variableId}' not found`,
+    };
+  }
+
+  // Check for duplicate proxy ID
+  if (state.proxies.some((p) => p.id === params.proxyId)) {
+    return {
+      ok: false,
+      error: `Proxy with id '${params.proxyId}' already exists`,
+    };
+  }
+
+  // For categorical proxies, validate categories are provided
+  if (params.valueType === "categorical") {
+    if (!params.categories || params.categories.length === 0) {
+      return {
+        ok: false,
+        error: "Categorical proxies must have at least one category",
+      };
+    }
+  }
+
+  const newProxy: Proxy = {
+    id: params.proxyId,
+    variableId: params.variableId,
+    name: params.name.trim(),
+    valueType: params.valueType,
+    ...(params.description ? { description: params.description.trim() } : {}),
+    ...(params.unit ? { unit: params.unit.trim() } : {}),
+    ...(params.categories ? { categories: params.categories } : {}),
+    ...(params.thresholds ? { thresholds: params.thresholds } : {}),
+  };
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      proxies: [...state.proxies, newProxy],
+    },
+  };
+}
+
+/**
+ * Updates an existing proxy.
+ *
+ * **Intent:** Allow modifying proxy metadata without deleting and recreating.
+ *
+ * **Contract:**
+ * - Returns: Result<State> with updated proxy
+ * - Validates: proxyId exists
+ * - Only provided fields are updated; others remain unchanged
+ * - Pure function: does not mutate input state
+ */
+export function updateProxy(
+  state: State,
+  params: UpdateProxyParams,
+): Result<State> {
+  const proxyIndex = state.proxies.findIndex((p) => p.id === params.proxyId);
+  if (proxyIndex === -1) {
+    return {
+      ok: false,
+      error: `Proxy with id '${params.proxyId}' not found`,
+    };
+  }
+
+  const existingProxy = state.proxies[proxyIndex];
+  if (!existingProxy) {
+    return {
+      ok: false,
+      error: `Proxy with id '${params.proxyId}' not found`,
+    };
+  }
+
+  // Validate name if provided
+  if (params.name !== undefined && params.name.trim().length === 0) {
+    return { ok: false, error: "Proxy name cannot be empty" };
+  }
+
+  const updatedProxy: Proxy = {
+    ...existingProxy,
+    ...(params.name !== undefined ? { name: params.name.trim() } : {}),
+    ...(params.description !== undefined
+      ? { description: params.description.trim() }
+      : {}),
+    ...(params.unit !== undefined ? { unit: params.unit.trim() } : {}),
+    ...(params.categories !== undefined
+      ? { categories: params.categories }
+      : {}),
+    ...(params.thresholds !== undefined
+      ? { thresholds: params.thresholds }
+      : {}),
+  };
+
+  const updatedProxies = [...state.proxies];
+  updatedProxies[proxyIndex] = updatedProxy;
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      proxies: updatedProxies,
+    },
+  };
+}
+
+/**
+ * Deletes a proxy.
+ *
+ * **Intent:** Remove a proxy that is no longer relevant.
+ * Also removes associated readings.
+ *
+ * **Contract:**
+ * - Returns: Result<State> with proxy and its readings removed
+ * - Validates: proxyId exists
+ * - Pure function: does not mutate input state
+ */
+export function deleteProxy(
+  state: State,
+  params: DeleteProxyParams,
+): Result<State> {
+  const proxyExists = state.proxies.some((p) => p.id === params.proxyId);
+  if (!proxyExists) {
+    return {
+      ok: false,
+      error: `Proxy with id '${params.proxyId}' not found`,
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      proxies: state.proxies.filter((p) => p.id !== params.proxyId),
+      proxyReadings: state.proxyReadings.filter(
+        (r) => r.proxyId !== params.proxyId,
+      ),
+    },
+  };
+}
+
+/**
+ * Logs a proxy reading.
+ *
+ * **Intent:** Record a timestamped measurement from a proxy.
+ * Readings are stored data for status inference.
+ *
+ * **Contract:**
+ * - Returns: Result<State> with new reading appended
+ * - Validates: proxyId exists, readingId is unique, value type matches proxy
+ * - Pure function: does not mutate input state
+ */
+export function logProxyReading(
+  state: State,
+  params: LogProxyReadingParams,
+): Result<State> {
+  // Validate proxyId exists
+  const proxy = state.proxies.find((p) => p.id === params.proxyId);
+  if (!proxy) {
+    return {
+      ok: false,
+      error: `Proxy with id '${params.proxyId}' not found`,
+    };
+  }
+
+  // Check for duplicate reading ID
+  if (state.proxyReadings.some((r) => r.id === params.readingId)) {
+    return {
+      ok: false,
+      error: `Reading with id '${params.readingId}' already exists`,
+    };
+  }
+
+  // Validate value type matches proxy type
+  if (params.value.type !== proxy.valueType) {
+    return {
+      ok: false,
+      error: `Value type '${params.value.type}' does not match proxy type '${proxy.valueType}'`,
+    };
+  }
+
+  // For categorical proxies, validate value is in allowed categories
+  if (
+    params.value.type === "categorical" &&
+    proxy.categories &&
+    !proxy.categories.includes(params.value.value)
+  ) {
+    return {
+      ok: false,
+      error: `Value '${params.value.value}' is not in allowed categories: ${proxy.categories.join(", ")}`,
+    };
+  }
+
+  const newReading: ProxyReading = {
+    id: params.readingId,
+    proxyId: params.proxyId,
+    value: params.value,
+    recordedAt: params.recordedAt,
+    ...(params.source ? { source: params.source } : {}),
+  };
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      proxyReadings: [...state.proxyReadings, newReading],
+    },
+  };
+}
+
+/**
+ * Gets all proxies for a Variable.
+ *
+ * **Intent:** Query proxies that inform a specific Variable.
+ *
+ * **Contract:**
+ * - Returns: Array of Proxy objects for the given variable
+ * - Pure function: does not mutate state
+ */
+export function getProxiesForVariable(
+  state: State,
+  variableId: string,
+): Proxy[] {
+  return state.proxies.filter((p) => p.variableId === variableId);
+}
+
+/**
+ * Gets recent readings for a proxy.
+ *
+ * **Intent:** Query recent measurements for status inference.
+ *
+ * **Contract:**
+ * - Returns: Array of ProxyReading objects sorted by recordedAt (newest first)
+ * - Optional limit parameter to cap results
+ * - Pure function: does not mutate state
+ */
+export function getRecentReadings(
+  state: State,
+  proxyId: string,
+  limit?: number,
+): ProxyReading[] {
+  const readings = state.proxyReadings
+    .filter((r) => r.proxyId === proxyId)
+    .sort(
+      (a, b) =>
+        new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime(),
+    );
+
+  return limit !== undefined ? readings.slice(0, limit) : readings;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

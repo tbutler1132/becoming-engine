@@ -116,6 +116,8 @@ const minimalStateArb: fc.Arbitrary<State> = fc.constant({
   models: [],
   links: [],
   exceptions: [],
+  proxies: [],
+  proxyReadings: [],
 });
 
 /** Generate a valid State with some content */
@@ -136,6 +138,8 @@ const validStateArb: fc.Arbitrary<State> = fc
             models: [],
             links: [],
             exceptions: [],
+            proxies: [],
+            proxyReadings: [],
           })),
       ),
   );
@@ -165,6 +169,8 @@ const stateWithActiveEpisodeArb: fc.Arbitrary<{
       models: [],
       links: [],
       exceptions: [],
+      proxies: [],
+      proxyReadings: [],
     },
     episodeId,
   }));
@@ -191,6 +197,8 @@ const stateWithMaxExploresArb: fc.Arbitrary<{ state: State; node: NodeRef }> =
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       },
       node,
     })),
@@ -230,6 +238,8 @@ const stateWithActiveStabilizeArb: fc.Arbitrary<{
       models: [],
       links: [],
       exceptions: [],
+      proxies: [],
+      proxyReadings: [],
     },
     node,
     variableId,
@@ -588,6 +598,8 @@ describe("Invariant: Episode Lifecycle Consistency", () => {
             models: [],
             links: [],
             exceptions: [],
+            proxies: [],
+            proxyReadings: [],
           };
 
           const result = closeEpisode(state, {

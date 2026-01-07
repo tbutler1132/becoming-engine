@@ -11,6 +11,11 @@ import type {
   ModelType,
   NodeType,
   NoteTag,
+  Proxy,
+  ProxyReading,
+  ProxyThresholds,
+  ProxyValue,
+  ProxyValueType,
   VariableStatus,
 } from "@libs/memory";
 import type { Result } from "@libs/shared";
@@ -610,5 +615,202 @@ export async function processNote(noteId: string): Promise<Result<void>> {
   }
   revalidatePath("/");
   revalidatePath(`/notes/${noteId}`);
+  return okVoid();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROXY OPERATIONS (MP14)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Input for creating a proxy.
+ */
+export interface CreateProxyInput {
+  variableId: string;
+  name: string;
+  valueType: ProxyValueType;
+  description?: string;
+  unit?: string;
+  categories?: string[];
+  thresholds?: ProxyThresholds;
+}
+
+/**
+ * Creates a new proxy for a Variable.
+ * Returns the new proxy ID on success.
+ */
+export async function createProxy(
+  input: CreateProxyInput
+): Promise<Result<string>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+  const proxyId = crypto.randomUUID();
+
+  const result = regulator.createProxy(state, {
+    proxyId,
+    variableId: input.variableId,
+    name: input.name,
+    valueType: input.valueType,
+    ...(input.description ? { description: input.description } : {}),
+    ...(input.unit ? { unit: input.unit } : {}),
+    ...(input.categories ? { categories: input.categories } : {}),
+    ...(input.thresholds ? { thresholds: input.thresholds } : {}),
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  revalidatePath(`/variables/${input.variableId}`);
+  return { ok: true, value: proxyId };
+}
+
+/**
+ * Deletes a proxy and its readings.
+ */
+export async function deleteProxy(proxyId: string): Promise<Result<void>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+
+  // Find the proxy to get variableId for revalidation
+  const proxy = state.proxies.find((p) => p.id === proxyId);
+  const variableId = proxy?.variableId;
+
+  const result = regulator.deleteProxy(state, { proxyId });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  if (variableId) {
+    revalidatePath(`/variables/${variableId}`);
+  }
+  return okVoid();
+}
+
+/**
+ * Input for logging a proxy reading.
+ */
+export interface LogReadingInput {
+  proxyId: string;
+  value: ProxyValue;
+  source?: string;
+}
+
+/**
+ * Logs a proxy reading.
+ * Returns the new reading ID on success.
+ */
+export async function logProxyReading(
+  input: LogReadingInput
+): Promise<Result<string>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+  const readingId = crypto.randomUUID();
+
+  // Find the proxy to get variableId for revalidation
+  const proxy = state.proxies.find((p) => p.id === input.proxyId);
+  const variableId = proxy?.variableId;
+
+  const result = regulator.logProxyReading(state, {
+    readingId,
+    proxyId: input.proxyId,
+    value: input.value,
+    recordedAt: new Date().toISOString(),
+    ...(input.source ? { source: input.source } : {}),
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  if (variableId) {
+    revalidatePath(`/variables/${variableId}`);
+  }
+  return { ok: true, value: readingId };
+}
+
+/**
+ * Gets all proxies for a Variable.
+ */
+export async function getProxiesForVariable(
+  variableId: string
+): Promise<Proxy[]> {
+  const store = createStore();
+  const regulator = new Regulator();
+  const state = await store.load();
+
+  return regulator.getProxiesForVariable(state, variableId);
+}
+
+/**
+ * Gets recent readings for a proxy.
+ */
+export async function getRecentReadings(
+  proxyId: string,
+  limit?: number
+): Promise<ProxyReading[]> {
+  const store = createStore();
+  const regulator = new Regulator();
+  const state = await store.load();
+
+  return regulator.getRecentReadings(state, proxyId, limit);
+}
+
+/**
+ * Signals a variable status change with a reason (for audit trail).
+ */
+export async function signalVariableWithReason(
+  variableId: string,
+  status: VariableStatus,
+  reason: string
+): Promise<Result<void>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+
+  const result = regulator.signal(state, {
+    node: DEFAULT_PERSONAL_NODE,
+    variableId,
+    status,
+    reason,
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  revalidatePath(`/variables/${variableId}`);
   return okVoid();
 }

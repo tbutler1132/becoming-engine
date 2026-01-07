@@ -60,6 +60,7 @@ export const NOTE_TAGS = [
   "pending_approval",
   "processed",
   "closure_note",
+  "audit",
 ] as const;
 
 /** The valid relation types for Links (typed relationships) */
@@ -85,6 +86,9 @@ export const SIGNAL_EVENT_TYPES = [
   "completion", // Node signals task completion
 ] as const;
 
+/** The valid proxy value types (what kind of data a proxy measures) */
+export const PROXY_VALUE_TYPES = ["numeric", "boolean", "categorical"] as const;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // REGULATORY LIMITS — Constraints that preserve viability
 // ═══════════════════════════════════════════════════════════════════════════
@@ -100,7 +104,7 @@ export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Current schema version — increment when State shape changes */
-export const SCHEMA_VERSION = 10 as const;
+export const SCHEMA_VERSION = 11 as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MEMBRANE — Exception tracking for constraint bypasses

@@ -23,6 +23,12 @@ import {
   deleteLink,
   logException,
   createVariable,
+  createProxy,
+  updateProxy,
+  deleteProxy,
+  logProxyReading,
+  getProxiesForVariable,
+  getRecentReadings,
 } from "./logic.js";
 import {
   DEFAULT_PERSONAL_NODE,
@@ -70,6 +76,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const personalVars = getVariablesByNode(state, DEFAULT_PERSONAL_NODE);
@@ -119,6 +127,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const personalActive = getActiveEpisodesByNode(
@@ -167,6 +177,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const count = countActiveExplores(state, DEFAULT_PERSONAL_NODE);
@@ -185,6 +197,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
@@ -210,6 +224,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = canStartExplore(state, DEFAULT_PERSONAL_NODE);
@@ -240,6 +256,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = canStartExplore(state, DEFAULT_ORG_NODE);
@@ -273,6 +291,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const policyTwo: RegulatorPolicyForNode = {
@@ -310,6 +330,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = canCreateAction(state, {
@@ -337,6 +359,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = canCreateAction(state, {
@@ -386,6 +410,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const openedAt = "2025-01-01T12:00:00.000Z";
@@ -421,6 +447,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const params = {
@@ -455,6 +483,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const params = {
@@ -489,6 +519,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const sameVariable = openEpisode(state, {
@@ -533,6 +565,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const closedAt = "2025-01-01T12:00:00.000Z";
@@ -587,6 +621,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = closeEpisode(state, {
@@ -613,6 +649,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = closeEpisode(state, {
@@ -646,6 +684,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = closeEpisode(state, {
@@ -678,6 +718,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = closeEpisode(state, {
@@ -710,6 +752,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = closeEpisode(state, {
@@ -742,6 +786,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       // Closing Explore without modelUpdates should fail
@@ -800,6 +846,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       // Closing Stabilize without modelUpdates should succeed
@@ -836,6 +884,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = applySignal(state, {
@@ -866,6 +916,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createAction(state, {
@@ -890,6 +942,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createAction(state, {
@@ -920,6 +974,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const wrongNode = createAction(state, {
@@ -951,6 +1007,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createAction(state, {
@@ -981,6 +1039,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createAction(state, {
@@ -1015,6 +1075,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = completeAction(state, { actionId: "a1" });
@@ -1036,6 +1098,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = completeAction(state, { actionId: "nonexistent" });
@@ -1061,6 +1125,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = completeAction(state, { actionId: "a1" });
@@ -1092,6 +1158,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = completeAction(state, { actionId: "a1" });
@@ -1115,6 +1183,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createModel(state, {
@@ -1146,6 +1216,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createModel(state, {
@@ -1175,6 +1247,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createModel(state, {
@@ -1199,6 +1273,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createModel(state, {
@@ -1220,6 +1296,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createModel(state, {
@@ -1245,6 +1323,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createModel(state, {
@@ -1273,6 +1353,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createModel(state, {
@@ -1305,6 +1387,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateModel(state, {
@@ -1337,6 +1421,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateModel(state, {
@@ -1366,6 +1452,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateModel(state, {
@@ -1393,6 +1481,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateModel(state, {
@@ -1422,6 +1512,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateModel(state, {
@@ -1448,6 +1540,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateModel(state, {
@@ -1470,6 +1564,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const createdAt = "2025-01-01T12:00:00.000Z";
@@ -1501,6 +1597,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createNote(state, {
@@ -1526,6 +1624,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createNote(state, {
@@ -1554,6 +1654,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createNote(state, {
@@ -1585,6 +1687,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createNote(state, {
@@ -1618,6 +1722,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = addNoteTag(state, {
@@ -1650,6 +1756,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = addNoteTag(state, {
@@ -1675,6 +1783,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = addNoteTag(state, {
@@ -1707,6 +1817,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = removeNoteTag(state, {
@@ -1739,6 +1851,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = removeNoteTag(state, {
@@ -1764,6 +1878,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = removeNoteTag(state, {
@@ -1796,6 +1912,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = addNoteLinkedObject(state, {
@@ -1829,6 +1947,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = addNoteLinkedObject(state, {
@@ -1863,6 +1983,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = addNoteLinkedObject(state, {
@@ -1888,6 +2010,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = addNoteLinkedObject(state, {
@@ -1918,6 +2042,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = addNoteLinkedObject(state, {
@@ -1950,6 +2076,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateNote(state, {
@@ -1980,6 +2108,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateNote(state, {
@@ -2010,6 +2140,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateNote(state, {
@@ -2040,6 +2172,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateNote(state, {
@@ -2074,6 +2208,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2115,6 +2251,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2152,6 +2290,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2187,6 +2327,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2221,6 +2363,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2251,6 +2395,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2283,6 +2429,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2315,6 +2463,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2347,6 +2497,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2379,6 +2531,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2412,6 +2566,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2445,6 +2601,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = updateEpisode(state, {
@@ -2481,6 +2639,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createLink(state, {
@@ -2527,6 +2687,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createLink(state, {
@@ -2566,6 +2728,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result1 = createLink(state, {
@@ -2604,6 +2768,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createLink(state, {
@@ -2636,6 +2802,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createLink(state, {
@@ -2669,6 +2837,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createLink(state, {
@@ -2709,6 +2879,8 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createLink(state, {
@@ -2741,6 +2913,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createLink(state, {
@@ -2773,6 +2947,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createLink(state, {
@@ -2833,6 +3009,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       // Link variable to episode
@@ -2895,6 +3073,8 @@ describe("Regulator Logic (Pure Functions)", () => {
           },
         ],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = deleteLink(state, { linkId: "l1" });
@@ -2918,6 +3098,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = deleteLink(state, { linkId: "nonexistent" });
@@ -2948,6 +3130,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = logException(state, {
@@ -2983,6 +3167,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = logException(state, {
@@ -3017,6 +3203,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = logException(state, {
@@ -3061,6 +3249,8 @@ describe("Regulator Logic (Pure Functions)", () => {
             createdAt: "2025-01-01T00:00:00.000Z",
           },
         ],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = logException(state, {
@@ -3091,6 +3281,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createVariable(state, {
@@ -3122,6 +3314,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createVariable(state, {
@@ -3147,6 +3341,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createVariable(state, {
@@ -3172,6 +3368,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createVariable(state, {
@@ -3204,6 +3402,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createVariable(state, {
@@ -3236,6 +3436,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createVariable(state, {
@@ -3268,6 +3470,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createVariable(state, {
@@ -3300,6 +3504,8 @@ describe("Regulator Logic (Pure Functions)", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
 
       const result = createVariable(state, {
@@ -3314,6 +3520,603 @@ describe("Regulator Logic (Pure Functions)", () => {
         expect(result.value.variables).toHaveLength(2);
         expect(result.value.variables[0]?.name).toBe("Agency");
         expect(result.value.variables[1]?.name).toBe("Runway");
+      }
+    });
+  });
+
+  // =========================================================================
+  // PROXY MANAGEMENT
+  // =========================================================================
+
+  describe("createProxy", () => {
+    it("creates a proxy with required fields", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[0],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [],
+        proxyReadings: [],
+      };
+
+      const result = createProxy(state, {
+        proxyId: "proxy-1",
+        variableId: "var-1",
+        name: "Sleep hours",
+        valueType: "numeric",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.proxies).toHaveLength(1);
+        expect(result.value.proxies[0]?.name).toBe("Sleep hours");
+        expect(result.value.proxies[0]?.valueType).toBe("numeric");
+      }
+    });
+
+    it("fails if variable does not exist", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [],
+        proxyReadings: [],
+      };
+
+      const result = createProxy(state, {
+        proxyId: "proxy-1",
+        variableId: "var-nonexistent",
+        name: "Sleep hours",
+        valueType: "numeric",
+      });
+
+      expect(result.ok).toBe(false);
+    });
+
+    it("fails with empty name", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[0],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [],
+        proxyReadings: [],
+      };
+
+      const result = createProxy(state, {
+        proxyId: "proxy-1",
+        variableId: "var-1",
+        name: "  ",
+        valueType: "numeric",
+      });
+
+      expect(result.ok).toBe(false);
+    });
+
+    it("fails with duplicate proxy ID", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[0],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [
+          {
+            id: "proxy-1",
+            variableId: "var-1",
+            name: "Existing Proxy",
+            valueType: "numeric",
+          },
+        ],
+        proxyReadings: [],
+      };
+
+      const result = createProxy(state, {
+        proxyId: "proxy-1",
+        variableId: "var-1",
+        name: "New Proxy",
+        valueType: "boolean",
+      });
+
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  describe("updateProxy", () => {
+    it("updates proxy name", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[0],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [
+          {
+            id: "proxy-1",
+            variableId: "var-1",
+            name: "Old Name",
+            valueType: "numeric",
+          },
+        ],
+        proxyReadings: [],
+      };
+
+      const result = updateProxy(state, {
+        proxyId: "proxy-1",
+        name: "New Name",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.proxies[0]?.name).toBe("New Name");
+      }
+    });
+
+    it("fails for non-existent proxy", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [],
+        proxyReadings: [],
+      };
+
+      const result = updateProxy(state, {
+        proxyId: "proxy-nonexistent",
+        name: "New Name",
+      });
+
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  describe("deleteProxy", () => {
+    it("deletes a proxy and its readings", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[0],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [
+          {
+            id: "proxy-1",
+            variableId: "var-1",
+            name: "Sleep Hours",
+            valueType: "numeric",
+          },
+        ],
+        proxyReadings: [
+          {
+            id: "reading-1",
+            proxyId: "proxy-1",
+            value: { type: "numeric", value: 7 },
+            recordedAt: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+      };
+
+      const result = deleteProxy(state, {
+        proxyId: "proxy-1",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.proxies).toHaveLength(0);
+        expect(result.value.proxyReadings).toHaveLength(0);
+      }
+    });
+
+    it("fails for non-existent proxy", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [],
+        proxyReadings: [],
+      };
+
+      const result = deleteProxy(state, {
+        proxyId: "proxy-nonexistent",
+      });
+
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  describe("logProxyReading", () => {
+    it("logs a numeric reading", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[0],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [
+          {
+            id: "proxy-1",
+            variableId: "var-1",
+            name: "Sleep Hours",
+            valueType: "numeric",
+          },
+        ],
+        proxyReadings: [],
+      };
+
+      const result = logProxyReading(state, {
+        readingId: "reading-1",
+        proxyId: "proxy-1",
+        value: { type: "numeric", value: 7.5 },
+        recordedAt: "2025-01-01T00:00:00.000Z",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.proxyReadings).toHaveLength(1);
+        expect(result.value.proxyReadings[0]?.value).toEqual({
+          type: "numeric",
+          value: 7.5,
+        });
+      }
+    });
+
+    it("fails for non-existent proxy", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [],
+        proxyReadings: [],
+      };
+
+      const result = logProxyReading(state, {
+        readingId: "reading-1",
+        proxyId: "proxy-nonexistent",
+        value: { type: "numeric", value: 7 },
+        recordedAt: "2025-01-01T00:00:00.000Z",
+      });
+
+      expect(result.ok).toBe(false);
+    });
+
+    it("fails with mismatched value type", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[0],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [
+          {
+            id: "proxy-1",
+            variableId: "var-1",
+            name: "Sleep Hours",
+            valueType: "numeric",
+          },
+        ],
+        proxyReadings: [],
+      };
+
+      const result = logProxyReading(state, {
+        readingId: "reading-1",
+        proxyId: "proxy-1",
+        value: { type: "boolean", value: true },
+        recordedAt: "2025-01-01T00:00:00.000Z",
+      });
+
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  describe("getProxiesForVariable", () => {
+    it("returns proxies for a variable", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[0],
+          },
+          {
+            id: "var-2",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Energy",
+            status: VARIABLE_STATUSES[0],
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [
+          {
+            id: "proxy-1",
+            variableId: "var-1",
+            name: "Sleep Hours",
+            valueType: "numeric",
+          },
+          {
+            id: "proxy-2",
+            variableId: "var-1",
+            name: "Sleep Quality Rating",
+            valueType: "categorical",
+          },
+          {
+            id: "proxy-3",
+            variableId: "var-2",
+            name: "Energy Level",
+            valueType: "numeric",
+          },
+        ],
+        proxyReadings: [],
+      };
+
+      const proxies = getProxiesForVariable(state, "var-1");
+      expect(proxies).toHaveLength(2);
+      expect(proxies[0]?.name).toBe("Sleep Hours");
+      expect(proxies[1]?.name).toBe("Sleep Quality Rating");
+    });
+  });
+
+  describe("getRecentReadings", () => {
+    it("returns readings sorted by timestamp (newest first)", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [
+          {
+            id: "proxy-1",
+            variableId: "var-1",
+            name: "Sleep Hours",
+            valueType: "numeric",
+          },
+        ],
+        proxyReadings: [
+          {
+            id: "reading-1",
+            proxyId: "proxy-1",
+            value: { type: "numeric", value: 6 },
+            recordedAt: "2025-01-01T00:00:00.000Z",
+          },
+          {
+            id: "reading-2",
+            proxyId: "proxy-1",
+            value: { type: "numeric", value: 8 },
+            recordedAt: "2025-01-03T00:00:00.000Z",
+          },
+          {
+            id: "reading-3",
+            proxyId: "proxy-1",
+            value: { type: "numeric", value: 7 },
+            recordedAt: "2025-01-02T00:00:00.000Z",
+          },
+        ],
+      };
+
+      const readings = getRecentReadings(state, "proxy-1");
+      expect(readings).toHaveLength(3);
+      expect(readings[0]?.id).toBe("reading-2"); // Newest
+      expect(readings[1]?.id).toBe("reading-3");
+      expect(readings[2]?.id).toBe("reading-1"); // Oldest
+    });
+
+    it("limits results when limit is provided", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [
+          {
+            id: "proxy-1",
+            variableId: "var-1",
+            name: "Sleep Hours",
+            valueType: "numeric",
+          },
+        ],
+        proxyReadings: [
+          {
+            id: "reading-1",
+            proxyId: "proxy-1",
+            value: { type: "numeric", value: 6 },
+            recordedAt: "2025-01-01T00:00:00.000Z",
+          },
+          {
+            id: "reading-2",
+            proxyId: "proxy-1",
+            value: { type: "numeric", value: 8 },
+            recordedAt: "2025-01-03T00:00:00.000Z",
+          },
+          {
+            id: "reading-3",
+            proxyId: "proxy-1",
+            value: { type: "numeric", value: 7 },
+            recordedAt: "2025-01-02T00:00:00.000Z",
+          },
+        ],
+      };
+
+      const readings = getRecentReadings(state, "proxy-1", 2);
+      expect(readings).toHaveLength(2);
+      expect(readings[0]?.id).toBe("reading-2");
+      expect(readings[1]?.id).toBe("reading-3");
+    });
+  });
+
+  describe("applySignal with audit trail", () => {
+    it("creates audit note when status changes", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[0], // Low
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [],
+        proxyReadings: [],
+      };
+
+      const result = applySignal(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        variableId: "var-1",
+        status: VARIABLE_STATUSES[1], // InRange
+        reason: "Sleep improved",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes).toHaveLength(1);
+        expect(result.value.notes[0]?.content).toContain("Low → InRange");
+        expect(result.value.notes[0]?.content).toContain("Sleep improved");
+        expect(result.value.notes[0]?.tags).toContain("audit");
+      }
+    });
+
+    it("does not create audit note when status unchanged", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [
+          {
+            id: "var-1",
+            node: DEFAULT_PERSONAL_NODE,
+            name: "Sleep Quality",
+            status: VARIABLE_STATUSES[1], // InRange
+          },
+        ],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+        proxies: [],
+        proxyReadings: [],
+      };
+
+      const result = applySignal(state, {
+        node: DEFAULT_PERSONAL_NODE,
+        variableId: "var-1",
+        status: VARIABLE_STATUSES[1], // Same status
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes).toHaveLength(0);
       }
     });
   });

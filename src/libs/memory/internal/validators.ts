@@ -21,6 +21,7 @@ import {
   NODE_TYPES,
   NOTE_TAGS,
   OVERRIDE_DECISIONS,
+  PROXY_VALUE_TYPES,
   VARIABLE_STATUSES,
 } from "../types.js";
 import type { NodeRef, NodeType } from "../types.js";
@@ -334,6 +335,87 @@ export function validateException(ex: unknown, modelIds: Set<string>): boolean {
   return true;
 }
 
+/** Validates a single proxy (requires variable IDs set for referential integrity) */
+export function validateProxy(p: unknown, variableIds: Set<string>): boolean {
+  if (typeof p !== "object" || p === null) return false;
+  const obj = p as Record<string, unknown>;
+
+  if (typeof obj.id !== "string") return false;
+  if (typeof obj.variableId !== "string") return false;
+  if (typeof obj.name !== "string") return false;
+  if (
+    typeof obj.valueType !== "string" ||
+    !isMember(PROXY_VALUE_TYPES, obj.valueType)
+  )
+    return false;
+
+  // Optional fields
+  if (obj.description !== undefined && typeof obj.description !== "string")
+    return false;
+  if (obj.unit !== undefined && typeof obj.unit !== "string") return false;
+  if (obj.categories !== undefined) {
+    if (!Array.isArray(obj.categories)) return false;
+    for (const cat of obj.categories) {
+      if (typeof cat !== "string") return false;
+    }
+  }
+  if (obj.thresholds !== undefined) {
+    if (typeof obj.thresholds !== "object" || obj.thresholds === null)
+      return false;
+    const thresholds = obj.thresholds as Record<string, unknown>;
+    if (
+      thresholds.lowBelow !== undefined &&
+      typeof thresholds.lowBelow !== "number"
+    )
+      return false;
+    if (
+      thresholds.highAbove !== undefined &&
+      typeof thresholds.highAbove !== "number"
+    )
+      return false;
+  }
+
+  // Referential integrity
+  if (!variableIds.has(obj.variableId)) return false;
+
+  return true;
+}
+
+/** Validates a single proxy reading */
+export function validateProxyReading(
+  r: unknown,
+  proxyIds: Set<string>,
+): boolean {
+  if (typeof r !== "object" || r === null) return false;
+  const obj = r as Record<string, unknown>;
+
+  if (typeof obj.id !== "string") return false;
+  if (typeof obj.proxyId !== "string") return false;
+  if (typeof obj.recordedAt !== "string") return false;
+
+  // Value must be a discriminated union
+  if (typeof obj.value !== "object" || obj.value === null) return false;
+  const value = obj.value as Record<string, unknown>;
+  if (typeof value.type !== "string") return false;
+  if (value.type === "numeric") {
+    if (typeof value.value !== "number") return false;
+  } else if (value.type === "boolean") {
+    if (typeof value.value !== "boolean") return false;
+  } else if (value.type === "categorical") {
+    if (typeof value.value !== "string") return false;
+  } else {
+    return false;
+  }
+
+  // Optional source
+  if (obj.source !== undefined && typeof obj.source !== "string") return false;
+
+  // Referential integrity
+  if (!proxyIds.has(obj.proxyId)) return false;
+
+  return true;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // COLLECTION VALIDATORS — Validate arrays with unique IDs
 // ═══════════════════════════════════════════════════════════════════════════
@@ -411,6 +493,10 @@ export interface StateSchema {
   hasLinks?: boolean;
   /** Whether exceptions array should exist */
   hasExceptions?: boolean;
+  /** Whether proxies array should exist */
+  hasProxies?: boolean;
+  /** Whether proxyReadings array should exist */
+  hasProxyReadings?: boolean;
 }
 
 /** Validates a state object against a schema */
@@ -439,6 +525,9 @@ export function validateStateAgainstSchema(
   if (schema.model !== undefined && !Array.isArray(obj.models)) return false;
   if (schema.hasLinks && !Array.isArray(obj.links)) return false;
   if (schema.hasExceptions && !Array.isArray(obj.exceptions)) return false;
+  if (schema.hasProxies && !Array.isArray(obj.proxies)) return false;
+  if (schema.hasProxyReadings && !Array.isArray(obj.proxyReadings))
+    return false;
 
   // Unique IDs
   if (!hasUniqueIds(obj.variables)) return false;
@@ -449,6 +538,10 @@ export function validateStateAgainstSchema(
     return false;
   if (schema.hasLinks && !hasUniqueIds(obj.links as unknown[])) return false;
   if (schema.hasExceptions && !hasUniqueIds(obj.exceptions as unknown[]))
+    return false;
+  if (schema.hasProxies && !hasUniqueIds(obj.proxies as unknown[]))
+    return false;
+  if (schema.hasProxyReadings && !hasUniqueIds(obj.proxyReadings as unknown[]))
     return false;
 
   // Action → Episode referential integrity
@@ -525,6 +618,24 @@ export function validateStateAgainstSchema(
       for (const ex of obj.exceptions as unknown[]) {
         if (!validateException(ex, modelIds)) return false;
       }
+    }
+  }
+
+  // Validate proxies if present
+  if (schema.hasProxies) {
+    const variableIds = collectIds(obj.variables);
+    for (const p of obj.proxies as unknown[]) {
+      if (!validateProxy(p, variableIds)) return false;
+    }
+  }
+
+  // Validate proxy readings if present
+  if (schema.hasProxyReadings) {
+    const proxyIds = schema.hasProxies
+      ? collectIds(obj.proxies as unknown[])
+      : new Set<string>();
+    for (const r of obj.proxyReadings as unknown[]) {
+      if (!validateProxyReading(r, proxyIds)) return false;
     }
   }
 

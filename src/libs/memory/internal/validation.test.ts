@@ -25,7 +25,9 @@ import {
   migrateV7ToV8,
   migrateV8ToV9,
   migrateV9ToV10,
+  migrateV10ToV11,
 } from "./migrations.js";
+import { validateProxy, validateProxyReading } from "./validators.js";
 import {
   SCHEMA_VERSION,
   ACTION_STATUSES,
@@ -85,6 +87,8 @@ function createValidStateV7(): unknown {
     models: [],
     links: [],
     exceptions: [],
+    proxies: [],
+    proxyReadings: [],
   };
 }
 
@@ -98,6 +102,8 @@ function createMinimalValidStateV7(): unknown {
     models: [],
     links: [],
     exceptions: [],
+    proxies: [],
+    proxyReadings: [],
   };
 }
 
@@ -345,6 +351,8 @@ describe("isValidState", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -366,6 +374,8 @@ describe("isValidState", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -387,6 +397,8 @@ describe("isValidState", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -633,6 +645,8 @@ describe("isValidState", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -654,6 +668,8 @@ describe("isValidState", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1439,6 +1455,8 @@ describe("isValidState - Model Validation", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1459,6 +1477,8 @@ describe("isValidState - Model Validation", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1482,6 +1502,8 @@ describe("isValidState - Model Validation", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1514,6 +1536,8 @@ describe("isValidState - Model Validation", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1541,6 +1565,8 @@ describe("isValidState - Model Validation", () => {
         ],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -1996,19 +2022,23 @@ describe("migrateV6ToV7", () => {
       notes: [{ id: "n1", content: "Note" }],
     };
 
-    const v10State = migrateV9ToV10(
-      migrateV8ToV9(
-        migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State)))),
+    const v11State = migrateV10ToV11(
+      migrateV9ToV10(
+        migrateV8ToV9(
+          migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State)))),
+        ),
       ),
     );
 
-    expect(v10State.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(v10State.models).toEqual([]);
-    expect(v10State.links).toEqual([]);
-    expect(v10State.exceptions).toEqual([]);
-    expect(v10State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
-    expect(v10State.notes[0]?.tags).toEqual([]);
-    expect(isValidState(v10State)).toBe(true);
+    expect(v11State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v11State.models).toEqual([]);
+    expect(v11State.links).toEqual([]);
+    expect(v11State.exceptions).toEqual([]);
+    expect(v11State.proxies).toEqual([]);
+    expect(v11State.proxyReadings).toEqual([]);
+    expect(v11State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
+    expect(v11State.notes[0]?.tags).toEqual([]);
+    expect(isValidState(v11State)).toBe(true);
   });
 });
 
@@ -2161,7 +2191,7 @@ describe("migrateV8ToV9", () => {
 // ============================================================================
 
 describe("migrateV9ToV10", () => {
-  it("sets schemaVersion to 10 (current)", () => {
+  it("sets schemaVersion to 10", () => {
     const v9State = {
       schemaVersion: 9 as const,
       variables: [
@@ -2189,17 +2219,23 @@ describe("migrateV9ToV10", () => {
 
     const v10State = migrateV9ToV10(v9State);
 
-    expect(v10State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v10State.schemaVersion).toBe(10);
     // Preserves existing data
     expect(v10State.variables).toEqual(v9State.variables);
     expect(v10State.notes).toEqual(v9State.notes);
     expect(v10State.links).toEqual(v9State.links);
     expect(v10State.exceptions).toEqual(v9State.exceptions);
   });
+});
 
-  it("produces valid current state", () => {
-    const v9State = {
-      schemaVersion: 9 as const,
+// ============================================================================
+// migrateV10ToV11 Tests
+// ============================================================================
+
+describe("migrateV10ToV11", () => {
+  it("sets schemaVersion to 11 (current) and adds empty proxy arrays", () => {
+    const v10State = {
+      schemaVersion: 10 as const,
       variables: [
         {
           id: "v1",
@@ -2223,9 +2259,47 @@ describe("migrateV9ToV10", () => {
       exceptions: [],
     };
 
-    const v10State = migrateV9ToV10(v9State);
+    const v11State = migrateV10ToV11(v10State);
 
-    expect(isValidState(v10State)).toBe(true);
+    expect(v11State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v11State.proxies).toEqual([]);
+    expect(v11State.proxyReadings).toEqual([]);
+    // Preserves existing data
+    expect(v11State.variables).toEqual(v10State.variables);
+    expect(v11State.notes).toEqual(v10State.notes);
+    expect(v11State.links).toEqual(v10State.links);
+    expect(v11State.exceptions).toEqual(v10State.exceptions);
+  });
+
+  it("produces valid current state", () => {
+    const v10State = {
+      schemaVersion: 10 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+      links: [],
+      exceptions: [],
+    };
+
+    const v11State = migrateV10ToV11(v10State);
+
+    expect(isValidState(v11State)).toBe(true);
   });
 });
 
@@ -2271,6 +2345,8 @@ describe("isValidState - Link Validation", () => {
         models: [],
         links: [],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -2305,6 +2381,8 @@ describe("isValidState - Link Validation", () => {
           },
         ],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -2334,6 +2412,8 @@ describe("isValidState - Link Validation", () => {
           },
         ],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -2370,6 +2450,8 @@ describe("isValidState - Link Validation", () => {
           },
         ],
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -2396,6 +2478,8 @@ describe("isValidState - Link Validation", () => {
           relation,
         })),
         exceptions: [],
+        proxies: [],
+        proxyReadings: [],
       };
       expect(isValidState(state)).toBe(true);
     });
@@ -2903,6 +2987,8 @@ describe("State Schema Snapshot", () => {
       models: [],
       links: [],
       exceptions: [],
+      proxies: [],
+      proxyReadings: [],
     };
 
     expect(isValidState(validState)).toBe(true);
@@ -2914,6 +3000,8 @@ describe("State Schema Snapshot", () => {
         "links",
         "models",
         "notes",
+        "proxies",
+        "proxyReadings",
         "schemaVersion",
         "variables",
       ]
@@ -2967,5 +3055,312 @@ describe("State Schema Snapshot", () => {
         "type",
       ]
     `);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROXY VALIDATION TESTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("validateProxy", () => {
+  const variableIds = new Set(["var-1"]);
+
+  it("validates a minimal proxy", () => {
+    const proxy = {
+      id: "proxy-1",
+      variableId: "var-1",
+      name: "Sleep Hours",
+      valueType: "numeric",
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(true);
+  });
+
+  it("rejects non-object", () => {
+    expect(validateProxy(null, variableIds)).toBe(false);
+    expect(validateProxy("string", variableIds)).toBe(false);
+  });
+
+  it("rejects missing id", () => {
+    const proxy = { variableId: "var-1", name: "Test", valueType: "numeric" };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects missing variableId", () => {
+    const proxy = { id: "p1", name: "Test", valueType: "numeric" };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects missing name", () => {
+    const proxy = { id: "p1", variableId: "var-1", valueType: "numeric" };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects invalid valueType", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "var-1",
+      name: "Test",
+      valueType: "invalid",
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects non-string description", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "var-1",
+      name: "Test",
+      valueType: "numeric",
+      description: 123,
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects non-string unit", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "var-1",
+      name: "Test",
+      valueType: "numeric",
+      unit: 123,
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects non-array categories", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "var-1",
+      name: "Test",
+      valueType: "categorical",
+      categories: "not-an-array",
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects non-string category", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "var-1",
+      name: "Test",
+      valueType: "categorical",
+      categories: ["good", 123],
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects non-object thresholds", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "var-1",
+      name: "Test",
+      valueType: "numeric",
+      thresholds: "invalid",
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects non-number lowBelow threshold", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "var-1",
+      name: "Test",
+      valueType: "numeric",
+      thresholds: { lowBelow: "5" },
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects non-number highAbove threshold", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "var-1",
+      name: "Test",
+      valueType: "numeric",
+      thresholds: { highAbove: "10" },
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("rejects proxy with nonexistent variableId", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "nonexistent",
+      name: "Test",
+      valueType: "numeric",
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(false);
+  });
+
+  it("accepts proxy with all optional fields", () => {
+    const proxy = {
+      id: "p1",
+      variableId: "var-1",
+      name: "Test",
+      valueType: "categorical",
+      description: "A description",
+      unit: "status",
+      categories: ["good", "bad"],
+      thresholds: { lowBelow: 5, highAbove: 10 },
+    };
+    expect(validateProxy(proxy, variableIds)).toBe(true);
+  });
+});
+
+describe("validateProxyReading", () => {
+  const proxyIds = new Set(["proxy-1"]);
+
+  it("validates a numeric reading", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "numeric", value: 7 },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(true);
+  });
+
+  it("validates a boolean reading", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "boolean", value: true },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(true);
+  });
+
+  it("validates a categorical reading", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "categorical", value: "good" },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(true);
+  });
+
+  it("rejects non-object", () => {
+    expect(validateProxyReading(null, proxyIds)).toBe(false);
+    expect(validateProxyReading("string", proxyIds)).toBe(false);
+  });
+
+  it("rejects missing id", () => {
+    const reading = {
+      proxyId: "proxy-1",
+      value: { type: "numeric", value: 7 },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects missing proxyId", () => {
+    const reading = {
+      id: "r1",
+      value: { type: "numeric", value: 7 },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects missing recordedAt", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "numeric", value: 7 },
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects non-object value", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: 7,
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects value without type", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { value: 7 },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects unknown value type", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "unknown", value: 7 },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects numeric value with non-number", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "numeric", value: "7" },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects boolean value with non-boolean", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "boolean", value: "true" },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects categorical value with non-string", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "categorical", value: 123 },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects non-string source", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "numeric", value: 7 },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+      source: 123,
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("rejects reading with nonexistent proxyId", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "nonexistent",
+      value: { type: "numeric", value: 7 },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(false);
+  });
+
+  it("accepts reading with optional source", () => {
+    const reading = {
+      id: "r1",
+      proxyId: "proxy-1",
+      value: { type: "numeric", value: 7 },
+      recordedAt: "2025-01-01T00:00:00.000Z",
+      source: "manual",
+    };
+    expect(validateProxyReading(reading, proxyIds)).toBe(true);
   });
 });
