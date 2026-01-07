@@ -3,6 +3,7 @@
 
 import type { State, Variable, NodeRef } from "../memory/index.js";
 import type {
+  AddNoteLinkedObjectParams,
   AddNoteTagParams,
   CloseEpisodeParams,
   CompleteActionParams,
@@ -304,6 +305,32 @@ export class Regulator {
       );
     } else {
       this.logger.warn(`Remove tag failed: ${result.error}`);
+    }
+    return result;
+  }
+
+  /**
+   * Adds a linked object to an existing note.
+   *
+   * **Intent:** Enables Zettelkasten-style connections between notes and
+   * regulated objects (Variables, Episodes, Models).
+   *
+   * **Contract:**
+   * - Returns: Result<State> with updated state if successful
+   * - Idempotent: if object already linked, returns success with unchanged state
+   * - Error handling: Returns error if note not found or objectId empty
+   */
+  addNoteLinkedObject(
+    state: State,
+    params: AddNoteLinkedObjectParams,
+  ): Result<State> {
+    const result = logic.addNoteLinkedObject(state, params);
+    if (result.ok) {
+      this.logger.info(
+        `Object '${params.objectId}' linked to note ${params.noteId}`,
+      );
+    } else {
+      this.logger.warn(`Link object failed: ${result.error}`);
     }
     return result;
   }

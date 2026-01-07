@@ -21,6 +21,7 @@ import type {
   VariableStatus,
 } from "../memory/index.js";
 import type {
+  AddNoteLinkedObjectParams,
   AddNoteTagParams,
   CloseEpisodeParams,
   ClosureNote,
@@ -900,6 +901,53 @@ export function removeNoteTag(
   const updatedNotes = state.notes.map((n) =>
     n.id === params.noteId
       ? { ...n, tags: n.tags.filter((t) => t !== params.tag) }
+      : n,
+  );
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      notes: updatedNotes,
+    },
+  };
+}
+
+/**
+ * Adds a linked object to an existing note.
+ * Pure function: does not mutate input state.
+ * Idempotent: adding an already-linked object succeeds with same state.
+ *
+ * @param state - Current state
+ * @param params - AddNoteLinkedObjectParams with noteId and objectId
+ * @returns Result<State> with updated note or error
+ */
+export function addNoteLinkedObject(
+  state: State,
+  params: AddNoteLinkedObjectParams,
+): Result<State> {
+  // Find the note
+  const note = state.notes.find((n) => n.id === params.noteId);
+  if (!note) {
+    return { ok: false, error: `Note with id '${params.noteId}' not found` };
+  }
+
+  // Validate objectId is not empty
+  if (!params.objectId || params.objectId.trim().length === 0) {
+    return { ok: false, error: "Object ID cannot be empty" };
+  }
+
+  const currentLinkedObjects = note.linkedObjects ?? [];
+
+  // Idempotent: if already linked, return success with same state
+  if (currentLinkedObjects.includes(params.objectId)) {
+    return { ok: true, value: state };
+  }
+
+  // Add the linked object
+  const updatedNotes = state.notes.map((n) =>
+    n.id === params.noteId
+      ? { ...n, linkedObjects: [...currentLinkedObjects, params.objectId] }
       : n,
   );
 

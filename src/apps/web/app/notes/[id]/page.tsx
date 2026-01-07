@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { NOTE_TAGS } from "@libs/memory";
+import { NOTE_TAGS, MODEL_TYPES } from "@libs/memory";
 import { createStore } from "@/lib/store";
 import { NoteEditor } from "./NoteEditor";
+import { NoteProcessingActions } from "./NoteProcessingActions";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -19,6 +20,12 @@ export default async function NotePage({
   if (!note) {
     notFound();
   }
+
+  // Get variables for linking
+  const variables = state.variables.map((v) => ({
+    id: v.id,
+    name: v.name,
+  }));
 
   return (
     <main
@@ -48,8 +55,24 @@ export default async function NotePage({
         createdAt={note.createdAt}
       />
 
+      <NoteProcessingActions
+        noteId={note.id}
+        noteContent={note.content}
+        isInbox={note.tags.includes("inbox")}
+        modelTypes={MODEL_TYPES}
+        variables={variables}
+        linkedObjectIds={note.linkedObjects ?? []}
+      />
+
       {note.linkedObjects && note.linkedObjects.length > 0 && (
-        <section>
+        <section
+          style={{
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+            padding: "1.5rem",
+            marginBottom: "1.5rem",
+          }}
+        >
           <h2
             style={{
               fontSize: "0.75rem",
@@ -59,23 +82,29 @@ export default async function NotePage({
               marginBottom: "1rem",
             }}
           >
-            Linked Objects
+            Linked Variables
           </h2>
-          {note.linkedObjects.map((objectId) => (
-            <div
-              key={objectId}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                padding: "1rem",
-                marginBottom: "0.5rem",
-                fontFamily: "monospace",
-                fontSize: "0.875rem",
-              }}
-            >
-              {objectId}
-            </div>
-          ))}
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            {note.linkedObjects.map((objectId) => {
+              const variable = variables.find((v) => v.id === objectId);
+              return (
+                <Link
+                  key={objectId}
+                  href={`/variables/${objectId}`}
+                  style={{
+                    padding: "0.5rem 1rem",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    fontSize: "0.875rem",
+                    color: "inherit",
+                    textDecoration: "none",
+                  }}
+                >
+                  {variable?.name ?? objectId}
+                </Link>
+              );
+            })}
+          </div>
         </section>
       )}
     </main>

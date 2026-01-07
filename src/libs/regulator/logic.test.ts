@@ -17,6 +17,7 @@ import {
   createNote,
   addNoteTag,
   removeNoteTag,
+  addNoteLinkedObject,
   updateNote,
   createLink,
   deleteLink,
@@ -1773,6 +1774,160 @@ describe("Regulator Logic (Pure Functions)", () => {
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain("not found");
+      }
+    });
+  });
+
+  describe("addNoteLinkedObject", () => {
+    it("adds a linked object to an existing note", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+          },
+        ],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = addNoteLinkedObject(state, {
+        noteId: "n1",
+        objectId: "var-1",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes[0]?.linkedObjects).toEqual(["var-1"]);
+        // Original state unchanged
+        expect(state.notes[0]?.linkedObjects).toBeUndefined();
+      }
+    });
+
+    it("adds to existing linkedObjects array", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+            linkedObjects: ["var-1"],
+          },
+        ],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = addNoteLinkedObject(state, {
+        noteId: "n1",
+        objectId: "var-2",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.notes[0]?.linkedObjects).toEqual([
+          "var-1",
+          "var-2",
+        ]);
+      }
+    });
+
+    it("is idempotent - adding already-linked object returns success", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+            linkedObjects: ["var-1"],
+          },
+        ],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = addNoteLinkedObject(state, {
+        noteId: "n1",
+        objectId: "var-1",
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // State unchanged (same reference)
+        expect(result.value).toBe(state);
+        expect(result.value.notes[0]?.linkedObjects).toEqual(["var-1"]);
+      }
+    });
+
+    it("fails on non-existent note", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = addNoteLinkedObject(state, {
+        noteId: "nonexistent",
+        objectId: "var-1",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("not found");
+      }
+    });
+
+    it("fails on empty objectId", () => {
+      const state: State = {
+        schemaVersion: SCHEMA_VERSION,
+        variables: [],
+        episodes: [],
+        actions: [],
+        notes: [
+          {
+            id: "n1",
+            content: "Test note",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            tags: [],
+          },
+        ],
+        models: [],
+        links: [],
+        exceptions: [],
+      };
+
+      const result = addNoteLinkedObject(state, {
+        noteId: "n1",
+        objectId: "",
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain("empty");
       }
     });
   });

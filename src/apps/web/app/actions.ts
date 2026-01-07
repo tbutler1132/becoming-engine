@@ -7,6 +7,7 @@ import { Regulator } from "@libs/regulator";
 import type {
   EpisodeType,
   MeasurementCadence,
+  ModelScope,
   ModelType,
   NodeType,
   NoteTag,
@@ -491,4 +492,123 @@ export async function getVariables(): Promise<VariableOption[]> {
     id: v.id,
     name: v.name,
   }));
+}
+
+/**
+ * Creates a new model (explicit belief).
+ * Returns the new model ID on success.
+ */
+export async function createModel(
+  type: ModelType,
+  statement: string,
+  confidence?: number,
+  scope?: ModelScope
+): Promise<Result<string>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+  const modelId = crypto.randomUUID();
+
+  const result = regulator.createModel(state, {
+    modelId,
+    type,
+    statement,
+    ...(confidence !== undefined ? { confidence } : {}),
+    ...(scope !== undefined ? { scope } : {}),
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  return { ok: true, value: modelId };
+}
+
+/**
+ * Links a note to an object (e.g., a Variable).
+ * Enables Zettelkasten-style connections between notes and regulated objects.
+ */
+export async function linkNoteToObject(
+  noteId: string,
+  objectId: string
+): Promise<Result<void>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  const state = await store.load();
+
+  const result = regulator.addNoteLinkedObject(state, {
+    noteId,
+    objectId,
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  try {
+    await store.save(result.value);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  revalidatePath(`/notes/${noteId}`);
+  return okVoid();
+}
+
+/**
+ * Processes a note by removing inbox tag and adding processed tag.
+ * This is the explicit "I've reviewed this" action.
+ */
+export async function processNote(noteId: string): Promise<Result<void>> {
+  const store = createStore();
+  const regulator = new Regulator();
+
+  let state = await store.load();
+
+  // Find the note to check current tags
+  const note = state.notes.find((n) => n.id === noteId);
+  if (!note) {
+    return { ok: false, error: `Note with id '${noteId}' not found` };
+  }
+
+  // Remove inbox tag if present
+  if (note.tags.includes("inbox")) {
+    const removeResult = regulator.removeNoteTag(state, {
+      noteId,
+      tag: "inbox",
+    });
+    if (!removeResult.ok) {
+      return { ok: false, error: removeResult.error };
+    }
+    state = removeResult.value;
+  }
+
+  // Add processed tag if not already present
+  if (!note.tags.includes("processed")) {
+    const addResult = regulator.addNoteTag(state, {
+      noteId,
+      tag: "processed",
+    });
+    if (!addResult.ok) {
+      return { ok: false, error: addResult.error };
+    }
+    state = addResult.value;
+  }
+
+  try {
+    await store.save(state);
+  } catch (error: unknown) {
+    return { ok: false, error: getErrorMessage(error) };
+  }
+  revalidatePath("/");
+  revalidatePath(`/notes/${noteId}`);
+  return okVoid();
 }

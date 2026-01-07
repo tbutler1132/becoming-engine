@@ -267,6 +267,17 @@ export interface UpdateNoteParams {
 }
 
 /**
+ * Parameters for adding a linked object to an existing note.
+ * Idempotent: adding an already-linked object succeeds.
+ */
+export interface AddNoteLinkedObjectParams {
+  /** The note to link from */
+  noteId: string;
+  /** The object ID to link to (e.g., a Variable ID) */
+  objectId: string;
+}
+
+/**
  * Parameters for creating a link between two objects.
  * Links represent typed relationships with optional weights.
  */

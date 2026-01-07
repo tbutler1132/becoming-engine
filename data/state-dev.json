@@ -194,7 +194,11 @@
       "id": "f8bea0cd-22e6-4021-9f5e-f79d9324477e",
       "content": "Just added another note",
       "createdAt": "2026-01-06T19:09:10.192Z",
-      "tags": ["inbox"]
+      "tags": ["inbox"],
+      "linkedObjects": [
+        "f4c4fc76-97fb-443b-9f7a-de4c5f7720f3",
+        "687aa7d3-7095-40c8-b629-f6e1ebcaaa84"
+      ]
     },
     {
       "id": "71a45cb8-79cb-4636-ad7f-13ca6202faca",
@@ -224,13 +228,19 @@
       "id": "3f090f93-696a-4358-a7ea-19edab5171a1",
       "content": "I am the goat",
       "createdAt": "2026-01-06T23:57:44.494Z",
-      "tags": ["inbox"]
+      "tags": ["processed"]
     },
     {
       "id": "43f5f8bc-ddec-474f-a53e-e73dba76df2c",
       "content": "I am an ant",
       "createdAt": "2026-01-06T23:57:52.154Z",
-      "tags": ["inbox"]
+      "tags": ["processed"]
+    },
+    {
+      "id": "0d4fcf1f-c7d9-4ee9-8c0e-f178ff052c2b",
+      "content": "I like dirty ear",
+      "createdAt": "2026-01-07T00:20:28.745Z",
+      "tags": ["processed"]
     }
   ],
   "models": [
