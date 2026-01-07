@@ -219,6 +219,18 @@
       "content": "Ear",
       "createdAt": "2026-01-06T22:01:33.608Z",
       "tags": ["closure_note"]
+    },
+    {
+      "id": "3f090f93-696a-4358-a7ea-19edab5171a1",
+      "content": "I am the goat",
+      "createdAt": "2026-01-06T23:57:44.494Z",
+      "tags": ["inbox"]
+    },
+    {
+      "id": "43f5f8bc-ddec-474f-a53e-e73dba76df2c",
+      "content": "I am an ant",
+      "createdAt": "2026-01-06T23:57:52.154Z",
+      "tags": ["inbox"]
     }
   ],
   "models": [

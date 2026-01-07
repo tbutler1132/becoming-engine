@@ -4,6 +4,7 @@ import { getStatusData } from "@libs/regulator";
 import type { Variable, Episode } from "@libs/memory";
 import { createStore } from "@/lib/store";
 import { OpenExploreForm } from "./OpenExploreForm";
+import { QuickCapture } from "./QuickCapture";
 
 export default async function StatusLensPage(): Promise<React.ReactNode> {
   const store = createStore();
@@ -23,6 +24,9 @@ export default async function StatusLensPage(): Promise<React.ReactNode> {
   // Find active Explore episode (there should be at most one active)
   const activeExplore = activeEpisodes.find((e) => e.type === "Explore");
 
+  // Count inbox notes for visibility
+  const inboxCount = state.notes.filter((n) => n.tags.includes("inbox")).length;
+
   // Get active Stabilize episodes indexed by variableId
   const stabilizeByVariable = new Map<string, Episode>();
   for (const episode of activeEpisodes) {
@@ -41,9 +45,28 @@ export default async function StatusLensPage(): Promise<React.ReactNode> {
     >
       <header style={{ marginBottom: "2rem" }}>
         <h1 style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>Status</h1>
-        <p style={{ fontSize: "0.875rem", color: "#666" }}>
-          {formatNodeRef(DEFAULT_PERSONAL_NODE)}
-        </p>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            fontSize: "0.875rem",
+            color: "#666",
+          }}
+        >
+          <span>{formatNodeRef(DEFAULT_PERSONAL_NODE)}</span>
+          {inboxCount > 0 && (
+            <Link
+              href="/lenses/world-model"
+              style={{
+                color: "#666",
+                textDecoration: "none",
+              }}
+            >
+              {inboxCount} {inboxCount === 1 ? "note" : "notes"} in inbox
+            </Link>
+          )}
+        </div>
       </header>
 
       {activeExplore ? (
@@ -94,6 +117,11 @@ export default async function StatusLensPage(): Promise<React.ReactNode> {
           + Add Variable
         </Link>
       </section>
+
+      {/* Bottom padding to account for fixed QuickCapture */}
+      <div style={{ height: "5rem" }} />
+
+      <QuickCapture />
     </main>
   );
 }

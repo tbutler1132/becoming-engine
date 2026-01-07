@@ -6,8 +6,10 @@ export default async function WorldModelLensPage(): Promise<React.ReactNode> {
   const store = createStore();
   const state = await store.load();
 
-  // Get inbox notes
-  const inboxNotes = state.notes.filter((note) => note.tags.includes("inbox"));
+  // Get inbox notes, sorted newest first
+  const inboxNotes = state.notes
+    .filter((note) => note.tags.includes("inbox"))
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
     <main
