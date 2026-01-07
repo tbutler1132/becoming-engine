@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "format": "prettier -w .",
     "format:check": "prettier -c .",
-    "check": "npm test && npx tsc --noEmit && npm run lint && npm run format:check",
+    "check": "npm run test:coverage && npx tsc --noEmit && npm run lint && npm run format:check",
     "becoming": "tsx src/apps/cli/cli.ts",
     "becoming:status": "tsx src/apps/cli/cli.ts status",
     "becoming:test": "BECOMING_ENV=dev tsx src/apps/cli/cli.ts",

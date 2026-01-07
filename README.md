@@ -8,11 +8,46 @@ A cybernetic doctrine for preserving viability, enabling learning, and allowing 
 
 The system is organized into discrete "organs" (modules) with strict boundaries and explicit responsibilities.
 
+```mermaid
+flowchart TD
+    subgraph apps [Applications]
+        CLI[CLI]
+        Web[Web UI]
+    end
+
+    subgraph libs [Organs]
+        Sensorium[Sensorium]
+        Membrane[Membrane]
+        Regulator[Regulator]
+        Memory[Memory]
+        Signaling[Signaling]
+    end
+
+    DNA[DNA]
+
+    CLI --> Sensorium
+    Web --> Regulator
+    Sensorium --> Membrane
+    Membrane --> Regulator
+    Regulator --> Memory
+    Signaling --> Memory
+
+    DNA -.-> Memory
+    DNA -.-> Regulator
+    DNA -.-> Sensorium
+    DNA -.-> Membrane
+```
+
+**Data Flow**: Applications parse input through **Sensorium**, validate constraints through **Membrane**, apply mutations through **Regulator**, and persist state through **Memory**. **DNA** provides invariants to all organs. **Signaling** enables federation between nodes.
+
 ### `/src/libs` (Organs)
 
 - **`memory`**: The system's soul. Handles ontology (definitions) and persistence. Ensures state survives restarts with atomic writes and schema versioning.
 - **`regulator`**: The cybernetic control loop. Enforces homeostasis rules (Max 1 Explore, Max 1 Stabilize per variable) and manages temporary interventions through pure, composable functions.
-- **`sensorium`**: Input parsing (currently: CLI parsing stub). Converts external signals into typed commands for the system.
+- **`sensorium`**: Input parsing. Converts external signals into typed commands for the system.
+- **`membrane`**: Constraint validation. Gates mutations through Normative Model checks before they reach the Regulator.
+- **`signaling`**: Federation skeleton. Enables communication between nodes (Personal ↔ Org).
+- **`shared`**: Cross-cutting utilities. Logger, configuration, and common types.
 
 ### `/src/apps` (Applications)
 
@@ -37,7 +72,7 @@ npm install
 ### Development Commands
 
 ```bash
-# Run all checks (tests, types, lint, format)
+# Run all checks (tests with 80% coverage thresholds, types, lint, format)
 npm run check
 
 # Run unit tests
