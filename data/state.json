@@ -106,7 +106,7 @@
     {
       "id": "40b8c7eb-a067-4ee5-b030-d72b4daaebb5",
       "description": "Go to pharmatrix",
-      "status": "Pending",
+      "status": "Done",
       "episodeId": "54c01e7a-36fa-45bd-b2c3-45cf31294a79"
     },
     {
@@ -114,6 +114,12 @@
       "description": "Use the system for real for the rest of the week",
       "status": "Pending",
       "episodeId": "2b38a17d-95fa-4bd9-af90-c09595cb9fca"
+    },
+    {
+      "id": "f10ddf1d-9c0b-470b-be58-3b35f417a222",
+      "description": "Go out to eat at restaurant",
+      "status": "Pending",
+      "episodeId": "54c01e7a-36fa-45bd-b2c3-45cf31294a79"
     }
   ],
   "notes": [
@@ -133,13 +139,13 @@
       "id": "41e2537a-4452-48e0-859c-3f8b6a3c7c12",
       "content": "Need better Nav, Close out Actions, Autopopulate inbox tag",
       "createdAt": "2026-01-06T19:30:08.272Z",
-      "tags": ["inbox"]
+      "tags": ["processed"]
     },
     {
       "id": "1ce85335-c7bb-4ed1-8bbd-f6db24ea4bfd",
       "content": "Ability to configure Variables",
       "createdAt": "2026-01-06T19:30:52.936Z",
-      "tags": ["inbox"]
+      "tags": ["processed"]
     }
   ],
   "models": [],
