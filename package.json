@@ -22,7 +22,10 @@
     "viewer": "npx --yes serve . -l 3000 --config src/apps/viewer/serve.json",
     "prepare": "husky",
     "dev:web": "cd src/apps/web && npm run dev",
-    "dev:web:test": "cd src/apps/web && BECOMING_ENV=dev npx next dev --webpack --port 3001"
+    "dev:web:test": "cd src/apps/web && BECOMING_ENV=dev npx next dev --webpack --port 3001",
+    "membrane:server": "tsx src/apps/membrane/server/ws-server.ts",
+    "membrane:client": "vite src/apps/membrane --config src/apps/membrane/vite.config.ts",
+    "membrane": "concurrently \"npm run membrane:server\" \"npm run membrane:client\""
   },
   "keywords": [],
   "author": "",
@@ -32,7 +35,9 @@
     "@eslint/js": "^9.39.2",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^25.0.3",
+    "@types/ws": "^8.18.1",
     "@vitest/coverage-v8": "^4.0.16",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
@@ -43,10 +48,13 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.51.0",
+    "vite": "^7.3.0",
     "vitest": "^4.0.16"
   },
   "dependencies": {
-    "fs-extra": "^11.3.3"
+    "chokidar": "^5.0.0",
+    "fs-extra": "^11.3.3",
+    "ws": "^8.19.0"
   },
   "lint-staged": {
     "*.{ts,js}": [

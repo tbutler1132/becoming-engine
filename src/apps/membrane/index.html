@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membrane — Codebase Visualization</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0f172a; /* Dark slate */
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+
+      #canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      #status {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-family: ui-monospace, monospace;
+        z-index: 100;
+      }
+
+      #status.connected {
+        color: #0d9488; /* Teal */
+      }
+
+      #status.error {
+        color: #f87171; /* Red */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status">Connecting...</div>
+    <canvas id="canvas"></canvas>
+    <script type="module" src="/client/main.ts"></script>
+  </body>
+</html>
+
