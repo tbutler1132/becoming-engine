@@ -222,6 +222,7 @@ This roadmap describes **small, composable micro-projects** that move the system
 - Extend `ProceduralModel` with: `automationLevel` (0/1/2), `trigger`, `chain`
 - Create `src/libs/executor/*` — execution engine for Procedural Models
 - Approval queue: Level 0 drafts, Level 1 queues, Level 2 auto-executes
+- **Inbox Proxy Extraction**: Sensorium scans `inbox`-tagged Notes, extracts structured proxy readings via AI/NLP, logs them with `source: "inbox:note-{noteId}"` for audit trail. Follows same Level 0/1/2 approval patterns (suggest → confirm → auto).
 
 **Invariants**
 
@@ -305,6 +306,8 @@ A web visualization rendering the codebase as a living organism — self-discove
 ### AI-Assisted Capture
 
 LLM-powered layer converting unstructured input into structured Observations. The AI proposes, human confirms.
+
+Related: MP-AUTO's Inbox Proxy Extraction is a specific application of this pattern — extracting structured proxy readings from freeform Notes. The general AI-Assisted Capture could extend this to other observation types (episode proposals, variable signals, etc.).
 
 ### AI-Assisted Plugin Generation
 
