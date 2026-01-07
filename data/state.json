@@ -78,7 +78,7 @@
         "id": "personal"
       },
       "type": "Explore",
-      "objective": "Assess what a software MVP of the system would do",
+      "objective": "Assess what a software MVP of the system could do",
       "status": "Active",
       "openedAt": "2026-01-04T02:20:19.085Z",
       "timeboxDays": 7
@@ -120,6 +120,18 @@
       "description": "Go out to eat at restaurant",
       "status": "Pending",
       "episodeId": "54c01e7a-36fa-45bd-b2c3-45cf31294a79"
+    },
+    {
+      "id": "e55fc62c-ad7f-42b2-a382-1cf0df9da8a0",
+      "description": "Set up Proxies",
+      "status": "Pending",
+      "episodeId": "2b38a17d-95fa-4bd9-af90-c09595cb9fca"
+    },
+    {
+      "id": "07e95dd4-5c60-48b6-871f-63d10bb452a6",
+      "description": "Fix some dark mode bugs",
+      "status": "Pending",
+      "episodeId": "2b38a17d-95fa-4bd9-af90-c09595cb9fca"
     }
   ],
   "notes": [
@@ -146,6 +158,12 @@
       "content": "Ability to configure Variables",
       "createdAt": "2026-01-06T19:30:52.936Z",
       "tags": ["processed"]
+    },
+    {
+      "id": "a9b4ecda-3a8d-4f61-84da-9f6c322d90b7",
+      "content": "Update episodes to be dormant/active",
+      "createdAt": "2026-01-07T17:11:13.280Z",
+      "tags": ["inbox"]
     }
   ],
   "models": [],
