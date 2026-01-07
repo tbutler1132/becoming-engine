@@ -10,41 +10,17 @@ import {
   SCHEMA_VERSION,
 } from "./types.js";
 import type { NodeRef, State, Variable, VariableStatus } from "./types.js";
-import { silentLogger } from "../shared/index.js";
+import { getConfig, silentLogger } from "../shared/index.js";
 import type { Logger } from "../shared/index.js";
-import {
-  isValidLegacyStateV0,
-  isValidLegacyStateV1,
-  isValidLegacyStateV2,
-  isValidLegacyStateV3,
-  isValidLegacyStateV4,
-  isValidLegacyStateV5,
-  isValidLegacyStateV6,
-  isValidLegacyStateV7,
-  isValidLegacyStateV8,
-  isValidLegacyStateV9,
-  isValidState,
-} from "./internal/validation.js";
-import {
-  migrateLegacyToV4,
-  migrateV2ToV3,
-  migrateV3ToV4,
-  migrateV4ToV5,
-  migrateV5ToV6,
-  migrateV6ToV7,
-  migrateV7ToV8,
-  migrateV8ToV9,
-  migrateV9ToV10,
-} from "./internal/migrations.js";
+import { migrateToLatest } from "./internal/migrations.js";
 import {
   acquireLock,
   backupInvalidStateFile,
   getTempPath,
 } from "./internal/fs.js";
 
-const DATA_DIR = "data";
-const STATE_FILE =
-  process.env.BECOMING_ENV === "dev" ? "state-dev.json" : "state.json";
+// Use centralized configuration
+const config = getConfig();
 
 // Seed state constants (exported for test use)
 export const SEED_PERSONAL_NODE: NodeRef = {
@@ -65,10 +41,10 @@ export class JsonStore {
 
   constructor(options?: { basePath?: string; logger?: Logger }) {
     const basePath = options?.basePath ?? process.cwd();
-    this.filePath = path.join(basePath, DATA_DIR, STATE_FILE);
+    this.filePath = path.join(basePath, config.dataDir, config.stateFile);
     this.lockPath = path.join(
       path.dirname(this.filePath),
-      `${STATE_FILE}.lock`,
+      `${config.stateFile}.lock`,
     );
     this.logger = options?.logger ?? silentLogger;
   }
@@ -91,96 +67,25 @@ export class JsonStore {
         this.logger.info("No state file found. Generating seed state...");
         return this.createSeed();
       }
+
       const data: unknown = await fs.readJson(this.filePath);
+      const result = migrateToLatest(data);
 
-      if (isValidState(data)) {
-        return data;
+      switch (result.status) {
+        case "current":
+          return result.state;
+
+        case "migrated":
+          this.logger.info(
+            `Migrated state from v${result.fromVersion} to v${SCHEMA_VERSION}`,
+          );
+          return result.state;
+
+        case "invalid":
+          await this.backupInvalidStateFile();
+          this.logger.warn("Invalid state file format, returning seed");
+          return this.createSeed();
       }
-
-      if (isValidLegacyStateV9(data)) {
-        return migrateV9ToV10(data);
-      }
-
-      if (isValidLegacyStateV8(data)) {
-        return migrateV9ToV10(migrateV8ToV9(data));
-      }
-
-      if (isValidLegacyStateV7(data)) {
-        return migrateV9ToV10(migrateV8ToV9(migrateV7ToV8(data)));
-      }
-
-      if (isValidLegacyStateV6(data)) {
-        return migrateV9ToV10(
-          migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(data))),
-        );
-      }
-
-      if (isValidLegacyStateV5(data)) {
-        return migrateV9ToV10(
-          migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(data)))),
-        );
-      }
-
-      if (isValidLegacyStateV4(data)) {
-        return migrateV9ToV10(
-          migrateV8ToV9(
-            migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(data)))),
-          ),
-        );
-      }
-
-      if (isValidLegacyStateV3(data)) {
-        return migrateV9ToV10(
-          migrateV8ToV9(
-            migrateV7ToV8(
-              migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(data)))),
-            ),
-          ),
-        );
-      }
-
-      if (isValidLegacyStateV2(data)) {
-        return migrateV9ToV10(
-          migrateV8ToV9(
-            migrateV7ToV8(
-              migrateV6ToV7(
-                migrateV5ToV6(
-                  migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(data))),
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-
-      if (isValidLegacyStateV1(data)) {
-        return migrateV9ToV10(
-          migrateV8ToV9(
-            migrateV7ToV8(
-              migrateV6ToV7(
-                migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
-              ),
-            ),
-          ),
-        );
-      }
-
-      if (isValidLegacyStateV0(data)) {
-        // Backward-compatible: files without schemaVersion are treated as v0 (legacy).
-        return migrateV9ToV10(
-          migrateV8ToV9(
-            migrateV7ToV8(
-              migrateV6ToV7(
-                migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
-              ),
-            ),
-          ),
-        );
-      }
-
-      await this.backupInvalidStateFile();
-      this.logger.warn("Invalid state file format, returning seed");
-      return this.createSeed();
     } catch (error) {
       await this.backupInvalidStateFile();
       this.logger.error("Error loading state, returning seed", error);
@@ -204,7 +109,7 @@ export class JsonStore {
 
     const release = await acquireLock(this.lockPath);
     try {
-      const tempPath = getTempPath(this.filePath, STATE_FILE);
+      const tempPath = getTempPath(this.filePath, config.stateFile);
       await fs.writeJson(tempPath, state, { spaces: 2 });
       await fs.move(tempPath, this.filePath, { overwrite: true });
     } finally {
@@ -252,6 +157,6 @@ export class JsonStore {
   }
 
   private async backupInvalidStateFile(): Promise<void> {
-    await backupInvalidStateFile(this.filePath, STATE_FILE);
+    await backupInvalidStateFile(this.filePath, config.stateFile);
   }
 }

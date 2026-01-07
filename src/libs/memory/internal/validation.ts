@@ -1,3 +1,12 @@
+/**
+ * State Validation — Schema-based validation for all versions
+ *
+ * This module validates state objects against schema definitions.
+ * Uses composable validators from validators.ts for DRY code.
+ *
+ * @module Memory/Internal/Validation
+ */
+
 import {
   ACTION_STATUSES,
   DEFAULT_ORG_NODE_ID,
@@ -34,121 +43,11 @@ import type {
   State,
   VariableStatus,
 } from "../types.js";
+import { validateStateAgainstSchema, type StateSchema } from "./validators.js";
 
-const LEGACY_SCHEMA_VERSION_V1 = 1 as const;
-const LEGACY_SCHEMA_VERSION_V2 = 2 as const;
-const LEGACY_SCHEMA_VERSION_V3 = 3 as const;
-const LEGACY_SCHEMA_VERSION_V4 = 4 as const;
-const LEGACY_SCHEMA_VERSION_V5 = 5 as const;
-const LEGACY_SCHEMA_VERSION_V6 = 6 as const;
-const LEGACY_SCHEMA_VERSION_V7 = 7 as const;
-const LEGACY_SCHEMA_VERSION_V8 = 8 as const;
-const LEGACY_SCHEMA_VERSION_V9 = 9 as const;
-
-export type StateV2 = Omit<State, "schemaVersion" | "models" | "links"> & {
-  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V2;
-};
-
-/** V4 State without models array */
-export type StateV4 = Omit<
-  State,
-  "schemaVersion" | "models" | "notes" | "links" | "exceptions"
-> & {
-  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V4;
-  notes: Array<{
-    id: string;
-    content: string;
-  }>;
-};
-
-/** V5 Note without createdAt/tags fields */
-export type NoteV5 = {
-  id: string;
-  content: string;
-};
-
-/** V5 State with old Note structure (before createdAt/tags) */
-export type StateV5 = Omit<
-  State,
-  "schemaVersion" | "notes" | "links" | "exceptions"
-> & {
-  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V5;
-  notes: NoteV5[];
-};
-
-/** V6 State without links array */
-export type StateV6 = Omit<State, "schemaVersion" | "links" | "exceptions"> & {
-  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V6;
-};
-
-/** V7 State without exceptions array */
-export type StateV7 = Omit<State, "schemaVersion" | "exceptions"> & {
-  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V7;
-};
-
-/** V8 Episode without timeboxDays field */
-export type EpisodeV8 = {
-  id: string;
-  node: NodeRef;
-  type: EpisodeType;
-  variableId?: string;
-  objective: string;
-  status: EpisodeStatus;
-  openedAt: string;
-  closedAt?: string;
-  closureNoteId?: string;
-};
-
-/** V8 State without timeboxDays on episodes */
-export type StateV8 = Omit<State, "schemaVersion" | "episodes"> & {
-  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V8;
-  episodes: EpisodeV8[];
-};
-
-/** V9 Variable without description, preferredRange, measurementCadence fields */
-export type VariableV9 = {
-  id: string;
-  node: NodeRef;
-  name: string;
-  status: VariableStatus;
-};
-
-/** V9 State without new Variable fields (description, preferredRange, measurementCadence) */
-export type StateV9 = Omit<State, "schemaVersion" | "variables"> & {
-  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V9;
-  variables: VariableV9[];
-};
-
-/** V3 Episode without timestamp fields */
-export type EpisodeV3 = {
-  id: string;
-  node: NodeRef;
-  type: EpisodeType;
-  variableId?: string;
-  objective: string;
-  status: EpisodeStatus;
-};
-
-export type StateV3 = {
-  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V3;
-  variables: Array<{
-    id: string;
-    node: NodeRef;
-    name: string;
-    status: VariableStatus;
-  }>;
-  episodes: EpisodeV3[];
-  actions: Array<{
-    id: string;
-    description: string;
-    status: ActionStatus;
-    episodeId?: string;
-  }>;
-  notes: Array<{
-    id: string;
-    content: string;
-  }>;
-};
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGACY TYPE DEFINITIONS — Used by migrations.ts
+// ═══════════════════════════════════════════════════════════════════════════
 
 export type LegacyVariable = {
   id: string;
@@ -185,30 +84,107 @@ export type LegacyStateV0 = {
 };
 
 export type LegacyStateV1 = LegacyStateV0 & {
-  schemaVersion: typeof LEGACY_SCHEMA_VERSION_V1;
+  schemaVersion: 1;
 };
 
-function isSchemaVersion(value: unknown): value is SchemaVersion {
-  return value === SCHEMA_VERSION;
-}
+export type StateV2 = Omit<State, "schemaVersion" | "models" | "links"> & {
+  schemaVersion: 2;
+};
 
-function isLegacySchemaVersionV1(
-  value: unknown,
-): value is typeof LEGACY_SCHEMA_VERSION_V1 {
-  return value === LEGACY_SCHEMA_VERSION_V1;
-}
+export type EpisodeV3 = {
+  id: string;
+  node: NodeRef;
+  type: EpisodeType;
+  variableId?: string;
+  objective: string;
+  status: EpisodeStatus;
+};
 
-function isLegacySchemaVersionV2(
-  value: unknown,
-): value is typeof LEGACY_SCHEMA_VERSION_V2 {
-  return value === LEGACY_SCHEMA_VERSION_V2;
-}
+export type StateV3 = {
+  schemaVersion: 3;
+  variables: Array<{
+    id: string;
+    node: NodeRef;
+    name: string;
+    status: VariableStatus;
+  }>;
+  episodes: EpisodeV3[];
+  actions: Array<{
+    id: string;
+    description: string;
+    status: ActionStatus;
+    episodeId?: string;
+  }>;
+  notes: Array<{
+    id: string;
+    content: string;
+  }>;
+};
 
-function isLegacySchemaVersionV3(
-  value: unknown,
-): value is typeof LEGACY_SCHEMA_VERSION_V3 {
-  return value === LEGACY_SCHEMA_VERSION_V3;
-}
+export type StateV4 = Omit<
+  State,
+  "schemaVersion" | "models" | "notes" | "links" | "exceptions"
+> & {
+  schemaVersion: 4;
+  notes: Array<{
+    id: string;
+    content: string;
+  }>;
+};
+
+export type NoteV5 = {
+  id: string;
+  content: string;
+};
+
+export type StateV5 = Omit<
+  State,
+  "schemaVersion" | "notes" | "links" | "exceptions"
+> & {
+  schemaVersion: 5;
+  notes: NoteV5[];
+};
+
+export type StateV6 = Omit<State, "schemaVersion" | "links" | "exceptions"> & {
+  schemaVersion: 6;
+};
+
+export type StateV7 = Omit<State, "schemaVersion" | "exceptions"> & {
+  schemaVersion: 7;
+};
+
+export type EpisodeV8 = {
+  id: string;
+  node: NodeRef;
+  type: EpisodeType;
+  variableId?: string;
+  objective: string;
+  status: EpisodeStatus;
+  openedAt: string;
+  closedAt?: string;
+  closureNoteId?: string;
+};
+
+export type StateV8 = Omit<State, "schemaVersion" | "episodes"> & {
+  schemaVersion: 8;
+  episodes: EpisodeV8[];
+};
+
+export type VariableV9 = {
+  id: string;
+  node: NodeRef;
+  name: string;
+  status: VariableStatus;
+};
+
+export type StateV9 = Omit<State, "schemaVersion" | "variables"> & {
+  schemaVersion: 9;
+  variables: VariableV9[];
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TYPE GUARDS — Exported for runtime validation
+// ═══════════════════════════════════════════════════════════════════════════
 
 function isMember<T extends readonly string[]>(
   allowed: T,
@@ -221,6 +197,77 @@ function isNodeType(value: unknown): value is NodeType {
   return typeof value === "string" && isMember(NODE_TYPES, value);
 }
 
+/** Validates that a value is a valid NodeRef (type + id) */
+export function isNodeRef(value: unknown): value is NodeRef {
+  if (typeof value !== "object" || value === null) return false;
+  const obj = value as Record<string, unknown>;
+  if (!isNodeType(obj.type)) return false;
+  return typeof obj.id === "string" && obj.id.length > 0;
+}
+
+/** Validates that a value is a valid VariableStatus */
+export function isVariableStatus(value: unknown): value is VariableStatus {
+  return typeof value === "string" && isMember(VARIABLE_STATUSES, value);
+}
+
+/** Validates that a value is a valid EpisodeType */
+export function isEpisodeType(value: unknown): value is EpisodeType {
+  return typeof value === "string" && isMember(EPISODE_TYPES, value);
+}
+
+/** Validates that a value is a valid EpisodeStatus */
+export function isEpisodeStatus(value: unknown): value is EpisodeStatus {
+  return typeof value === "string" && isMember(EPISODE_STATUSES, value);
+}
+
+/** Validates that a value is a valid ActionStatus */
+export function isActionStatus(value: unknown): value is ActionStatus {
+  return typeof value === "string" && isMember(ACTION_STATUSES, value);
+}
+
+/** Validates that a value is a valid ModelType */
+export function isModelType(value: unknown): value is ModelType {
+  return typeof value === "string" && isMember(MODEL_TYPES, value);
+}
+
+/** Validates that a value is a valid ModelScope */
+export function isModelScope(value: unknown): value is ModelScope {
+  return typeof value === "string" && isMember(MODEL_SCOPES, value);
+}
+
+/** Validates that a value is a valid EnforcementLevel */
+export function isEnforcementLevel(value: unknown): value is EnforcementLevel {
+  return typeof value === "string" && isMember(ENFORCEMENT_LEVELS, value);
+}
+
+/** Validates that a value is a valid NoteTag */
+export function isNoteTag(value: unknown): value is NoteTag {
+  return typeof value === "string" && isMember(NOTE_TAGS, value);
+}
+
+/** Validates that a value is a valid LinkRelation */
+export function isLinkRelation(value: unknown): value is LinkRelation {
+  return typeof value === "string" && isMember(LINK_RELATIONS, value);
+}
+
+/** Validates that a value is a valid MutationType */
+export function isMutationType(value: unknown): value is MutationType {
+  return typeof value === "string" && isMember(MUTATION_TYPES, value);
+}
+
+/** Validates that a value is a valid OverrideDecision */
+export function isOverrideDecision(value: unknown): value is OverrideDecision {
+  return typeof value === "string" && isMember(OVERRIDE_DECISIONS, value);
+}
+
+/** Validates that a value is a valid MeasurementCadence */
+export function isMeasurementCadence(
+  value: unknown,
+): value is MeasurementCadence {
+  return typeof value === "string" && isMember(MEASUREMENT_CADENCES, value);
+}
+
+/** Converts legacy NodeType to NodeRef */
 export function nodeRefFromLegacy(node: NodeType): NodeRef {
   if (node === "Personal") {
     return { type: node, id: DEFAULT_PERSONAL_NODE_ID };
@@ -228,1808 +275,223 @@ export function nodeRefFromLegacy(node: NodeType): NodeRef {
   return { type: node, id: DEFAULT_ORG_NODE_ID };
 }
 
-function isNodeRef(value: unknown): value is NodeRef {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-  const obj = value as Record<string, unknown>;
-  if (!isNodeType(obj.type)) {
-    return false;
-  }
-  return typeof obj.id === "string" && obj.id.length > 0;
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// SCHEMA DEFINITIONS — One per version
+// ═══════════════════════════════════════════════════════════════════════════
 
-function isVariableStatus(value: unknown): value is VariableStatus {
-  return typeof value === "string" && isMember(VARIABLE_STATUSES, value);
-}
+const SCHEMA_V0_V1: StateSchema = {
+  variable: { nodeFormat: "legacy" },
+  episode: { nodeFormat: "legacy", timestamps: "none" },
+  action: { episodeIdRequired: true },
+  note: { requireMetadata: false },
+};
 
-function isEpisodeType(value: unknown): value is EpisodeType {
-  return typeof value === "string" && isMember(EPISODE_TYPES, value);
-}
+const SCHEMA_V2: StateSchema = {
+  schemaVersion: 2,
+  variable: { nodeFormat: "ref" },
+  episode: { nodeFormat: "ref", timestamps: "none" },
+  action: { episodeIdRequired: true },
+  note: { requireMetadata: false },
+};
 
-function isEpisodeStatus(value: unknown): value is EpisodeStatus {
-  return typeof value === "string" && isMember(EPISODE_STATUSES, value);
-}
+const SCHEMA_V3: StateSchema = {
+  schemaVersion: 3,
+  variable: { nodeFormat: "ref" },
+  episode: { nodeFormat: "ref", timestamps: "none" },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: false },
+};
 
-function isActionStatus(value: unknown): value is ActionStatus {
-  return typeof value === "string" && isMember(ACTION_STATUSES, value);
-}
+const SCHEMA_V4: StateSchema = {
+  schemaVersion: 4,
+  variable: { nodeFormat: "ref" },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: false },
+};
 
-function isModelType(value: unknown): value is ModelType {
-  return typeof value === "string" && isMember(MODEL_TYPES, value);
-}
+const SCHEMA_V5: StateSchema = {
+  schemaVersion: 5,
+  variable: { nodeFormat: "ref" },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: false },
+  model: {},
+};
 
-function isModelScope(value: unknown): value is ModelScope {
-  return typeof value === "string" && isMember(MODEL_SCOPES, value);
-}
+const SCHEMA_V6: StateSchema = {
+  schemaVersion: 6,
+  variable: { nodeFormat: "ref" },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: true, allowLinkedObjects: true },
+  model: {},
+};
 
-function isEnforcementLevel(value: unknown): value is EnforcementLevel {
-  return typeof value === "string" && isMember(ENFORCEMENT_LEVELS, value);
-}
+const SCHEMA_V7: StateSchema = {
+  schemaVersion: 7,
+  variable: { nodeFormat: "ref" },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: true, allowLinkedObjects: true },
+  model: { allowExceptionsAllowed: true },
+  hasLinks: true,
+};
 
-function isNoteTag(value: unknown): value is NoteTag {
-  return typeof value === "string" && isMember(NOTE_TAGS, value);
-}
+const SCHEMA_V8: StateSchema = {
+  schemaVersion: 8,
+  variable: { nodeFormat: "ref" },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: true, allowLinkedObjects: true },
+  model: { allowExceptionsAllowed: true },
+  hasLinks: true,
+  hasExceptions: true,
+};
 
-function isLinkRelation(value: unknown): value is LinkRelation {
-  return typeof value === "string" && isMember(LINK_RELATIONS, value);
-}
+const SCHEMA_V9: StateSchema = {
+  schemaVersion: 9,
+  variable: { nodeFormat: "ref" },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+    allowTimeboxDays: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: true, allowLinkedObjects: true },
+  model: { allowExceptionsAllowed: true },
+  hasLinks: true,
+  hasExceptions: true,
+};
 
-function isMutationType(value: unknown): value is MutationType {
-  return typeof value === "string" && isMember(MUTATION_TYPES, value);
-}
+const SCHEMA_V10: StateSchema = {
+  schemaVersion: SCHEMA_VERSION,
+  variable: { nodeFormat: "ref", allowEnrichments: true },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+    allowTimeboxDays: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: true, allowLinkedObjects: true },
+  model: { allowExceptionsAllowed: true },
+  hasLinks: true,
+  hasExceptions: true,
+};
 
-function isOverrideDecision(value: unknown): value is OverrideDecision {
-  return typeof value === "string" && isMember(OVERRIDE_DECISIONS, value);
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE VALIDATORS — One per version, using schemas
+// ═══════════════════════════════════════════════════════════════════════════
 
-function isLegacySchemaVersionV4(
-  value: unknown,
-): value is typeof LEGACY_SCHEMA_VERSION_V4 {
-  return value === LEGACY_SCHEMA_VERSION_V4;
-}
-
-function isLegacySchemaVersionV5(
-  value: unknown,
-): value is typeof LEGACY_SCHEMA_VERSION_V5 {
-  return value === LEGACY_SCHEMA_VERSION_V5;
-}
-
-function isLegacySchemaVersionV6(
-  value: unknown,
-): value is typeof LEGACY_SCHEMA_VERSION_V6 {
-  return value === LEGACY_SCHEMA_VERSION_V6;
-}
-
-function isLegacySchemaVersionV7(
-  value: unknown,
-): value is typeof LEGACY_SCHEMA_VERSION_V7 {
-  return value === LEGACY_SCHEMA_VERSION_V7;
-}
-
-function isLegacySchemaVersionV8(
-  value: unknown,
-): value is typeof LEGACY_SCHEMA_VERSION_V8 {
-  return value === LEGACY_SCHEMA_VERSION_V8;
-}
-
-function isLegacySchemaVersionV9(
-  value: unknown,
-): value is typeof LEGACY_SCHEMA_VERSION_V9 {
-  return value === LEGACY_SCHEMA_VERSION_V9;
-}
-
-function isMeasurementCadence(value: unknown): value is MeasurementCadence {
-  return typeof value === "string" && isMember(MEASUREMENT_CADENCES, value);
-}
-
-function hasUniqueIds(items: readonly unknown[]): boolean {
-  const ids = new Set<string>();
-  for (const item of items) {
-    if (typeof item !== "object" || item === null) {
-      return false;
-    }
-    const id = (item as Record<string, unknown>).id;
-    if (typeof id !== "string") {
-      return false;
-    }
-    if (ids.has(id)) {
-      return false;
-    }
-    ids.add(id);
-  }
-  return true;
-}
-
-function actionsReferToEpisodes(
-  actions: readonly unknown[],
-  episodes: readonly unknown[],
-): boolean {
-  const episodeIds = new Set<string>();
-  for (const episode of episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const id = (episode as Record<string, unknown>).id;
-    if (typeof id !== "string") {
-      return false;
-    }
-    episodeIds.add(id);
-  }
-
-  for (const action of actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const episodeId = (action as Record<string, unknown>).episodeId;
-    if (typeof episodeId !== "string") {
-      return false;
-    }
-    if (!episodeIds.has(episodeId)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function actionsWithEpisodeIdsReferToEpisodes(
-  actions: readonly unknown[],
-  episodes: readonly unknown[],
-): boolean {
-  const episodeIds = new Set<string>();
-  for (const episode of episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const id = (episode as Record<string, unknown>).id;
-    if (typeof id !== "string") {
-      return false;
-    }
-    episodeIds.add(id);
-  }
-
-  for (const action of actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const episodeId = (action as Record<string, unknown>).episodeId;
-    if (episodeId === undefined) {
-      continue;
-    }
-    if (typeof episodeId !== "string") {
-      return false;
-    }
-    if (!episodeIds.has(episodeId)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-export function isValidLegacyStateV0(data: unknown): data is LegacyStateV0 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !actionsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  for (const variable of obj.variables) {
-    if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeType((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (
-      typeof episode !== "object" ||
-      episode === null ||
-      typeof (episode as Record<string, unknown>).id !== "string" ||
-      !isNodeType((episode as Record<string, unknown>).node) ||
-      !isEpisodeType((episode as Record<string, unknown>).type) ||
-      typeof (episode as Record<string, unknown>).objective !== "string" ||
-      !isEpisodeStatus((episode as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (
-      typeof action !== "object" ||
-      action === null ||
-      typeof (action as Record<string, unknown>).id !== "string" ||
-      typeof (action as Record<string, unknown>).description !== "string" ||
-      !isActionStatus((action as Record<string, unknown>).status) ||
-      typeof (action as Record<string, unknown>).episodeId !== "string"
-    ) {
-      return false;
-    }
-  }
-
-  for (const note of obj.notes) {
-    if (
-      typeof note !== "object" ||
-      note === null ||
-      typeof (note as Record<string, unknown>).id !== "string" ||
-      typeof (note as Record<string, unknown>).content !== "string"
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-export function isValidLegacyStateV1(data: unknown): data is LegacyStateV1 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-  if (!isLegacySchemaVersionV1(obj.schemaVersion)) {
-    return false;
-  }
-  return isValidLegacyStateV0(data);
-}
-
-export function isValidLegacyStateV2(data: unknown): data is StateV2 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-  if (!isLegacySchemaVersionV2(obj.schemaVersion)) {
-    return false;
-  }
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !actionsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  for (const variable of obj.variables) {
-    if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (
-      typeof episode !== "object" ||
-      episode === null ||
-      typeof (episode as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((episode as Record<string, unknown>).node) ||
-      !isEpisodeType((episode as Record<string, unknown>).type) ||
-      typeof (episode as Record<string, unknown>).objective !== "string" ||
-      !isEpisodeStatus((episode as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (
-      typeof action !== "object" ||
-      action === null ||
-      typeof (action as Record<string, unknown>).id !== "string" ||
-      typeof (action as Record<string, unknown>).description !== "string" ||
-      !isActionStatus((action as Record<string, unknown>).status) ||
-      typeof (action as Record<string, unknown>).episodeId !== "string"
-    ) {
-      return false;
-    }
-  }
-
-  for (const note of obj.notes) {
-    if (
-      typeof note !== "object" ||
-      note === null ||
-      typeof (note as Record<string, unknown>).id !== "string" ||
-      typeof (note as Record<string, unknown>).content !== "string"
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-export function isValidLegacyStateV3(data: unknown): data is StateV3 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-  if (!isLegacySchemaVersionV3(obj.schemaVersion)) {
-    return false;
-  }
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  for (const variable of obj.variables) {
-    if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const e = episode as Record<string, unknown>;
-    if (
-      typeof e.id !== "string" ||
-      !isNodeRef(e.node) ||
-      !isEpisodeType(e.type) ||
-      typeof e.objective !== "string" ||
-      !isEpisodeStatus(e.status)
-    ) {
-      return false;
-    }
-    if (e.variableId !== undefined && typeof e.variableId !== "string") {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const a = action as Record<string, unknown>;
-    if (
-      typeof a.id !== "string" ||
-      typeof a.description !== "string" ||
-      !isActionStatus(a.status)
-    ) {
-      return false;
-    }
-    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
-      return false;
-    }
-  }
-
-  for (const note of obj.notes) {
-    if (
-      typeof note !== "object" ||
-      note === null ||
-      typeof (note as Record<string, unknown>).id !== "string" ||
-      typeof (note as Record<string, unknown>).content !== "string"
-    ) {
-      return false;
-    }
-  }
-
-  return true;
+function isSchemaVersion(value: unknown): value is SchemaVersion {
+  return value === SCHEMA_VERSION;
 }
 
 /**
- * Validates a V4 state (schema version 4, without models array).
- * Used for migration from V4 to V5.
+ * Validates legacy V0 state (no schemaVersion field).
+ */
+export function isValidLegacyStateV0(data: unknown): data is LegacyStateV0 {
+  if (typeof data !== "object" || data === null) return false;
+  const obj = data as Record<string, unknown>;
+  // V0 has no schemaVersion
+  if ("schemaVersion" in obj) return false;
+  return validateStateAgainstSchema(data, SCHEMA_V0_V1);
+}
+
+/**
+ * Validates legacy V1 state (schemaVersion: 1).
+ */
+export function isValidLegacyStateV1(data: unknown): data is LegacyStateV1 {
+  if (typeof data !== "object" || data === null) return false;
+  const obj = data as Record<string, unknown>;
+  if (obj.schemaVersion !== 1) return false;
+  return validateStateAgainstSchema(data, SCHEMA_V0_V1);
+}
+
+/**
+ * Validates V2 state (schemaVersion: 2).
+ */
+export function isValidLegacyStateV2(data: unknown): data is StateV2 {
+  return validateStateAgainstSchema(data, SCHEMA_V2);
+}
+
+/**
+ * Validates V3 state (schemaVersion: 3).
+ */
+export function isValidLegacyStateV3(data: unknown): data is StateV3 {
+  return validateStateAgainstSchema(data, SCHEMA_V3);
+}
+
+/**
+ * Validates V4 state (schemaVersion: 4).
  */
 export function isValidLegacyStateV4(data: unknown): data is StateV4 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-  if (!isLegacySchemaVersionV4(obj.schemaVersion)) {
-    return false;
-  }
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  for (const variable of obj.variables) {
-    if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const e = episode as Record<string, unknown>;
-    if (
-      typeof e.id !== "string" ||
-      !isNodeRef(e.node) ||
-      !isEpisodeType(e.type) ||
-      typeof e.objective !== "string" ||
-      !isEpisodeStatus(e.status)
-    ) {
-      return false;
-    }
-    if (e.variableId !== undefined && typeof e.variableId !== "string") {
-      return false;
-    }
-    if (typeof e.openedAt !== "string") {
-      return false;
-    }
-    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
-      return false;
-    }
-    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const a = action as Record<string, unknown>;
-    if (
-      typeof a.id !== "string" ||
-      typeof a.description !== "string" ||
-      !isActionStatus(a.status)
-    ) {
-      return false;
-    }
-    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
-      return false;
-    }
-  }
-
-  for (const note of obj.notes) {
-    if (
-      typeof note !== "object" ||
-      note === null ||
-      typeof (note as Record<string, unknown>).id !== "string" ||
-      typeof (note as Record<string, unknown>).content !== "string"
-    ) {
-      return false;
-    }
-  }
-
-  return true;
+  return validateStateAgainstSchema(data, SCHEMA_V4);
 }
 
 /**
- * Validates a V5 state (schema version 5, notes without createdAt/tags).
- * Used for migration from V5 to V6.
+ * Validates V5 state (schemaVersion: 5).
  */
 export function isValidLegacyStateV5(data: unknown): data is StateV5 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-  if (!isLegacySchemaVersionV5(obj.schemaVersion)) {
-    return false;
-  }
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes) ||
-    !Array.isArray(obj.models)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !hasUniqueIds(obj.models) ||
-    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  for (const variable of obj.variables) {
-    if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const e = episode as Record<string, unknown>;
-    if (
-      typeof e.id !== "string" ||
-      !isNodeRef(e.node) ||
-      !isEpisodeType(e.type) ||
-      typeof e.objective !== "string" ||
-      !isEpisodeStatus(e.status)
-    ) {
-      return false;
-    }
-    if (e.variableId !== undefined && typeof e.variableId !== "string") {
-      return false;
-    }
-    if (typeof e.openedAt !== "string") {
-      return false;
-    }
-    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
-      return false;
-    }
-    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const a = action as Record<string, unknown>;
-    if (
-      typeof a.id !== "string" ||
-      typeof a.description !== "string" ||
-      !isActionStatus(a.status)
-    ) {
-      return false;
-    }
-    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
-      return false;
-    }
-  }
-
-  // V5 notes only have id and content (no createdAt/tags)
-  for (const note of obj.notes) {
-    if (
-      typeof note !== "object" ||
-      note === null ||
-      typeof (note as Record<string, unknown>).id !== "string" ||
-      typeof (note as Record<string, unknown>).content !== "string"
-    ) {
-      return false;
-    }
-  }
-
-  // Validate models
-  for (const model of obj.models) {
-    if (typeof model !== "object" || model === null) {
-      return false;
-    }
-    const m = model as Record<string, unknown>;
-    if (
-      typeof m.id !== "string" ||
-      !isModelType(m.type) ||
-      typeof m.statement !== "string"
-    ) {
-      return false;
-    }
-    if (m.confidence !== undefined) {
-      if (
-        typeof m.confidence !== "number" ||
-        m.confidence < 0 ||
-        m.confidence > 1
-      ) {
-        return false;
-      }
-    }
-    if (m.scope !== undefined && !isModelScope(m.scope)) {
-      return false;
-    }
-    if (m.enforcement !== undefined && !isEnforcementLevel(m.enforcement)) {
-      return false;
-    }
-  }
-
-  return true;
+  return validateStateAgainstSchema(data, SCHEMA_V5);
 }
 
 /**
- * Validates a V6 state (schema version 6, without links array).
- * Used for migration from V6 to V7.
+ * Validates V6 state (schemaVersion: 6).
  */
 export function isValidLegacyStateV6(data: unknown): data is StateV6 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-  if (!isLegacySchemaVersionV6(obj.schemaVersion)) {
-    return false;
-  }
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes) ||
-    !Array.isArray(obj.models)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !hasUniqueIds(obj.models) ||
-    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  for (const variable of obj.variables) {
-    if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const e = episode as Record<string, unknown>;
-    if (
-      typeof e.id !== "string" ||
-      !isNodeRef(e.node) ||
-      !isEpisodeType(e.type) ||
-      typeof e.objective !== "string" ||
-      !isEpisodeStatus(e.status)
-    ) {
-      return false;
-    }
-    if (e.variableId !== undefined && typeof e.variableId !== "string") {
-      return false;
-    }
-    if (typeof e.openedAt !== "string") {
-      return false;
-    }
-    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
-      return false;
-    }
-    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const a = action as Record<string, unknown>;
-    if (
-      typeof a.id !== "string" ||
-      typeof a.description !== "string" ||
-      !isActionStatus(a.status)
-    ) {
-      return false;
-    }
-    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
-      return false;
-    }
-  }
-
-  // V6 notes have createdAt and tags
-  for (const note of obj.notes) {
-    if (typeof note !== "object" || note === null) {
-      return false;
-    }
-    const n = note as Record<string, unknown>;
-    if (
-      typeof n.id !== "string" ||
-      typeof n.content !== "string" ||
-      typeof n.createdAt !== "string" ||
-      !Array.isArray(n.tags)
-    ) {
-      return false;
-    }
-    for (const tag of n.tags) {
-      if (!isNoteTag(tag)) {
-        return false;
-      }
-    }
-    if (n.linkedObjects !== undefined) {
-      if (!Array.isArray(n.linkedObjects)) {
-        return false;
-      }
-      for (const linked of n.linkedObjects) {
-        if (typeof linked !== "string") {
-          return false;
-        }
-      }
-    }
-  }
-
-  // Validate models
-  for (const model of obj.models) {
-    if (typeof model !== "object" || model === null) {
-      return false;
-    }
-    const m = model as Record<string, unknown>;
-    if (
-      typeof m.id !== "string" ||
-      !isModelType(m.type) ||
-      typeof m.statement !== "string"
-    ) {
-      return false;
-    }
-    if (m.confidence !== undefined) {
-      if (
-        typeof m.confidence !== "number" ||
-        m.confidence < 0 ||
-        m.confidence > 1
-      ) {
-        return false;
-      }
-    }
-    if (m.scope !== undefined && !isModelScope(m.scope)) {
-      return false;
-    }
-    if (m.enforcement !== undefined && !isEnforcementLevel(m.enforcement)) {
-      return false;
-    }
-  }
-
-  return true;
+  return validateStateAgainstSchema(data, SCHEMA_V6);
 }
 
 /**
- * Validates a V7 state (schema version 7, without exceptions array).
- * Used for migration from V7 to V8.
+ * Validates V7 state (schemaVersion: 7).
  */
 export function isValidLegacyStateV7(data: unknown): data is StateV7 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-  if (!isLegacySchemaVersionV7(obj.schemaVersion)) {
-    return false;
-  }
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes) ||
-    !Array.isArray(obj.models) ||
-    !Array.isArray(obj.links)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !hasUniqueIds(obj.models) ||
-    !hasUniqueIds(obj.links) ||
-    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  for (const variable of obj.variables) {
-    if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const e = episode as Record<string, unknown>;
-    if (
-      typeof e.id !== "string" ||
-      !isNodeRef(e.node) ||
-      !isEpisodeType(e.type) ||
-      typeof e.objective !== "string" ||
-      !isEpisodeStatus(e.status)
-    ) {
-      return false;
-    }
-    if (e.variableId !== undefined && typeof e.variableId !== "string") {
-      return false;
-    }
-    if (typeof e.openedAt !== "string") {
-      return false;
-    }
-    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
-      return false;
-    }
-    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const a = action as Record<string, unknown>;
-    if (
-      typeof a.id !== "string" ||
-      typeof a.description !== "string" ||
-      !isActionStatus(a.status)
-    ) {
-      return false;
-    }
-    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
-      return false;
-    }
-  }
-
-  for (const note of obj.notes) {
-    if (typeof note !== "object" || note === null) {
-      return false;
-    }
-    const n = note as Record<string, unknown>;
-    if (
-      typeof n.id !== "string" ||
-      typeof n.content !== "string" ||
-      typeof n.createdAt !== "string" ||
-      !Array.isArray(n.tags)
-    ) {
-      return false;
-    }
-    for (const tag of n.tags) {
-      if (!isNoteTag(tag)) {
-        return false;
-      }
-    }
-    if (n.linkedObjects !== undefined) {
-      if (!Array.isArray(n.linkedObjects)) {
-        return false;
-      }
-      for (const linked of n.linkedObjects) {
-        if (typeof linked !== "string") {
-          return false;
-        }
-      }
-    }
-  }
-
-  for (const model of obj.models) {
-    if (typeof model !== "object" || model === null) {
-      return false;
-    }
-    const m = model as Record<string, unknown>;
-    if (
-      typeof m.id !== "string" ||
-      !isModelType(m.type) ||
-      typeof m.statement !== "string"
-    ) {
-      return false;
-    }
-    if (m.confidence !== undefined) {
-      if (
-        typeof m.confidence !== "number" ||
-        m.confidence < 0 ||
-        m.confidence > 1
-      ) {
-        return false;
-      }
-    }
-    if (m.scope !== undefined && !isModelScope(m.scope)) {
-      return false;
-    }
-    if (m.enforcement !== undefined && !isEnforcementLevel(m.enforcement)) {
-      return false;
-    }
-    if (m.exceptionsAllowed !== undefined) {
-      if (typeof m.exceptionsAllowed !== "boolean") {
-        return false;
-      }
-    }
-  }
-
-  // Build set of all valid object IDs for referential integrity
-  const allObjectIds = new Set<string>();
-  for (const variable of obj.variables) {
-    allObjectIds.add((variable as Record<string, unknown>).id as string);
-  }
-  for (const episode of obj.episodes) {
-    allObjectIds.add((episode as Record<string, unknown>).id as string);
-  }
-  for (const action of obj.actions) {
-    allObjectIds.add((action as Record<string, unknown>).id as string);
-  }
-  for (const note of obj.notes) {
-    allObjectIds.add((note as Record<string, unknown>).id as string);
-  }
-  for (const model of obj.models) {
-    allObjectIds.add((model as Record<string, unknown>).id as string);
-  }
-  for (const link of obj.links) {
-    allObjectIds.add((link as Record<string, unknown>).id as string);
-  }
-
-  // Validate links
-  for (const link of obj.links) {
-    if (typeof link !== "object" || link === null) {
-      return false;
-    }
-    const l = link as Record<string, unknown>;
-    if (
-      typeof l.id !== "string" ||
-      typeof l.sourceId !== "string" ||
-      typeof l.targetId !== "string" ||
-      !isLinkRelation(l.relation)
-    ) {
-      return false;
-    }
-    if (l.weight !== undefined) {
-      if (typeof l.weight !== "number" || l.weight < 0 || l.weight > 1) {
-        return false;
-      }
-    }
-    if (!allObjectIds.has(l.sourceId) || !allObjectIds.has(l.targetId)) {
-      return false;
-    }
-  }
-
-  return true;
+  return validateStateAgainstSchema(data, SCHEMA_V7);
 }
 
 /**
- * Validates a V8 state (schema version 8, episodes without timeboxDays).
- * Used for migration from V8 to V9.
+ * Validates V8 state (schemaVersion: 8).
  */
 export function isValidLegacyStateV8(data: unknown): data is StateV8 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-  if (!isLegacySchemaVersionV8(obj.schemaVersion)) {
-    return false;
-  }
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes) ||
-    !Array.isArray(obj.models) ||
-    !Array.isArray(obj.links) ||
-    !Array.isArray(obj.exceptions)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !hasUniqueIds(obj.models) ||
-    !hasUniqueIds(obj.links) ||
-    !hasUniqueIds(obj.exceptions) ||
-    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  for (const variable of obj.variables) {
-    if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const e = episode as Record<string, unknown>;
-    if (
-      typeof e.id !== "string" ||
-      !isNodeRef(e.node) ||
-      !isEpisodeType(e.type) ||
-      typeof e.objective !== "string" ||
-      !isEpisodeStatus(e.status)
-    ) {
-      return false;
-    }
-    if (e.variableId !== undefined && typeof e.variableId !== "string") {
-      return false;
-    }
-    if (typeof e.openedAt !== "string") {
-      return false;
-    }
-    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
-      return false;
-    }
-    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const a = action as Record<string, unknown>;
-    if (
-      typeof a.id !== "string" ||
-      typeof a.description !== "string" ||
-      !isActionStatus(a.status)
-    ) {
-      return false;
-    }
-    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
-      return false;
-    }
-  }
-
-  for (const note of obj.notes) {
-    if (typeof note !== "object" || note === null) {
-      return false;
-    }
-    const n = note as Record<string, unknown>;
-    if (
-      typeof n.id !== "string" ||
-      typeof n.content !== "string" ||
-      typeof n.createdAt !== "string" ||
-      !Array.isArray(n.tags)
-    ) {
-      return false;
-    }
-    for (const tag of n.tags) {
-      if (!isNoteTag(tag)) {
-        return false;
-      }
-    }
-    if (n.linkedObjects !== undefined) {
-      if (!Array.isArray(n.linkedObjects)) {
-        return false;
-      }
-      for (const linked of n.linkedObjects) {
-        if (typeof linked !== "string") {
-          return false;
-        }
-      }
-    }
-  }
-
-  for (const model of obj.models) {
-    if (typeof model !== "object" || model === null) {
-      return false;
-    }
-    const m = model as Record<string, unknown>;
-    if (
-      typeof m.id !== "string" ||
-      !isModelType(m.type) ||
-      typeof m.statement !== "string"
-    ) {
-      return false;
-    }
-    if (m.confidence !== undefined) {
-      if (
-        typeof m.confidence !== "number" ||
-        m.confidence < 0 ||
-        m.confidence > 1
-      ) {
-        return false;
-      }
-    }
-    if (m.scope !== undefined && !isModelScope(m.scope)) {
-      return false;
-    }
-    if (m.enforcement !== undefined && !isEnforcementLevel(m.enforcement)) {
-      return false;
-    }
-    if (
-      m.exceptionsAllowed !== undefined &&
-      typeof m.exceptionsAllowed !== "boolean"
-    ) {
-      return false;
-    }
-  }
-
-  // Build set of all valid object IDs for referential integrity
-  const allObjectIds = new Set<string>();
-  for (const variable of obj.variables) {
-    allObjectIds.add((variable as Record<string, unknown>).id as string);
-  }
-  for (const episode of obj.episodes) {
-    allObjectIds.add((episode as Record<string, unknown>).id as string);
-  }
-  for (const action of obj.actions) {
-    allObjectIds.add((action as Record<string, unknown>).id as string);
-  }
-  for (const note of obj.notes) {
-    allObjectIds.add((note as Record<string, unknown>).id as string);
-  }
-  for (const model of obj.models) {
-    allObjectIds.add((model as Record<string, unknown>).id as string);
-  }
-  for (const link of obj.links) {
-    allObjectIds.add((link as Record<string, unknown>).id as string);
-  }
-  for (const exception of obj.exceptions) {
-    allObjectIds.add((exception as Record<string, unknown>).id as string);
-  }
-
-  // Validate links
-  for (const link of obj.links) {
-    if (typeof link !== "object" || link === null) {
-      return false;
-    }
-    const l = link as Record<string, unknown>;
-    if (
-      typeof l.id !== "string" ||
-      typeof l.sourceId !== "string" ||
-      typeof l.targetId !== "string" ||
-      !isLinkRelation(l.relation)
-    ) {
-      return false;
-    }
-    if (l.weight !== undefined) {
-      if (typeof l.weight !== "number" || l.weight < 0 || l.weight > 1) {
-        return false;
-      }
-    }
-    if (!allObjectIds.has(l.sourceId) || !allObjectIds.has(l.targetId)) {
-      return false;
-    }
-  }
-
-  // Build set of model IDs for exception referential integrity
-  const modelIds = new Set<string>();
-  for (const model of obj.models) {
-    modelIds.add((model as Record<string, unknown>).id as string);
-  }
-
-  // Validate exceptions
-  for (const exception of obj.exceptions) {
-    if (typeof exception !== "object" || exception === null) {
-      return false;
-    }
-    const ex = exception as Record<string, unknown>;
-    if (
-      typeof ex.id !== "string" ||
-      typeof ex.modelId !== "string" ||
-      !isOverrideDecision(ex.originalDecision) ||
-      typeof ex.justification !== "string" ||
-      !isMutationType(ex.mutationType) ||
-      typeof ex.mutationId !== "string" ||
-      typeof ex.createdAt !== "string"
-    ) {
-      return false;
-    }
-    if (!modelIds.has(ex.modelId)) {
-      return false;
-    }
-  }
-
-  return true;
+  return validateStateAgainstSchema(data, SCHEMA_V8);
 }
 
 /**
- * Validates a V9 state (schema version 9, variables without description/preferredRange/measurementCadence).
- * Used for migration from V9 to V10.
+ * Validates V9 state (schemaVersion: 9).
  */
 export function isValidLegacyStateV9(data: unknown): data is StateV9 {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-  const obj = data as Record<string, unknown>;
-  if (!isLegacySchemaVersionV9(obj.schemaVersion)) {
-    return false;
-  }
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes) ||
-    !Array.isArray(obj.models) ||
-    !Array.isArray(obj.links) ||
-    !Array.isArray(obj.exceptions)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !hasUniqueIds(obj.models) ||
-    !hasUniqueIds(obj.links) ||
-    !hasUniqueIds(obj.exceptions) ||
-    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  // V9 variables don't have description, preferredRange, measurementCadence
-  for (const variable of obj.variables) {
-    if (
-      typeof variable !== "object" ||
-      variable === null ||
-      typeof (variable as Record<string, unknown>).id !== "string" ||
-      !isNodeRef((variable as Record<string, unknown>).node) ||
-      typeof (variable as Record<string, unknown>).name !== "string" ||
-      !isVariableStatus((variable as Record<string, unknown>).status)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const e = episode as Record<string, unknown>;
-    if (
-      typeof e.id !== "string" ||
-      !isNodeRef(e.node) ||
-      !isEpisodeType(e.type) ||
-      typeof e.objective !== "string" ||
-      !isEpisodeStatus(e.status)
-    ) {
-      return false;
-    }
-    if (e.variableId !== undefined && typeof e.variableId !== "string") {
-      return false;
-    }
-    if (typeof e.openedAt !== "string") {
-      return false;
-    }
-    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
-      return false;
-    }
-    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
-      return false;
-    }
-    if (e.timeboxDays !== undefined && typeof e.timeboxDays !== "number") {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const a = action as Record<string, unknown>;
-    if (
-      typeof a.id !== "string" ||
-      typeof a.description !== "string" ||
-      !isActionStatus(a.status)
-    ) {
-      return false;
-    }
-    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
-      return false;
-    }
-  }
-
-  for (const note of obj.notes) {
-    if (typeof note !== "object" || note === null) {
-      return false;
-    }
-    const n = note as Record<string, unknown>;
-    if (
-      typeof n.id !== "string" ||
-      typeof n.content !== "string" ||
-      typeof n.createdAt !== "string" ||
-      !Array.isArray(n.tags)
-    ) {
-      return false;
-    }
-    for (const tag of n.tags) {
-      if (!isNoteTag(tag)) {
-        return false;
-      }
-    }
-    if (n.linkedObjects !== undefined) {
-      if (!Array.isArray(n.linkedObjects)) {
-        return false;
-      }
-      for (const linked of n.linkedObjects) {
-        if (typeof linked !== "string") {
-          return false;
-        }
-      }
-    }
-  }
-
-  for (const model of obj.models) {
-    if (typeof model !== "object" || model === null) {
-      return false;
-    }
-    const m = model as Record<string, unknown>;
-    if (
-      typeof m.id !== "string" ||
-      !isModelType(m.type) ||
-      typeof m.statement !== "string"
-    ) {
-      return false;
-    }
-    if (m.confidence !== undefined) {
-      if (
-        typeof m.confidence !== "number" ||
-        m.confidence < 0 ||
-        m.confidence > 1
-      ) {
-        return false;
-      }
-    }
-    if (m.scope !== undefined && !isModelScope(m.scope)) {
-      return false;
-    }
-    if (m.enforcement !== undefined && !isEnforcementLevel(m.enforcement)) {
-      return false;
-    }
-    if (
-      m.exceptionsAllowed !== undefined &&
-      typeof m.exceptionsAllowed !== "boolean"
-    ) {
-      return false;
-    }
-  }
-
-  // Build set of all valid object IDs for referential integrity
-  const allObjectIds = new Set<string>();
-  for (const variable of obj.variables) {
-    allObjectIds.add((variable as Record<string, unknown>).id as string);
-  }
-  for (const episode of obj.episodes) {
-    allObjectIds.add((episode as Record<string, unknown>).id as string);
-  }
-  for (const action of obj.actions) {
-    allObjectIds.add((action as Record<string, unknown>).id as string);
-  }
-  for (const note of obj.notes) {
-    allObjectIds.add((note as Record<string, unknown>).id as string);
-  }
-  for (const model of obj.models) {
-    allObjectIds.add((model as Record<string, unknown>).id as string);
-  }
-  for (const link of obj.links) {
-    allObjectIds.add((link as Record<string, unknown>).id as string);
-  }
-  for (const exception of obj.exceptions) {
-    allObjectIds.add((exception as Record<string, unknown>).id as string);
-  }
-
-  // Validate links
-  for (const link of obj.links) {
-    if (typeof link !== "object" || link === null) {
-      return false;
-    }
-    const l = link as Record<string, unknown>;
-    if (
-      typeof l.id !== "string" ||
-      typeof l.sourceId !== "string" ||
-      typeof l.targetId !== "string" ||
-      !isLinkRelation(l.relation)
-    ) {
-      return false;
-    }
-    if (l.weight !== undefined) {
-      if (typeof l.weight !== "number" || l.weight < 0 || l.weight > 1) {
-        return false;
-      }
-    }
-    if (!allObjectIds.has(l.sourceId) || !allObjectIds.has(l.targetId)) {
-      return false;
-    }
-  }
-
-  // Build set of model IDs for exception referential integrity
-  const modelIds = new Set<string>();
-  for (const model of obj.models) {
-    modelIds.add((model as Record<string, unknown>).id as string);
-  }
-
-  // Validate exceptions
-  for (const exception of obj.exceptions) {
-    if (typeof exception !== "object" || exception === null) {
-      return false;
-    }
-    const ex = exception as Record<string, unknown>;
-    if (
-      typeof ex.id !== "string" ||
-      typeof ex.modelId !== "string" ||
-      !isOverrideDecision(ex.originalDecision) ||
-      typeof ex.justification !== "string" ||
-      !isMutationType(ex.mutationType) ||
-      typeof ex.mutationId !== "string" ||
-      typeof ex.createdAt !== "string"
-    ) {
-      return false;
-    }
-    if (!modelIds.has(ex.modelId)) {
-      return false;
-    }
-  }
-
-  return true;
+  return validateStateAgainstSchema(data, SCHEMA_V9);
 }
 
 /**
- * Validates the current state schema (V10, with Variable enrichments).
+ * Validates current state (schemaVersion: 10).
  */
-//TODO: Decompose
 export function isValidState(data: unknown): data is State {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
+  if (typeof data !== "object" || data === null) return false;
   const obj = data as Record<string, unknown>;
-  if (!isSchemaVersion(obj.schemaVersion)) {
-    return false;
-  }
-  if (
-    !Array.isArray(obj.variables) ||
-    !Array.isArray(obj.episodes) ||
-    !Array.isArray(obj.actions) ||
-    !Array.isArray(obj.notes) ||
-    !Array.isArray(obj.models) ||
-    !Array.isArray(obj.links) ||
-    !Array.isArray(obj.exceptions)
-  ) {
-    return false;
-  }
-
-  if (
-    !hasUniqueIds(obj.variables) ||
-    !hasUniqueIds(obj.episodes) ||
-    !hasUniqueIds(obj.actions) ||
-    !hasUniqueIds(obj.notes) ||
-    !hasUniqueIds(obj.models) ||
-    !hasUniqueIds(obj.links) ||
-    !hasUniqueIds(obj.exceptions) ||
-    !actionsWithEpisodeIdsReferToEpisodes(obj.actions, obj.episodes)
-  ) {
-    return false;
-  }
-
-  for (const variable of obj.variables) {
-    if (typeof variable !== "object" || variable === null) {
-      return false;
-    }
-    const v = variable as Record<string, unknown>;
-    // Required fields: id, node, name, status
-    if (
-      typeof v.id !== "string" ||
-      !isNodeRef(v.node) ||
-      typeof v.name !== "string" ||
-      !isVariableStatus(v.status)
-    ) {
-      return false;
-    }
-    // description is optional, must be string if present
-    if (v.description !== undefined && typeof v.description !== "string") {
-      return false;
-    }
-    // preferredRange is optional, must be string if present
-    if (
-      v.preferredRange !== undefined &&
-      typeof v.preferredRange !== "string"
-    ) {
-      return false;
-    }
-    // measurementCadence is optional, must be valid enum if present
-    if (
-      v.measurementCadence !== undefined &&
-      !isMeasurementCadence(v.measurementCadence)
-    ) {
-      return false;
-    }
-  }
-
-  for (const episode of obj.episodes) {
-    if (typeof episode !== "object" || episode === null) {
-      return false;
-    }
-    const e = episode as Record<string, unknown>;
-    // Validate base episode fields
-    if (
-      typeof e.id !== "string" ||
-      !isNodeRef(e.node) ||
-      !isEpisodeType(e.type) ||
-      typeof e.objective !== "string" ||
-      !isEpisodeStatus(e.status)
-    ) {
-      return false;
-    }
-    // variableId is optional
-    if (e.variableId !== undefined && typeof e.variableId !== "string") {
-      return false;
-    }
-    // openedAt is required (ISO timestamp string)
-    if (typeof e.openedAt !== "string") {
-      return false;
-    }
-    // closedAt is optional
-    if (e.closedAt !== undefined && typeof e.closedAt !== "string") {
-      return false;
-    }
-    // closureNoteId is optional
-    if (e.closureNoteId !== undefined && typeof e.closureNoteId !== "string") {
-      return false;
-    }
-    // timeboxDays is optional
-    if (e.timeboxDays !== undefined && typeof e.timeboxDays !== "number") {
-      return false;
-    }
-  }
-
-  for (const action of obj.actions) {
-    if (typeof action !== "object" || action === null) {
-      return false;
-    }
-    const a = action as Record<string, unknown>;
-    if (
-      typeof a.id !== "string" ||
-      typeof a.description !== "string" ||
-      !isActionStatus(a.status)
-    ) {
-      return false;
-    }
-    if (a.episodeId !== undefined && typeof a.episodeId !== "string") {
-      return false;
-    }
-  }
-
-  // Validate notes (V6: createdAt and tags required)
-  for (const note of obj.notes) {
-    if (typeof note !== "object" || note === null) {
-      return false;
-    }
-    const n = note as Record<string, unknown>;
-    // Required fields: id, content, createdAt, tags
-    if (
-      typeof n.id !== "string" ||
-      typeof n.content !== "string" ||
-      typeof n.createdAt !== "string" ||
-      !Array.isArray(n.tags)
-    ) {
-      return false;
-    }
-    // Validate each tag is a valid NoteTag
-    for (const tag of n.tags) {
-      if (!isNoteTag(tag)) {
-        return false;
-      }
-    }
-    // linkedObjects is optional, must be string array if present
-    if (n.linkedObjects !== undefined) {
-      if (!Array.isArray(n.linkedObjects)) {
-        return false;
-      }
-      for (const linked of n.linkedObjects) {
-        if (typeof linked !== "string") {
-          return false;
-        }
-      }
-    }
-  }
-
-  // Validate models
-  for (const model of obj.models) {
-    if (typeof model !== "object" || model === null) {
-      return false;
-    }
-    const m = model as Record<string, unknown>;
-    // Required fields: id, type, statement
-    if (
-      typeof m.id !== "string" ||
-      !isModelType(m.type) ||
-      typeof m.statement !== "string"
-    ) {
-      return false;
-    }
-    // confidence is optional, must be number 0.0-1.0 if present
-    if (m.confidence !== undefined) {
-      if (
-        typeof m.confidence !== "number" ||
-        m.confidence < 0 ||
-        m.confidence > 1
-      ) {
-        return false;
-      }
-    }
-    // scope is optional, must be valid if present
-    if (m.scope !== undefined && !isModelScope(m.scope)) {
-      return false;
-    }
-    // enforcement is optional, must be valid if present
-    if (m.enforcement !== undefined && !isEnforcementLevel(m.enforcement)) {
-      return false;
-    }
-    // exceptionsAllowed is optional, must be boolean if present
-    if (
-      m.exceptionsAllowed !== undefined &&
-      typeof m.exceptionsAllowed !== "boolean"
-    ) {
-      return false;
-    }
-  }
-
-  // Build set of all valid object IDs for referential integrity
-  const allObjectIds = new Set<string>();
-  for (const variable of obj.variables) {
-    allObjectIds.add((variable as Record<string, unknown>).id as string);
-  }
-  for (const episode of obj.episodes) {
-    allObjectIds.add((episode as Record<string, unknown>).id as string);
-  }
-  for (const action of obj.actions) {
-    allObjectIds.add((action as Record<string, unknown>).id as string);
-  }
-  for (const note of obj.notes) {
-    allObjectIds.add((note as Record<string, unknown>).id as string);
-  }
-  for (const model of obj.models) {
-    allObjectIds.add((model as Record<string, unknown>).id as string);
-  }
-  for (const link of obj.links) {
-    allObjectIds.add((link as Record<string, unknown>).id as string);
-  }
-  for (const exception of obj.exceptions) {
-    allObjectIds.add((exception as Record<string, unknown>).id as string);
-  }
-
-  // Validate links
-  for (const link of obj.links) {
-    if (typeof link !== "object" || link === null) {
-      return false;
-    }
-    const l = link as Record<string, unknown>;
-    // Required fields: id, sourceId, targetId, relation
-    if (
-      typeof l.id !== "string" ||
-      typeof l.sourceId !== "string" ||
-      typeof l.targetId !== "string" ||
-      !isLinkRelation(l.relation)
-    ) {
-      return false;
-    }
-    // weight is optional, must be number 0.0-1.0 if present
-    if (l.weight !== undefined) {
-      if (typeof l.weight !== "number" || l.weight < 0 || l.weight > 1) {
-        return false;
-      }
-    }
-    // Referential integrity: sourceId and targetId must exist
-    if (!allObjectIds.has(l.sourceId) || !allObjectIds.has(l.targetId)) {
-      return false;
-    }
-  }
-
-  // Build set of model IDs for exception referential integrity
-  const modelIds = new Set<string>();
-  for (const model of obj.models) {
-    modelIds.add((model as Record<string, unknown>).id as string);
-  }
-
-  // Validate exceptions
-  for (const exception of obj.exceptions) {
-    if (typeof exception !== "object" || exception === null) {
-      return false;
-    }
-    const ex = exception as Record<string, unknown>;
-    // Required fields: id, modelId, originalDecision, justification, mutationType, mutationId, createdAt
-    if (
-      typeof ex.id !== "string" ||
-      typeof ex.modelId !== "string" ||
-      !isOverrideDecision(ex.originalDecision) ||
-      typeof ex.justification !== "string" ||
-      !isMutationType(ex.mutationType) ||
-      typeof ex.mutationId !== "string" ||
-      typeof ex.createdAt !== "string"
-    ) {
-      return false;
-    }
-    // Referential integrity: modelId must exist
-    if (!modelIds.has(ex.modelId)) {
-      return false;
-    }
-  }
-
-  return true;
+  if (!isSchemaVersion(obj.schemaVersion)) return false;
+  return validateStateAgainstSchema(data, SCHEMA_V10);
 }

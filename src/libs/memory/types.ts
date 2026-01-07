@@ -83,6 +83,14 @@ export function formatNodeRef(node: NodeRef): string {
   return `${node.type}:${node.id}`;
 }
 
+/**
+ * Compares two NodeRefs for equality.
+ * Two NodeRefs are equal if they have the same type and id.
+ */
+export function nodeRefEquals(a: NodeRef, b: NodeRef): boolean {
+  return a.type === b.type && a.id === b.id;
+}
+
 export interface Variable {
   id: string;
   node: NodeRef;
@@ -194,4 +202,27 @@ export interface State {
   models: Model[];
   links: Link[];
   exceptions: MembraneException[];
+}
+
+/**
+ * Creates an empty State object with the current schema version.
+ *
+ * **Intent:** Provides a clean, empty state for testing or initialization.
+ * Use this instead of manually constructing empty states.
+ *
+ * **Contract:**
+ * - Returns: Valid State object with empty collections
+ * - Schema version is always current (SCHEMA_VERSION from DNA)
+ */
+export function createEmptyState(): State {
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    variables: [],
+    episodes: [],
+    actions: [],
+    notes: [],
+    models: [],
+    links: [],
+    exceptions: [],
+  };
 }

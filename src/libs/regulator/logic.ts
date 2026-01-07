@@ -7,6 +7,7 @@ import {
   EPISODE_TYPES,
   formatNodeRef,
   LINK_RELATIONS,
+  nodeRefEquals,
   NOTE_TAGS,
 } from "../memory/index.js";
 import type {
@@ -64,10 +65,6 @@ const ACTION_PENDING_STATUS = ACTION_STATUSES[0];
 const ACTION_DONE_STATUS = ACTION_STATUSES[1];
 
 type CanCreateActionParams = Pick<CreateActionParams, "node" | "episodeId">;
-
-function nodeRefEquals(a: NodeRef, b: NodeRef): boolean {
-  return a.type === b.type && a.id === b.id;
-}
 
 /**
  * Filters variables by node type.

@@ -12,7 +12,20 @@ import type {
   StateV8,
   StateV9,
 } from "./validation.js";
-import { nodeRefFromLegacy } from "./validation.js";
+import {
+  nodeRefFromLegacy,
+  isValidLegacyStateV0,
+  isValidLegacyStateV1,
+  isValidLegacyStateV2,
+  isValidLegacyStateV3,
+  isValidLegacyStateV4,
+  isValidLegacyStateV5,
+  isValidLegacyStateV6,
+  isValidLegacyStateV7,
+  isValidLegacyStateV8,
+  isValidLegacyStateV9,
+  isValidState,
+} from "./validation.js";
 
 const CLOSED_STATUS = EPISODE_STATUSES[1];
 
@@ -139,4 +152,170 @@ export function migrateV9ToV10(v9: StateV9): State {
     ...v9,
     schemaVersion: SCHEMA_VERSION,
   };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MIGRATION PIPELINE — Single entry point for all migrations
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Result of attempting to detect and migrate state.
+ * - 'current': State is already at the current schema version
+ * - 'migrated': State was successfully migrated from an older version
+ * - 'invalid': State could not be recognized as any valid schema version
+ */
+export type MigrationResult =
+  | { status: "current"; state: State }
+  | { status: "migrated"; state: State; fromVersion: number }
+  | { status: "invalid" };
+
+/**
+ * Detects the schema version of the given data and migrates it to the current version.
+ *
+ * This is the single entry point for loading state from disk. It handles:
+ * - Current version (returns as-is)
+ * - All legacy versions (migrates through the chain)
+ * - Invalid data (returns 'invalid' status)
+ *
+ * **Intent:** Replace nested migration chains with a clean, linear pipeline.
+ *
+ * **Contract:**
+ * - Returns MigrationResult discriminated union
+ * - Never throws; invalid data returns { status: 'invalid' }
+ * - Migrations are applied in sequence from detected version to current
+ */
+export function migrateToLatest(data: unknown): MigrationResult {
+  // Already current version
+  if (isValidState(data)) {
+    return { status: "current", state: data };
+  }
+
+  // V9 → V10
+  if (isValidLegacyStateV9(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(data),
+      fromVersion: 9,
+    };
+  }
+
+  // V8 → V9 → V10
+  if (isValidLegacyStateV8(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(migrateV8ToV9(data)),
+      fromVersion: 8,
+    };
+  }
+
+  // V7 → V8 → V9 → V10
+  if (isValidLegacyStateV7(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(migrateV8ToV9(migrateV7ToV8(data))),
+      fromVersion: 7,
+    };
+  }
+
+  // V6 → V7 → V8 → V9 → V10
+  if (isValidLegacyStateV6(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(data)))),
+      fromVersion: 6,
+    };
+  }
+
+  // V5 → V6 → V7 → V8 → V9 → V10
+  if (isValidLegacyStateV5(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(
+        migrateV8ToV9(migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(data)))),
+      ),
+      fromVersion: 5,
+    };
+  }
+
+  // V4 → V5 → V6 → V7 → V8 → V9 → V10
+  if (isValidLegacyStateV4(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(
+        migrateV8ToV9(
+          migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(data)))),
+        ),
+      ),
+      fromVersion: 4,
+    };
+  }
+
+  // V3 → V4 → V5 → V6 → V7 → V8 → V9 → V10
+  if (isValidLegacyStateV3(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(
+        migrateV8ToV9(
+          migrateV7ToV8(
+            migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(data)))),
+          ),
+        ),
+      ),
+      fromVersion: 3,
+    };
+  }
+
+  // V2 → V3 → V4 → V5 → V6 → V7 → V8 → V9 → V10
+  if (isValidLegacyStateV2(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(
+        migrateV8ToV9(
+          migrateV7ToV8(
+            migrateV6ToV7(
+              migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(data)))),
+            ),
+          ),
+        ),
+      ),
+      fromVersion: 2,
+    };
+  }
+
+  // V1 (legacy with schemaVersion: 1) → V4 → ... → V10
+  if (isValidLegacyStateV1(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(
+        migrateV8ToV9(
+          migrateV7ToV8(
+            migrateV6ToV7(
+              migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+            ),
+          ),
+        ),
+      ),
+      fromVersion: 1,
+    };
+  }
+
+  // V0 (legacy without schemaVersion) → V4 → ... → V10
+  if (isValidLegacyStateV0(data)) {
+    return {
+      status: "migrated",
+      state: migrateV9ToV10(
+        migrateV8ToV9(
+          migrateV7ToV8(
+            migrateV6ToV7(
+              migrateV5ToV6(migrateV4ToV5(migrateLegacyToV4(data))),
+            ),
+          ),
+        ),
+      ),
+      fromVersion: 0,
+    };
+  }
+
+  // Data doesn't match any known schema
+  return { status: "invalid" };
 }
