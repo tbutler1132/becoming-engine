@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { openExploreEpisode } from "@/app/actions";
+import styles from "./OpenExploreForm.module.css";
 
 export function OpenExploreForm(): React.ReactNode {
   const router = useRouter();
@@ -46,16 +47,7 @@ export function OpenExploreForm(): React.ReactNode {
       <button
         type="button"
         onClick={() => setIsExpanded(true)}
-        style={{
-          padding: "0.5rem 1rem",
-          fontSize: "0.875rem",
-          border: "1px dashed #ccc",
-          borderRadius: "4px",
-          background: "transparent",
-          cursor: "pointer",
-          color: "#666",
-          width: "100%",
-        }}
+        className={styles.triggerButton}
       >
         + Open Explore Episode
       </button>
@@ -63,61 +55,22 @@ export function OpenExploreForm(): React.ReactNode {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        padding: "1.5rem",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "0.75rem",
-          color: "#666",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          marginBottom: "0.5rem",
-        }}
-      >
-        Open Explore Episode
-      </div>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <p className={styles.formTitle}>Open Explore Episode</p>
 
-      <p
-        style={{
-          fontSize: "0.875rem",
-          color: "#666",
-          marginBottom: "1rem",
-        }}
-      >
+      <p className={styles.formDescription}>
         Explore episodes reduce uncertainty through learning. They require a
         Model update to close.
       </p>
 
       {error && (
-        <p
-          style={{
-            color: "#dc2626",
-            fontSize: "0.875rem",
-            marginBottom: "1rem",
-          }}
-        >
+        <p role="alert" className={styles.error}>
           {error}
         </p>
       )}
 
-      <div style={{ marginBottom: "1rem" }}>
-        <label
-          htmlFor="objective"
-          style={{
-            display: "block",
-            fontSize: "0.75rem",
-            color: "#666",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: "0.5rem",
-          }}
-        >
+      <div className={styles.fieldGroup}>
+        <label htmlFor="objective" className={styles.fieldLabel}>
           Objective *
         </label>
         <textarea
@@ -125,33 +78,15 @@ export function OpenExploreForm(): React.ReactNode {
           value={objective}
           onChange={(e) => setObjective(e.target.value)}
           placeholder="What are you exploring? (e.g., 'Learn whether morning workouts improve focus')"
-          style={{
-            width: "100%",
-            minHeight: "80px",
-            padding: "0.75rem",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            fontFamily: "inherit",
-            fontSize: "inherit",
-            resize: "vertical",
-          }}
+          className={styles.textarea}
         />
       </div>
 
-      <div style={{ display: "flex", gap: "0.5rem" }}>
+      <div className={styles.actions}>
         <button
           type="submit"
           disabled={isSaving}
-          style={{
-            padding: "0.5rem 1rem",
-            fontSize: "0.875rem",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            background: "#000",
-            color: "#fff",
-            cursor: isSaving ? "not-allowed" : "pointer",
-            opacity: isSaving ? 0.5 : 1,
-          }}
+          className={styles.submitButton}
         >
           {isSaving ? "Opening…" : "Open Episode"}
         </button>
@@ -159,14 +94,7 @@ export function OpenExploreForm(): React.ReactNode {
           type="button"
           onClick={handleCancel}
           disabled={isSaving}
-          style={{
-            padding: "0.5rem 1rem",
-            fontSize: "0.875rem",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            background: "transparent",
-            cursor: isSaving ? "not-allowed" : "pointer",
-          }}
+          className={styles.cancelButton}
         >
           Cancel
         </button>
@@ -174,4 +102,3 @@ export function OpenExploreForm(): React.ReactNode {
     </form>
   );
 }
-

@@ -1,0 +1,90 @@
+/* ==========================================================================
+   QUICK CAPTURE CONTAINER
+   ========================================================================== */
+
+.container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-4) var(--space-8);
+  background: linear-gradient(transparent, var(--bg-app) 20%);
+  pointer-events: none;
+}
+
+.inner {
+  max-width: 800px;
+  margin: 0 auto;
+  pointer-events: auto;
+}
+
+.inputRow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* ==========================================================================
+   INPUT
+   ========================================================================== */
+
+.input {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  color: var(--input-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.input:focus {
+  border-color: var(--input-border-focus);
+}
+
+.input:disabled {
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   FEEDBACK
+   ========================================================================== */
+
+.feedback {
+  font-size: var(--text-sm);
+  min-width: 80px;
+}
+
+.feedbackSaving {
+  color: var(--text-secondary);
+}
+
+.feedbackSuccess {
+  color: var(--color-in-range);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.feedbackError {
+  color: var(--color-low);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

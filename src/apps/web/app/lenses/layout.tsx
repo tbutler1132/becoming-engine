@@ -1,4 +1,5 @@
 import Link from "next/link";
+import styles from "./layout.module.css";
 
 export default function LensesLayout({
   children,
@@ -7,21 +8,14 @@ export default function LensesLayout({
 }>): React.ReactNode {
   return (
     <>
-      <nav
-        style={{
-          padding: "1rem 2rem",
-          borderBottom: "1px solid #ccc",
-          display: "flex",
-          gap: "2rem",
-        }}
-      >
-        <Link href="/lenses/status" style={{ color: "#222" }}>
+      <nav className={styles.nav}>
+        <Link href="/lenses/status" className={styles.navLink}>
           Status
         </Link>
-        <Link href="/lenses/actions" style={{ color: "#222" }}>
+        <Link href="/lenses/actions" className={styles.navLink}>
           Actions
         </Link>
-        <Link href="/lenses/world-model" style={{ color: "#222" }}>
+        <Link href="/lenses/world-model" className={styles.navLink}>
           World Model
         </Link>
       </nav>
@@ -29,4 +23,3 @@ export default function LensesLayout({
     </>
   );
 }
-

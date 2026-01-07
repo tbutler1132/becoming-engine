@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { createNote } from "@/app/actions";
+import styles from "./QuickCapture.module.css";
 
 type FeedbackState = "idle" | "saving" | "success" | "error";
 
@@ -63,31 +64,9 @@ export function QuickCapture(): React.ReactNode {
   const isDisabled = feedback === "saving";
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: "1rem 2rem",
-        background: "linear-gradient(transparent, #fff 20%)",
-        pointerEvents: "none",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "800px",
-          margin: "0 auto",
-          pointerEvents: "auto",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            alignItems: "center",
-          }}
-        >
+    <aside className={styles.container} aria-label="Quick capture">
+      <div className={styles.inner}>
+        <div className={styles.inputRow}>
           <input
             ref={inputRef}
             type="text"
@@ -96,22 +75,13 @@ export function QuickCapture(): React.ReactNode {
             onKeyDown={handleKeyDown}
             placeholder="Capture a thought..."
             disabled={isDisabled}
-            style={{
-              flex: 1,
-              padding: "0.75rem 1rem",
-              fontSize: "1rem",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              background: "#fff",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
-              outline: "none",
-              opacity: isDisabled ? 0.6 : 1,
-            }}
+            className={styles.input}
+            aria-label="Quick note content"
           />
           <FeedbackIndicator state={feedback} error={errorMessage} />
         </div>
       </div>
-    </div>
+    </aside>
   );
 }
 
@@ -130,13 +100,7 @@ function FeedbackIndicator({
 
   if (state === "saving") {
     return (
-      <span
-        style={{
-          fontSize: "0.875rem",
-          color: "#666",
-          minWidth: "80px",
-        }}
-      >
+      <span className={`${styles.feedback} ${styles.feedbackSaving}`}>
         Saving...
       </span>
     );
@@ -145,12 +109,8 @@ function FeedbackIndicator({
   if (state === "success") {
     return (
       <span
-        style={{
-          fontSize: "0.875rem",
-          color: "#059669",
-          minWidth: "80px",
-          animation: "fadeIn 0.2s ease-out",
-        }}
+        className={`${styles.feedback} ${styles.feedbackSuccess}`}
+        role="status"
       >
         Captured
       </span>
@@ -160,11 +120,8 @@ function FeedbackIndicator({
   if (state === "error") {
     return (
       <span
-        style={{
-          fontSize: "0.875rem",
-          color: "#dc2626",
-          minWidth: "80px",
-        }}
+        className={`${styles.feedback} ${styles.feedbackError}`}
+        role="alert"
         title={error ?? "Unknown error"}
       >
         Failed
@@ -174,4 +131,3 @@ function FeedbackIndicator({
 
   return null;
 }
-

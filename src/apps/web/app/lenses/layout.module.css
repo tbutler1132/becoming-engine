@@ -1,0 +1,19 @@
+.nav {
+  display: flex;
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-8);
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+}
+
+.navLink {
+  color: var(--nav-link-color);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  transition: color 0.15s ease;
+}
+
+.navLink:hover {
+  color: var(--nav-link-color-hover);
+}
+

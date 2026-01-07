@@ -5,6 +5,7 @@ import type { Variable, Episode } from "@libs/memory";
 import { createStore } from "@/lib/store";
 import { OpenExploreForm } from "./OpenExploreForm";
 import { QuickCapture } from "./QuickCapture";
+import styles from "./page.module.css";
 
 export default async function StatusLensPage(): Promise<React.ReactNode> {
   const store = createStore();
@@ -36,37 +37,17 @@ export default async function StatusLensPage(): Promise<React.ReactNode> {
   }
 
   return (
-    <main
-      style={{
-        padding: "2rem",
-        maxWidth: "800px",
-        margin: "0 auto",
-      }}
-    >
-      <header style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>Status</h1>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "1rem",
-            fontSize: "0.875rem",
-            color: "#666",
-          }}
-        >
+    <main className={styles.page}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Status</h1>
+        <p className={styles.subtitle}>
           <span>{formatNodeRef(DEFAULT_PERSONAL_NODE)}</span>
           {inboxCount > 0 && (
-            <Link
-              href="/lenses/world-model"
-              style={{
-                color: "#666",
-                textDecoration: "none",
-              }}
-            >
+            <Link href="/lenses/world-model" className={styles.inboxLink}>
               {inboxCount} {inboxCount === 1 ? "note" : "notes"} in inbox
             </Link>
           )}
-        </div>
+        </p>
       </header>
 
       {activeExplore ? (
@@ -75,51 +56,33 @@ export default async function StatusLensPage(): Promise<React.ReactNode> {
         <OpenExploreForm />
       )}
 
-      <section style={{ marginTop: "2rem" }}>
-        <h2
-          style={{
-            fontSize: "0.75rem",
-            color: "#666",
-            marginBottom: "1rem",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
-          Variables
-        </h2>
-        {nodeVariables.map((variable, index) => (
-          <VariableSection
-            key={variable.id}
-            variable={variable}
-            stabilizeEpisode={stabilizeByVariable.get(variable.id)}
-            isLast={index === nodeVariables.length - 1}
-          />
-        ))}
-        {nodeVariables.length === 0 && (
-          <p style={{ textAlign: "center", color: "#999" }}>
-            No variables defined
-          </p>
+      <section className={styles.variablesSection}>
+        <h2 className={styles.sectionTitle}>Variables</h2>
+
+        {nodeVariables.length > 0 ? (
+          <ul className={styles.variablesList}>
+            {nodeVariables.map((variable) => (
+              <li key={variable.id} className={styles.variableItem}>
+                <VariableCard variable={variable} />
+                {stabilizeByVariable.get(variable.id) && (
+                  <StabilizeCard
+                    episode={stabilizeByVariable.get(variable.id)!}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.emptyState}>No variables defined</p>
         )}
-        <Link
-          href="/variables/new"
-          style={{
-            display: "inline-block",
-            padding: "0.5rem 1rem",
-            fontSize: "0.875rem",
-            border: "1px dashed #ccc",
-            borderRadius: "4px",
-            background: "transparent",
-            color: "#666",
-            textDecoration: "none",
-            marginTop: "1rem",
-          }}
-        >
+
+        <Link href="/variables/new" className={styles.addButton}>
           + Add Variable
         </Link>
       </section>
 
       {/* Bottom padding to account for fixed QuickCapture */}
-      <div style={{ height: "5rem" }} />
+      <div className={styles.bottomSpacer} aria-hidden="true" />
 
       <QuickCapture />
     </main>
@@ -132,57 +95,10 @@ interface ExploreCardProps {
 
 function ExploreCard({ episode }: ExploreCardProps): React.ReactNode {
   return (
-    <Link
-      href={`/episodes/${episode.id}`}
-      style={{
-        padding: "1.5rem",
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        display: "block",
-        color: "inherit",
-        textDecoration: "none",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "0.75rem",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          color: "#666",
-          marginBottom: "0.5rem",
-        }}
-      >
-        Active Explore
-      </div>
-      <div>{episode.objective}</div>
+    <Link href={`/episodes/${episode.id}`} className={styles.exploreCard}>
+      <p className={styles.cardLabel}>Active Explore</p>
+      <p>{episode.objective}</p>
     </Link>
-  );
-}
-
-interface VariableSectionProps {
-  variable: Variable;
-  stabilizeEpisode: Episode | undefined;
-  isLast: boolean;
-}
-
-function VariableSection({
-  variable,
-  stabilizeEpisode,
-  isLast,
-}: VariableSectionProps): React.ReactNode {
-  return (
-    <div
-      style={{
-        padding: "2rem 0",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        borderBottom: isLast ? "none" : "1px solid #ccc",
-      }}
-    >
-      <VariableCard variable={variable} />
-      {stabilizeEpisode && <StabilizeCard episode={stabilizeEpisode} />}
-    </div>
   );
 }
 
@@ -194,33 +110,11 @@ function VariableCard({ variable }: VariableCardProps): React.ReactNode {
   return (
     <Link
       href={`/variables/${variable.id}`}
-      style={{
-        width: "200px",
-        height: "200px",
-        padding: "1.5rem",
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        alignItems: "center",
-        textAlign: "center",
-        color: "inherit",
-        textDecoration: "none",
-      }}
+      className={styles.variableCard}
+      data-status={variable.status}
     >
-      <div style={{ fontSize: "1.125rem", fontWeight: 500 }}>
-        {variable.name}
-      </div>
-      <div
-        style={{
-          fontSize: "0.875rem",
-          color: "#666",
-          textTransform: "capitalize",
-        }}
-      >
-        {variable.status}
-      </div>
+      <span className={styles.variableName}>{variable.name}</span>
+      <span className={styles.variableStatus}>{variable.status}</span>
     </Link>
   );
 }
@@ -231,32 +125,9 @@ interface StabilizeCardProps {
 
 function StabilizeCard({ episode }: StabilizeCardProps): React.ReactNode {
   return (
-    <Link
-      href={`/episodes/${episode.id}`}
-      style={{
-        marginTop: "0.75rem",
-        padding: "1rem 1.5rem",
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        maxWidth: "300px",
-        textAlign: "center",
-        display: "block",
-        color: "inherit",
-        textDecoration: "none",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "0.75rem",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          color: "#666",
-          marginBottom: "0.25rem",
-        }}
-      >
-        Stabilizing
-      </div>
-      <div style={{ fontSize: "0.875rem" }}>{episode.objective}</div>
+    <Link href={`/episodes/${episode.id}`} className={styles.stabilizeCard}>
+      <p className={styles.stabilizeLabel}>Stabilizing</p>
+      <p className={styles.stabilizeObjective}>{episode.objective}</p>
     </Link>
   );
 }

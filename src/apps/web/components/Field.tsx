@@ -1,3 +1,5 @@
+import styles from "./Field.module.css";
+
 interface FieldProps {
   label: string;
   value: string;
@@ -5,23 +7,13 @@ interface FieldProps {
 
 /**
  * Displays a label/value pair in a definition list style.
+ * Note: For proper semantics, wrap multiple Field components in a <dl> element.
  */
 export function Field({ label, value }: FieldProps): React.ReactNode {
   return (
-    <div>
-      <dt
-        style={{
-          fontSize: "0.75rem",
-          color: "#666",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          marginBottom: "0.25rem",
-        }}
-      >
-        {label}
-      </dt>
-      <dd style={{ margin: 0 }}>{value}</dd>
+    <div className={styles.field}>
+      <dt className={styles.label}>{label}</dt>
+      <dd className={styles.value}>{value}</dd>
     </div>
   );
 }
-

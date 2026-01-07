@@ -1,0 +1,237 @@
+/* ==========================================================================
+   STATUS PAGE LAYOUT
+   ========================================================================== */
+
+.page {
+  padding: var(--space-8);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: var(--space-8);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+
+.subtitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.inboxLink {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.inboxLink:hover {
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   EXPLORE CARD
+   ========================================================================== */
+
+.exploreCard {
+  display: block;
+  padding: var(--card-padding);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.exploreCard:hover {
+  background: var(--card-bg-hover);
+  border-color: var(--card-border-hover);
+}
+
+.cardLabel {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+/* ==========================================================================
+   VARIABLES SECTION
+   ========================================================================== */
+
+.variablesSection {
+  margin-top: var(--space-8);
+}
+
+.sectionTitle {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.variablesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.variableItem {
+  padding: var(--space-8) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.variableItem:last-child {
+  border-bottom: none;
+}
+
+.emptyState {
+  text-align: center;
+  color: var(--text-tertiary);
+  padding: var(--space-8) 0;
+}
+
+.addButton {
+  display: inline-block;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--button-radius);
+  background: transparent;
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin-top: var(--space-4);
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.addButton:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   VARIABLE CARD
+   ========================================================================== */
+
+.variableCard {
+  width: 200px;
+  height: 200px;
+  padding: var(--card-padding);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.variableCard:hover {
+  background: var(--card-bg-hover);
+  border-color: var(--card-border-hover);
+}
+
+/* Status-based border colors */
+.variableCard[data-status="Low"] {
+  border-color: color-mix(in srgb, var(--color-low) 40%, transparent);
+}
+
+.variableCard[data-status="Low"]:hover {
+  border-color: var(--color-low);
+}
+
+.variableCard[data-status="InRange"] {
+  border-color: color-mix(in srgb, var(--color-in-range) 40%, transparent);
+}
+
+.variableCard[data-status="InRange"]:hover {
+  border-color: var(--color-in-range);
+}
+
+.variableCard[data-status="High"] {
+  border-color: color-mix(in srgb, var(--color-high) 40%, transparent);
+}
+
+.variableCard[data-status="High"]:hover {
+  border-color: var(--color-high);
+}
+
+.variableName {
+  font-size: var(--text-lg);
+  font-weight: 500;
+}
+
+.variableStatus {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+/* ==========================================================================
+   STABILIZE CARD
+   ========================================================================== */
+
+.stabilizeCard {
+  margin-top: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  max-width: 300px;
+  text-align: center;
+  display: block;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.stabilizeCard:hover {
+  background: var(--card-bg-hover);
+  border-color: var(--card-border-hover);
+}
+
+.stabilizeLabel {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.stabilizeObjective {
+  font-size: var(--text-sm);
+}
+
+/* ==========================================================================
+   BOTTOM SPACER
+   ========================================================================== */
+
+.bottomSpacer {
+  height: 5rem;
+}
+

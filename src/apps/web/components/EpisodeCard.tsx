@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Episode } from "@libs/memory";
+import styles from "./EpisodeCard.module.css";
 
 interface EpisodeCardProps {
   episode: Episode;
@@ -11,25 +12,9 @@ interface EpisodeCardProps {
  */
 export function EpisodeCard({ episode }: EpisodeCardProps): React.ReactNode {
   return (
-    <Link
-      href={`/episodes/${episode.id}`}
-      style={{
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        padding: "1rem",
-        marginBottom: "0.5rem",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        color: "inherit",
-        textDecoration: "none",
-      }}
-    >
-      <span>{episode.objective}</span>
-      <span style={{ fontSize: "0.75rem", color: "#666" }}>
-        {episode.status}
-      </span>
+    <Link href={`/episodes/${episode.id}`} className={styles.card}>
+      <span className={styles.objective}>{episode.objective}</span>
+      <span className={styles.status}>{episode.status}</span>
     </Link>
   );
 }
-

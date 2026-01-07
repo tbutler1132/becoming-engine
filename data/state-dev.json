@@ -44,7 +44,7 @@
         "id": "personal"
       },
       "name": "Coherence",
-      "status": "High",
+      "status": "Low",
       "description": "Coherence",
       "preferredRange": "To be coherent",
       "measurementCadence": "weekly"
