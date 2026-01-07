@@ -2599,3 +2599,373 @@ describe("isValidState - Link Validation", () => {
     });
   });
 });
+
+// ============================================================================
+// Type Guard Functions — Foundation Bulletproofing
+// ============================================================================
+
+import {
+  isNodeRef,
+  isVariableStatus,
+  isEpisodeType,
+  isEpisodeStatus,
+  isActionStatus,
+  isModelType,
+  isModelScope,
+  isEnforcementLevel,
+  isNoteTag,
+  isLinkRelation,
+  isMutationType,
+  isOverrideDecision,
+  isMeasurementCadence,
+} from "./validation.js";
+import { NOTE_TAGS, MUTATION_TYPES } from "../types.js";
+
+describe("Type Guard Functions (Foundation)", () => {
+  describe("isNodeRef", () => {
+    it("accepts valid NodeRef with Personal type", () => {
+      expect(isNodeRef({ type: "Personal", id: "personal" })).toBe(true);
+    });
+
+    it("accepts valid NodeRef with Org type", () => {
+      expect(isNodeRef({ type: "Org", id: "org" })).toBe(true);
+    });
+
+    it("rejects invalid node type", () => {
+      expect(isNodeRef({ type: "Invalid", id: "test" })).toBe(false);
+    });
+
+    it("rejects empty id", () => {
+      expect(isNodeRef({ type: "Personal", id: "" })).toBe(false);
+    });
+
+    it("rejects null", () => {
+      expect(isNodeRef(null)).toBe(false);
+    });
+
+    it("rejects non-object", () => {
+      expect(isNodeRef("Personal:personal")).toBe(false);
+      expect(isNodeRef(123)).toBe(false);
+    });
+
+    it("rejects missing type", () => {
+      expect(isNodeRef({ id: "personal" })).toBe(false);
+    });
+
+    it("rejects missing id", () => {
+      expect(isNodeRef({ type: "Personal" })).toBe(false);
+    });
+  });
+
+  describe("isVariableStatus", () => {
+    it.each(VARIABLE_STATUSES)("accepts valid status: %s", (status) => {
+      expect(isVariableStatus(status)).toBe(true);
+    });
+
+    it("rejects invalid status", () => {
+      expect(isVariableStatus("NotAStatus")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isVariableStatus(123)).toBe(false);
+      expect(isVariableStatus(null)).toBe(false);
+      expect(isVariableStatus(undefined)).toBe(false);
+    });
+  });
+
+  describe("isEpisodeType", () => {
+    it.each(EPISODE_TYPES)("accepts valid type: %s", (type) => {
+      expect(isEpisodeType(type)).toBe(true);
+    });
+
+    it("rejects invalid type", () => {
+      expect(isEpisodeType("NotAType")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isEpisodeType(123)).toBe(false);
+    });
+  });
+
+  describe("isEpisodeStatus", () => {
+    it.each(EPISODE_STATUSES)("accepts valid status: %s", (status) => {
+      expect(isEpisodeStatus(status)).toBe(true);
+    });
+
+    it("rejects invalid status", () => {
+      expect(isEpisodeStatus("NotAStatus")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isEpisodeStatus(null)).toBe(false);
+    });
+  });
+
+  describe("isActionStatus", () => {
+    it.each(ACTION_STATUSES)("accepts valid status: %s", (status) => {
+      expect(isActionStatus(status)).toBe(true);
+    });
+
+    it("rejects invalid status", () => {
+      expect(isActionStatus("NotAStatus")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isActionStatus({})).toBe(false);
+    });
+  });
+
+  describe("isModelType", () => {
+    it.each(MODEL_TYPES)("accepts valid type: %s", (type) => {
+      expect(isModelType(type)).toBe(true);
+    });
+
+    it("rejects invalid type", () => {
+      expect(isModelType("NotAType")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isModelType([])).toBe(false);
+    });
+  });
+
+  describe("isModelScope", () => {
+    it.each(MODEL_SCOPES)("accepts valid scope: %s", (scope) => {
+      expect(isModelScope(scope)).toBe(true);
+    });
+
+    it("rejects invalid scope", () => {
+      expect(isModelScope("NotAScope")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isModelScope(undefined)).toBe(false);
+    });
+  });
+
+  describe("isEnforcementLevel", () => {
+    it.each(ENFORCEMENT_LEVELS)("accepts valid level: %s", (level) => {
+      expect(isEnforcementLevel(level)).toBe(true);
+    });
+
+    it("rejects invalid level", () => {
+      expect(isEnforcementLevel("NotALevel")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isEnforcementLevel(0)).toBe(false);
+    });
+  });
+
+  describe("isNoteTag", () => {
+    it.each(NOTE_TAGS)("accepts valid tag: %s", (tag) => {
+      expect(isNoteTag(tag)).toBe(true);
+    });
+
+    it("rejects invalid tag", () => {
+      expect(isNoteTag("NotATag")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isNoteTag(true)).toBe(false);
+    });
+  });
+
+  describe("isLinkRelation", () => {
+    it.each(LINK_RELATIONS)("accepts valid relation: %s", (relation) => {
+      expect(isLinkRelation(relation)).toBe(true);
+    });
+
+    it("rejects invalid relation", () => {
+      expect(isLinkRelation("NotARelation")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isLinkRelation(Symbol("test"))).toBe(false);
+    });
+  });
+
+  describe("isMutationType", () => {
+    it.each(MUTATION_TYPES)("accepts valid type: %s", (type) => {
+      expect(isMutationType(type)).toBe(true);
+    });
+
+    it("rejects invalid type", () => {
+      expect(isMutationType("NotAType")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isMutationType({})).toBe(false);
+    });
+  });
+
+  describe("isOverrideDecision", () => {
+    it("accepts valid decisions", () => {
+      expect(isOverrideDecision("warn")).toBe(true);
+      expect(isOverrideDecision("block")).toBe(true);
+    });
+
+    it("rejects invalid decision", () => {
+      expect(isOverrideDecision("allow")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isOverrideDecision(null)).toBe(false);
+    });
+  });
+
+  describe("isMeasurementCadence", () => {
+    it.each(MEASUREMENT_CADENCES)("accepts valid cadence: %s", (cadence) => {
+      expect(isMeasurementCadence(cadence)).toBe(true);
+    });
+
+    it("rejects invalid cadence", () => {
+      expect(isMeasurementCadence("NotACadence")).toBe(false);
+    });
+
+    it("rejects non-string", () => {
+      expect(isMeasurementCadence(undefined)).toBe(false);
+    });
+  });
+});
+
+// ============================================================================
+// Migration Robustness — Fuzz Testing
+// ============================================================================
+
+import fc from "fast-check";
+import { migrateToLatest } from "./migrations.js";
+
+describe("migrateToLatest Robustness (Fuzz)", () => {
+  it("never throws on arbitrary input", () => {
+    fc.assert(
+      fc.property(fc.anything(), (garbage) => {
+        // Should never throw, regardless of input
+        const result = migrateToLatest(garbage);
+
+        // Must return a valid result type
+        expect(["current", "migrated", "invalid"]).toContain(result.status);
+
+        // If valid, must have a state
+        if (result.status === "current" || result.status === "migrated") {
+          expect(result.state).toBeDefined();
+          expect(isValidState(result.state)).toBe(true);
+        }
+
+        return true;
+      }),
+      { numRuns: 200 },
+    );
+  });
+
+  it("handles null and undefined gracefully", () => {
+    expect(migrateToLatest(null).status).toBe("invalid");
+    expect(migrateToLatest(undefined).status).toBe("invalid");
+  });
+
+  it("handles empty object gracefully", () => {
+    expect(migrateToLatest({}).status).toBe("invalid");
+  });
+
+  it("handles arrays gracefully", () => {
+    expect(migrateToLatest([]).status).toBe("invalid");
+    expect(migrateToLatest([1, 2, 3]).status).toBe("invalid");
+  });
+
+  it("handles primitive types gracefully", () => {
+    expect(migrateToLatest("string").status).toBe("invalid");
+    expect(migrateToLatest(12345).status).toBe("invalid");
+    expect(migrateToLatest(true).status).toBe("invalid");
+  });
+
+  it("handles objects with wrong schemaVersion type", () => {
+    expect(migrateToLatest({ schemaVersion: "10" }).status).toBe("invalid");
+    expect(migrateToLatest({ schemaVersion: null }).status).toBe("invalid");
+  });
+
+  it("handles objects with future schemaVersion", () => {
+    expect(migrateToLatest({ schemaVersion: 9999 }).status).toBe("invalid");
+  });
+});
+
+// ============================================================================
+// Schema Shape Snapshot — Catches Accidental Type Changes
+// ============================================================================
+
+describe("State Schema Snapshot", () => {
+  it("State has expected top-level keys", () => {
+    const validState = {
+      schemaVersion: SCHEMA_VERSION,
+      variables: [],
+      episodes: [],
+      actions: [],
+      notes: [],
+      models: [],
+      links: [],
+      exceptions: [],
+    };
+
+    expect(isValidState(validState)).toBe(true);
+    expect(Object.keys(validState).sort()).toMatchInlineSnapshot(`
+      [
+        "actions",
+        "episodes",
+        "exceptions",
+        "links",
+        "models",
+        "notes",
+        "schemaVersion",
+        "variables",
+      ]
+    `);
+  });
+
+  it("Variable has expected shape", () => {
+    const variable = {
+      id: "v1",
+      node: DEFAULT_PERSONAL_NODE,
+      name: "Test",
+      status: VARIABLE_STATUSES[1],
+    };
+
+    expect(Object.keys(variable).sort()).toMatchInlineSnapshot(`
+      [
+        "id",
+        "name",
+        "node",
+        "status",
+      ]
+    `);
+  });
+
+  it("Episode has expected required shape", () => {
+    const episode = {
+      id: "e1",
+      node: DEFAULT_PERSONAL_NODE,
+      type: EPISODE_TYPES[0],
+      objective: "Test",
+      status: EPISODE_STATUSES[0],
+      openedAt: "2025-01-01T00:00:00.000Z",
+    };
+
+    expect(Object.keys(episode).sort()).toMatchInlineSnapshot(`
+      [
+        "id",
+        "node",
+        "objective",
+        "openedAt",
+        "status",
+        "type",
+      ]
+    `);
+  });
+
+  it("NodeRef has expected shape", () => {
+    expect(Object.keys(DEFAULT_PERSONAL_NODE).sort()).toMatchInlineSnapshot(`
+      [
+        "id",
+        "type",
+      ]
+    `);
+  });
+});

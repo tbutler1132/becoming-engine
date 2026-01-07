@@ -13,12 +13,11 @@ export default defineConfig({
         "vitest.config.ts",
       ],
       thresholds: {
-        // Current coverage: statements 79%, branches 74%, functions 80%, lines 82%
-        // TODO: Increase thresholds as coverage improves
-        statements: 79,
-        branches: 74,
-        functions: 80,
-        lines: 80,
+        // Updated after foundation hardening (2026-01-06)
+        statements: 81,
+        branches: 78,
+        functions: 88,
+        lines: 84,
       },
     },
   },
