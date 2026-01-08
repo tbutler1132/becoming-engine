@@ -8,7 +8,7 @@
         "id": "personal"
       },
       "name": "Agency",
-      "status": "InRange"
+      "status": "Low"
     },
     {
       "id": "827f06b8-782b-483c-bc42-8855a4d54d07",
@@ -53,6 +53,18 @@
       "status": "Low",
       "description": "Degree of stable integration into ongoing social systems and relationships that persist over time.",
       "preferredRange": "I feel socially held by persistent relationships and contexts, such that week-to-week variability does not threaten my sense of belonging or continuity.",
+      "measurementCadence": "weekly"
+    },
+    {
+      "id": "5c568d5e-54f8-4c5d-825c-77f44df89ce6",
+      "node": {
+        "type": "Personal",
+        "id": "personal"
+      },
+      "name": "Meaningful Engagement",
+      "status": "InRange",
+      "description": "Degree of emotional investment, aliveness, and care in lived experience and ongoing pursuits.",
+      "preferredRange": "I feel genuinely invested in what I'm building, with engagement flowing from high-level conviction into daily action, even if intensity varies.",
       "measurementCadence": "weekly"
     }
   ],
@@ -144,6 +156,11 @@
       "description": "Go to Smoothie place + Maybe Go to Burrito place",
       "status": "Pending",
       "episodeId": "54c01e7a-36fa-45bd-b2c3-45cf31294a79"
+    },
+    {
+      "id": "384a549f-3d4c-42da-88d2-cba8e80de1ed",
+      "description": "Go to party on Saturday",
+      "status": "Pending"
     }
   ],
   "notes": [
@@ -173,7 +190,7 @@
     },
     {
       "id": "a9b4ecda-3a8d-4f61-84da-9f6c322d90b7",
-      "content": "Update episodes to be dormant/active + General enrichment",
+      "content": "Update episodes to be dormant/active + General enrichment.\n\nAdd \"Review\" as first Procedural Model",
       "createdAt": "2026-01-07T17:11:13.280Z",
       "tags": ["inbox"]
     },
@@ -182,6 +199,20 @@
       "content": "Enrich Episodes",
       "createdAt": "2026-01-08T02:44:23.017Z",
       "tags": ["processed"]
+    },
+    {
+      "id": "bef5fd71-7235-4cef-9242-885ae77258d2",
+      "content": "Status changed: Unknown → InRange",
+      "createdAt": "2026-01-08T13:47:17.549Z",
+      "tags": ["audit"],
+      "linkedObjects": ["5c568d5e-54f8-4c5d-825c-77f44df89ce6"]
+    },
+    {
+      "id": "36725755-8bcd-4a9b-9494-87f25d4025c3",
+      "content": "Status changed: InRange → Low",
+      "createdAt": "2026-01-08T13:48:40.015Z",
+      "tags": ["audit"],
+      "linkedObjects": ["3e40bf0f-693b-4c29-b4e2-1f5c1cf47020"]
     }
   ],
   "models": [],

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { DEFAULT_PERSONAL_NODE } from "@libs/memory";
-import { getStatusData } from "@libs/regulator";
+import { getStatusData, getPendingOrphanedActions } from "@libs/regulator";
 import type { Action, Episode } from "@libs/memory";
 import { createStore } from "@/lib/store";
 import { ActionCard } from "@/components";
@@ -19,19 +19,18 @@ export default async function ActionsLensPage(): Promise<React.ReactNode> {
   const activeEpisodes = status.mode === "active" ? status.episodes : [];
   const pendingActions = status.mode === "active" ? status.actions : [];
 
-  // Group actions by episodeId
+  // Group episode-linked actions by episodeId
   const actionsByEpisode = new Map<string, Action[]>();
-  const orphanActions: Action[] = [];
-
   for (const action of pendingActions) {
     if (action.episodeId) {
       const existing = actionsByEpisode.get(action.episodeId) ?? [];
       existing.push(action);
       actionsByEpisode.set(action.episodeId, existing);
-    } else {
-      orphanActions.push(action);
     }
   }
+
+  // Get orphaned actions via dedicated selector
+  const orphanActions = getPendingOrphanedActions(state);
 
   // Group episodes by type with their actions
   const exploreEpisodes: EpisodeWithActions[] = [];

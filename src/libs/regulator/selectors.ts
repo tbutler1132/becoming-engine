@@ -73,6 +73,16 @@ export function getPendingActionsForActiveEpisodes(
 }
 
 /**
+ * Gets pending orphaned actions (actions without an episodeId).
+ * These actions exist but have no episode scope and carry zero authority.
+ */
+export function getPendingOrphanedActions(state: State): Action[] {
+  return state.actions.filter(
+    (a) => a.status === ACTION_PENDING_STATUS && a.episodeId === undefined,
+  );
+}
+
+/**
  * Gets status data for CLI display.
  * Returns baseline mode if no active episodes, otherwise returns active mode with details.
  */
