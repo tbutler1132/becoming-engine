@@ -6,28 +6,13 @@ import {
   EPISODE_STATUSES,
   EPISODE_TYPES,
   formatNodeRef,
-  LINK_RELATIONS,
   nodeRefEquals,
-  NOTE_TAGS,
 } from "../memory/index.js";
-import type {
-  Action,
-  Proxy,
-  ProxyReading,
-  State,
-  Variable,
-  Episode,
-  Link,
-  NodeRef,
-  Note,
-  NoteTag,
-  VariableStatus,
-} from "../memory/index.js";
+import type { State, Note, NoteTag, Proxy } from "../memory/index.js";
 import type {
   AddNoteLinkedObjectParams,
   AddNoteTagParams,
   CloseEpisodeParams,
-  ClosureNote,
   CompleteActionParams,
   CreateActionParams,
   CreateLinkParams,
@@ -39,32 +24,58 @@ import type {
   DeleteProxyParams,
   LogExceptionParams,
   LogProxyReadingParams,
-  ModelUpdate,
   RemoveNoteTagParams,
   Result,
   OpenEpisodeParams,
   SignalParams,
-  StatusData,
   UpdateEpisodeParams,
   UpdateModelParams,
   UpdateNoteParams,
   UpdateProxyParams,
-  VariableUpdate,
 } from "./types.js";
 import type { RegulatorPolicyForNode } from "./policy.js";
-import { MAX_ACTIVE_EXPLORE_PER_NODE } from "./types.js";
 import {
-  MODEL_TYPES,
-  MODEL_SCOPES,
-  ENFORCEMENT_LEVELS,
-} from "../memory/index.js";
-import type { MembraneException, Model } from "../memory/index.js";
-import { MUTATION_TYPES, OVERRIDE_DECISIONS } from "../memory/index.js";
-
-const CLOSURE_NOTE_TAG: NoteTag = "closure_note";
+  collectAllObjectIds,
+  checkVariableExists,
+  checkModelExists,
+  checkProxyExists,
+  checkNoDuplicateId,
+} from "./internal/integrity.js";
+import {
+  validateEpisodeParams,
+  canStartExplore,
+  canStartStabilize,
+  validateClosureNote,
+  validateEpisodeClosure,
+  validateEpisodeUpdate,
+  validateActionCreation,
+  validateModelParams,
+  validateModelUpdate,
+  validateNoteContent,
+  validateNoteTag,
+  validateNoteTags,
+  validateLinkRelation,
+  validateLinkWeight,
+  validateExceptionParams,
+} from "./internal/validation.js";
+import {
+  applyOpenEpisode,
+  applyCloseEpisode,
+  applyUpdateEpisode,
+  applyCreateAction,
+  applyCompleteAction,
+  applyCreateModel,
+  applyCreateNote,
+  applyCreateLink,
+  applyDeleteLink,
+  applyCreateProxy,
+  applyDeleteProxy,
+  applyLogProxyReading,
+  applyLogException,
+  applyCreateVariable,
+} from "./internal/transform.js";
 
 const ACTIVE_STATUS = EPISODE_STATUSES[0];
-const CLOSED_STATUS = EPISODE_STATUSES[1];
 const STABILIZE_TYPE = EPISODE_TYPES[0];
 const EXPLORE_TYPE = EPISODE_TYPES[1];
 const ACTION_PENDING_STATUS = ACTION_STATUSES[0];
@@ -72,109 +83,8 @@ const ACTION_DONE_STATUS = ACTION_STATUSES[1];
 
 type CanCreateActionParams = Pick<CreateActionParams, "node" | "episodeId">;
 
-/**
- * Filters variables by node type.
- */
-export function getVariablesByNode(state: State, node: NodeRef): Variable[] {
-  return state.variables.filter(
-    (v) => v.node.type === node.type && v.node.id === node.id,
-  );
-}
-
-/**
- * Filters active episodes by node type.
- */
-export function getActiveEpisodesByNode(
-  state: State,
-  node: NodeRef,
-): Episode[] {
-  return state.episodes.filter(
-    (e) =>
-      e.node.type === node.type &&
-      e.node.id === node.id &&
-      e.status === ACTIVE_STATUS,
-  );
-}
-
-export function isBaseline(state: State, node: NodeRef): boolean {
-  return getActiveEpisodesByNode(state, node).length === 0;
-}
-
-/**
- * Gets pending actions scoped to active episodes for a node.
- * Only returns actions with status "Pending" that reference an active episode.
- */
-export function getPendingActionsForActiveEpisodes(
-  state: State,
-  node: NodeRef,
-): Action[] {
-  const activeEpisodeIds = new Set(
-    getActiveEpisodesByNode(state, node).map((e) => e.id),
-  );
-  return state.actions.filter(
-    (a) =>
-      a.status === ACTION_PENDING_STATUS &&
-      a.episodeId !== undefined &&
-      activeEpisodeIds.has(a.episodeId),
-  );
-}
-
-/**
- * Gets status data for CLI display.
- * Returns baseline mode if no active episodes, otherwise returns active mode with details.
- */
-export function getStatusData(state: State, node: NodeRef): StatusData {
-  if (isBaseline(state, node)) {
-    return { mode: "baseline", node };
-  }
-  return {
-    mode: "active",
-    node,
-    variables: getVariablesByNode(state, node),
-    episodes: getActiveEpisodesByNode(state, node),
-    actions: getPendingActionsForActiveEpisodes(state, node),
-  };
-}
-
-/**
- * Counts active Explore episodes for a node.
- */
-export function countActiveExplores(state: State, node: NodeRef): number {
-  return getActiveEpisodesByNode(state, node).filter(
-    (e) => e.type === EXPLORE_TYPE,
-  ).length;
-}
-
-export function countActiveStabilizesForVariable(
-  state: State,
-  node: NodeRef,
-  variableId: string,
-): number {
-  return getActiveEpisodesByNode(state, node).filter(
-    (e) => e.type === STABILIZE_TYPE && e.variableId === variableId,
-  ).length;
-}
-
-/**
- * Validates whether a new Explore episode can be started for a node.
- * Enforces MAX_ACTIVE_EXPLORE_PER_NODE constraint.
- */
-export function canStartExplore(
-  state: State,
-  node: NodeRef,
-  policy?: RegulatorPolicyForNode,
-): Result<void> {
-  const activeExplores = countActiveExplores(state, node);
-  const maxAllowed =
-    policy?.maxActiveExplorePerNode ?? MAX_ACTIVE_EXPLORE_PER_NODE;
-  if (activeExplores >= maxAllowed) {
-    return {
-      ok: false,
-      error: `Cannot start Explore: node '${formatNodeRef(node)}' already has ${activeExplores} active Explore episode(s). Max allowed: ${maxAllowed}`,
-    };
-  }
-  return { ok: true, value: undefined };
-}
+// Re-export canStartExplore for API compatibility
+export { canStartExplore } from "./internal/validation.js";
 
 /**
  * Validates whether an action can be created for a node.
@@ -184,6 +94,7 @@ export function canCreateAction(
   state: State,
   params: CanCreateActionParams,
 ): Result<void> {
+  // For legacy API compatibility, we only check episode constraints (not description)
   if (!params.episodeId) {
     return { ok: true, value: undefined };
   }
@@ -277,32 +188,15 @@ export function createAction(
   state: State,
   params: CreateActionParams,
 ): Result<State> {
-  const canActResult = canCreateAction(state, {
-    node: params.node,
-    ...(params.episodeId ? { episodeId: params.episodeId } : {}),
-  });
-  if (!canActResult.ok) {
-    return canActResult;
-  }
+  const validationCheck = validateActionCreation(
+    state,
+    params.node,
+    params.episodeId,
+    params.description,
+  );
+  if (!validationCheck.ok) return validationCheck;
 
-  if (!params.description || params.description.trim().length === 0) {
-    return { ok: false, error: "Action description cannot be empty" };
-  }
-
-  const action: Action = {
-    id: params.actionId,
-    description: params.description,
-    status: ACTION_PENDING_STATUS,
-    ...(params.episodeId ? { episodeId: params.episodeId } : {}),
-  };
-
-  return {
-    ok: true,
-    value: {
-      ...state,
-      actions: [...state.actions, action],
-    },
-  };
+  return { ok: true, value: applyCreateAction(state, params) };
 }
 
 /**
@@ -338,33 +232,11 @@ export function completeAction(
     };
   }
 
-  const updatedActions = state.actions.map((a) =>
-    a.id === params.actionId ? { ...a, status: ACTION_DONE_STATUS } : a,
-  );
-
-  return {
-    ok: true,
-    value: {
-      ...state,
-      actions: updatedActions,
-    },
-  };
+  return { ok: true, value: applyCompleteAction(state, params.actionId) };
 }
 
-/**
- * Validates episode creation parameters.
- */
-export function validateEpisodeParams(params: OpenEpisodeParams): Result<void> {
-  if (params.type === STABILIZE_TYPE) {
-    if (!params.variableId || params.variableId.trim().length === 0) {
-      return { ok: false, error: "Stabilize episodes require variableId" };
-    }
-  }
-  if (!params.objective || params.objective.trim().length === 0) {
-    return { ok: false, error: "Episode objective cannot be empty" };
-  }
-  return { ok: true, value: undefined };
-}
+// Re-export validateEpisodeParams for API compatibility
+export { validateEpisodeParams } from "./internal/validation.js";
 
 /**
  * Opens a new episode.
@@ -377,137 +249,30 @@ export function openEpisode(
   policy?: RegulatorPolicyForNode,
 ): Result<State> {
   // Validate params
-  const paramsValidation = validateEpisodeParams(params);
-  if (!paramsValidation.ok) {
-    return paramsValidation;
-  }
+  const paramsCheck = validateEpisodeParams(params);
+  if (!paramsCheck.ok) return paramsCheck;
 
-  // Check Explore constraint if applicable
+  // Check type-specific constraints
   if (params.type === EXPLORE_TYPE) {
-    const exploreValidation = canStartExplore(state, params.node, policy);
-    if (!exploreValidation.ok) {
-      return exploreValidation;
-    }
+    const exploreCheck = canStartExplore(state, params.node, policy);
+    if (!exploreCheck.ok) return exploreCheck;
   }
 
-  // Check Stabilize per-variable constraint if applicable
   if (params.type === STABILIZE_TYPE) {
-    const variableId = params.variableId;
-    const activeStabilizes = countActiveStabilizesForVariable(
+    const stabilizeCheck = canStartStabilize(
       state,
       params.node,
-      variableId,
+      params.variableId,
+      policy,
     );
-    const maxAllowed = policy?.maxActiveStabilizePerVariable ?? 1;
-    if (activeStabilizes >= maxAllowed) {
-      return {
-        ok: false,
-        error: `Cannot start Stabilize: node '${formatNodeRef(params.node)}' already has ${activeStabilizes} active Stabilize episode(s) for variable '${variableId}'. Max allowed: ${maxAllowed}`,
-      };
-    }
+    if (!stabilizeCheck.ok) return stabilizeCheck;
   }
 
-  // Create new episode
-  const newEpisode: Episode = {
-    id: params.episodeId,
-    node: params.node,
-    type: params.type,
-    ...(params.type === STABILIZE_TYPE
-      ? { variableId: params.variableId }
-      : {}),
-    objective: params.objective,
-    status: ACTIVE_STATUS,
-    openedAt: params.openedAt,
-  };
-
-  // Return new state with episode added
-  return {
-    ok: true,
-    value: {
-      ...state,
-      episodes: [...state.episodes, newEpisode],
-    },
-  };
+  return { ok: true, value: applyOpenEpisode(state, params) };
 }
 
-/**
- * Validates closure note content.
- */
-export function validateClosureNote(note: ClosureNote): Result<void> {
-  if (!note.content || note.content.trim().length === 0) {
-    return { ok: false, error: "Closure note content cannot be empty" };
-  }
-  return { ok: true, value: undefined };
-}
-
-/**
- * Applies variable status updates to a list of variables.
- * Pure function: returns new array without mutating input.
- */
-function applyVariableUpdates(
-  variables: Variable[],
-  updates?: VariableUpdate[],
-): Variable[] {
-  if (!updates || updates.length === 0) {
-    return variables;
-  }
-  return variables.map((v) => {
-    const update = updates.find((u) => u.id === v.id);
-    return update ? { ...v, status: update.status as VariableStatus } : v;
-  });
-}
-
-/**
- * Applies model updates (create or update) to a list of models.
- * Pure function: returns new array without mutating input.
- */
-function applyModelUpdates(models: Model[], updates?: ModelUpdate[]): Model[] {
-  if (!updates || updates.length === 0) {
-    return models;
-  }
-
-  const existingModelIds = new Set(models.map((m) => m.id));
-  let result = models;
-  const newModels: Model[] = [];
-
-  for (const update of updates) {
-    if (existingModelIds.has(update.id)) {
-      // Update existing model
-      result = result.map((m) =>
-        m.id === update.id
-          ? {
-              ...m,
-              statement: update.statement,
-              ...(update.confidence !== undefined
-                ? { confidence: update.confidence }
-                : {}),
-              ...(update.scope !== undefined ? { scope: update.scope } : {}),
-              ...(update.enforcement !== undefined
-                ? { enforcement: update.enforcement }
-                : {}),
-            }
-          : m,
-      );
-    } else {
-      // Create new model
-      const newModel: Model = {
-        id: update.id,
-        type: update.type,
-        statement: update.statement,
-        ...(update.confidence !== undefined
-          ? { confidence: update.confidence }
-          : {}),
-        ...(update.scope !== undefined ? { scope: update.scope } : {}),
-        ...(update.enforcement !== undefined
-          ? { enforcement: update.enforcement }
-          : {}),
-      };
-      newModels.push(newModel);
-    }
-  }
-
-  return [...result, ...newModels];
-}
+// Re-export validateClosureNote for API compatibility
+export { validateClosureNote } from "./internal/validation.js";
 
 /**
  * Closes an episode and creates a closure note.
@@ -524,61 +289,28 @@ export function closeEpisode(
     params;
 
   // Validate closure note
-  const noteValidation = validateClosureNote(closureNote);
-  if (!noteValidation.ok) {
-    return noteValidation;
-  }
+  const noteCheck = validateClosureNote(closureNote);
+  if (!noteCheck.ok) return noteCheck;
 
-  // Find the episode
-  const episode = state.episodes.find((e) => e.id === episodeId);
-  if (!episode) {
-    return { ok: false, error: `Episode with id '${episodeId}' not found` };
-  }
-
-  if (episode.status === CLOSED_STATUS) {
-    return { ok: false, error: `Episode '${episodeId}' is already closed` };
-  }
-
-  // Explore episodes must produce learning (at least one Model update)
-  if (episode.type === EXPLORE_TYPE) {
-    if (!modelUpdates || modelUpdates.length === 0) {
-      return {
-        ok: false,
-        error:
-          "Explore episodes must produce at least one Model update on closure",
-      };
-    }
-  }
-
-  // Create the closure note with timestamp and closure_note tag
-  const newNote: Note = {
-    id: closureNote.id,
-    content: closureNote.content,
-    createdAt: closedAt,
-    tags: [CLOSURE_NOTE_TAG],
-  };
-
-  // Close the episode with timestamp and closureNoteId
-  const updatedEpisodes = state.episodes.map((e) =>
-    e.id === episodeId
-      ? {
-          ...e,
-          status: CLOSED_STATUS,
-          closedAt,
-          closureNoteId: closureNote.id,
-        }
-      : e,
+  // Validate episode can be closed
+  const closureCheck = validateEpisodeClosure(
+    state,
+    episodeId,
+    modelUpdates?.length ?? 0,
   );
+  if (!closureCheck.ok) return closureCheck;
 
   return {
     ok: true,
-    value: {
-      ...state,
-      episodes: updatedEpisodes,
-      variables: applyVariableUpdates(state.variables, variableUpdates),
-      notes: [...state.notes, newNote],
-      models: applyModelUpdates(state.models, modelUpdates),
-    },
+    value: applyCloseEpisode(
+      state,
+      episodeId,
+      closedAt,
+      closureNote.id,
+      closureNote.content,
+      variableUpdates,
+      modelUpdates,
+    ),
   };
 }
 
@@ -588,122 +320,28 @@ export function closeEpisode(
  * Pure function: does not mutate input state.
  *
  * Only Active episodes can be edited. Closed episodes are immutable.
- *
- * @param state - Current state
- * @param params - UpdateEpisodeParams with episodeId and optional fields to update
- * @returns Result<State> with updated episode or error
  */
 export function updateEpisode(
   state: State,
   params: UpdateEpisodeParams,
 ): Result<State> {
-  // Find the episode
-  const episode = state.episodes.find((e) => e.id === params.episodeId);
-  if (!episode) {
-    return {
-      ok: false,
-      error: `Episode with id '${params.episodeId}' not found`,
-    };
-  }
-
-  // Only Active episodes can be edited
-  if (episode.status !== ACTIVE_STATUS) {
-    return {
-      ok: false,
-      error: `Episode '${params.episodeId}' cannot be edited: only Active episodes can be modified`,
-    };
-  }
-
-  // Validate objective if provided
-  if (params.objective !== undefined) {
-    if (!params.objective || params.objective.trim().length === 0) {
-      return { ok: false, error: "Episode objective cannot be empty" };
-    }
-  }
-
-  // Validate timeboxDays if provided
-  if (params.timeboxDays !== undefined) {
-    if (params.timeboxDays !== null && params.timeboxDays <= 0) {
-      return {
-        ok: false,
-        error: "Episode timeboxDays must be positive if provided",
-      };
-    }
-  }
-
-  // Update the episode with provided fields
-  const updatedEpisodes = state.episodes.map((e) => {
-    if (e.id !== params.episodeId) {
-      return e;
-    }
-
-    const updates: Partial<Episode> = {};
-    if (params.objective !== undefined) {
-      updates.objective = params.objective;
-    }
-    if (params.timeboxDays !== undefined) {
-      if (params.timeboxDays === null) {
-        // Remove timeboxDays by omitting it
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { timeboxDays: _unused, ...rest } = e;
-        return {
-          ...rest,
-          ...updates,
-        };
-      } else {
-        updates.timeboxDays = params.timeboxDays;
-      }
-    }
-
-    return {
-      ...e,
-      ...updates,
-    };
-  });
+  const updateCheck = validateEpisodeUpdate(
+    state,
+    params.episodeId,
+    params.objective,
+    params.timeboxDays,
+  );
+  if (!updateCheck.ok) return updateCheck;
 
   return {
     ok: true,
-    value: {
-      ...state,
-      episodes: updatedEpisodes,
-    },
+    value: applyUpdateEpisode(
+      state,
+      params.episodeId,
+      params.objective,
+      params.timeboxDays,
+    ),
   };
-}
-
-/**
- * Validates model creation parameters.
- */
-function validateModelParams(params: CreateModelParams): Result<void> {
-  if (!params.statement || params.statement.trim().length === 0) {
-    return { ok: false, error: "Model statement cannot be empty" };
-  }
-  if (!(MODEL_TYPES as readonly string[]).includes(params.type)) {
-    return { ok: false, error: `Invalid model type: ${params.type}` };
-  }
-  if (params.confidence !== undefined) {
-    if (params.confidence < 0 || params.confidence > 1) {
-      return {
-        ok: false,
-        error: "Model confidence must be between 0.0 and 1.0",
-      };
-    }
-  }
-  if (
-    params.scope !== undefined &&
-    !(MODEL_SCOPES as readonly string[]).includes(params.scope)
-  ) {
-    return { ok: false, error: `Invalid model scope: ${params.scope}` };
-  }
-  if (
-    params.enforcement !== undefined &&
-    !(ENFORCEMENT_LEVELS as readonly string[]).includes(params.enforcement)
-  ) {
-    return {
-      ok: false,
-      error: `Invalid enforcement level: ${params.enforcement}`,
-    };
-  }
-  return { ok: true, value: undefined };
 }
 
 /**
@@ -717,38 +355,17 @@ export function createModel(
 ): Result<State> {
   // Validate params
   const validation = validateModelParams(params);
-  if (!validation.ok) {
-    return validation;
-  }
+  if (!validation.ok) return validation;
 
   // Check for duplicate ID
-  if (state.models.some((m) => m.id === params.modelId)) {
-    return {
-      ok: false,
-      error: `Model with id '${params.modelId}' already exists`,
-    };
-  }
+  const duplicateCheck = checkNoDuplicateId(
+    state.models,
+    params.modelId,
+    "Model",
+  );
+  if (!duplicateCheck.ok) return duplicateCheck;
 
-  const newModel: Model = {
-    id: params.modelId,
-    type: params.type,
-    statement: params.statement,
-    ...(params.confidence !== undefined
-      ? { confidence: params.confidence }
-      : {}),
-    ...(params.scope !== undefined ? { scope: params.scope } : {}),
-    ...(params.enforcement !== undefined
-      ? { enforcement: params.enforcement }
-      : {}),
-  };
-
-  return {
-    ok: true,
-    value: {
-      ...state,
-      models: [...state.models, newModel],
-    },
-  };
+  return { ok: true, value: applyCreateModel(state, params) };
 }
 
 /**
@@ -761,38 +378,17 @@ export function updateModel(
   params: UpdateModelParams,
 ): Result<State> {
   // Find the model
-  const model = state.models.find((m) => m.id === params.modelId);
-  if (!model) {
-    return { ok: false, error: `Model with id '${params.modelId}' not found` };
-  }
+  const modelCheck = checkModelExists(state, params.modelId);
+  if (!modelCheck.ok) return modelCheck;
 
   // Validate updates
-  if (params.statement !== undefined && params.statement.trim().length === 0) {
-    return { ok: false, error: "Model statement cannot be empty" };
-  }
-  if (params.confidence !== undefined) {
-    if (params.confidence < 0 || params.confidence > 1) {
-      return {
-        ok: false,
-        error: "Model confidence must be between 0.0 and 1.0",
-      };
-    }
-  }
-  if (
-    params.scope !== undefined &&
-    !(MODEL_SCOPES as readonly string[]).includes(params.scope)
-  ) {
-    return { ok: false, error: `Invalid model scope: ${params.scope}` };
-  }
-  if (
-    params.enforcement !== undefined &&
-    !(ENFORCEMENT_LEVELS as readonly string[]).includes(params.enforcement)
-  ) {
-    return {
-      ok: false,
-      error: `Invalid enforcement level: ${params.enforcement}`,
-    };
-  }
+  const updateCheck = validateModelUpdate(
+    params.statement,
+    params.confidence,
+    params.scope,
+    params.enforcement,
+  );
+  if (!updateCheck.ok) return updateCheck;
 
   const updatedModels = state.models.map((m) =>
     m.id === params.modelId
@@ -831,42 +427,20 @@ export function createNote(
   params: CreateNoteParams,
 ): Result<State> {
   // Validate content
-  if (!params.content || params.content.trim().length === 0) {
-    return { ok: false, error: "Note content cannot be empty" };
-  }
+  const contentCheck = validateNoteContent(params.content);
+  if (!contentCheck.ok) return contentCheck;
 
   // Check for duplicate ID
-  if (state.notes.some((n) => n.id === params.noteId)) {
-    return {
-      ok: false,
-      error: `Note with id '${params.noteId}' already exists`,
-    };
-  }
+  const duplicateCheck = checkNoDuplicateId(state.notes, params.noteId, "Note");
+  if (!duplicateCheck.ok) return duplicateCheck;
 
   // Validate tags if provided
   if (params.tags) {
-    for (const tag of params.tags) {
-      if (!(NOTE_TAGS as readonly string[]).includes(tag)) {
-        return { ok: false, error: `Invalid note tag: ${tag}` };
-      }
-    }
+    const tagsCheck = validateNoteTags(params.tags);
+    if (!tagsCheck.ok) return tagsCheck;
   }
 
-  const newNote: Note = {
-    id: params.noteId,
-    content: params.content,
-    createdAt: params.createdAt,
-    tags: params.tags ?? [],
-    ...(params.linkedObjects ? { linkedObjects: params.linkedObjects } : {}),
-  };
-
-  return {
-    ok: true,
-    value: {
-      ...state,
-      notes: [...state.notes, newNote],
-    },
-  };
+  return { ok: true, value: applyCreateNote(state, params) };
 }
 
 /**
@@ -885,9 +459,8 @@ export function addNoteTag(
   }
 
   // Validate tag
-  if (!(NOTE_TAGS as readonly string[]).includes(params.tag)) {
-    return { ok: false, error: `Invalid note tag: ${params.tag}` };
-  }
+  const tagCheck = validateNoteTag(params.tag);
+  if (!tagCheck.ok) return tagCheck;
 
   // Idempotent: if tag already exists, return success with same state
   if (note.tags.includes(params.tag)) {
@@ -924,9 +497,8 @@ export function removeNoteTag(
   }
 
   // Validate tag
-  if (!(NOTE_TAGS as readonly string[]).includes(params.tag)) {
-    return { ok: false, error: `Invalid note tag: ${params.tag}` };
-  }
+  const tagCheck = validateNoteTag(params.tag);
+  if (!tagCheck.ok) return tagCheck;
 
   // Idempotent: if tag doesn't exist, return success with same state
   if (!note.tags.includes(params.tag)) {
@@ -1015,9 +587,8 @@ export function updateNote(
   }
 
   // Validate content
-  if (!params.content || params.content.trim().length === 0) {
-    return { ok: false, error: "Note content cannot be empty" };
-  }
+  const contentCheck = validateNoteContent(params.content);
+  if (!contentCheck.ok) return contentCheck;
 
   // Update the note content
   const updatedNotes = state.notes.map((n) =>
@@ -1034,32 +605,6 @@ export function updateNote(
 }
 
 /**
- * Collects all object IDs from the state for referential integrity checks.
- */
-function collectAllObjectIds(state: State): Set<string> {
-  const ids = new Set<string>();
-  for (const v of state.variables) {
-    ids.add(v.id);
-  }
-  for (const e of state.episodes) {
-    ids.add(e.id);
-  }
-  for (const a of state.actions) {
-    ids.add(a.id);
-  }
-  for (const n of state.notes) {
-    ids.add(n.id);
-  }
-  for (const m of state.models) {
-    ids.add(m.id);
-  }
-  for (const l of state.links) {
-    ids.add(l.id);
-  }
-  return ids;
-}
-
-/**
  * Creates a new link between two objects.
  * Returns a new State with the link added.
  * Pure function: does not mutate input state.
@@ -1069,58 +614,27 @@ export function createLink(
   params: CreateLinkParams,
 ): Result<State> {
   // Validate relation type
-  if (!(LINK_RELATIONS as readonly string[]).includes(params.relation)) {
-    return { ok: false, error: `Invalid link relation: ${params.relation}` };
-  }
+  const relationCheck = validateLinkRelation(params.relation);
+  if (!relationCheck.ok) return relationCheck;
 
   // Validate weight if present
-  if (params.weight !== undefined) {
-    if (params.weight < 0 || params.weight > 1) {
-      return {
-        ok: false,
-        error: "Link weight must be between 0.0 and 1.0",
-      };
-    }
-  }
+  const weightCheck = validateLinkWeight(params.weight);
+  if (!weightCheck.ok) return weightCheck;
 
   // Check for duplicate ID
-  if (state.links.some((l) => l.id === params.linkId)) {
-    return {
-      ok: false,
-      error: `Link with id '${params.linkId}' already exists`,
-    };
-  }
+  const duplicateCheck = checkNoDuplicateId(state.links, params.linkId, "Link");
+  if (!duplicateCheck.ok) return duplicateCheck;
 
   // Check referential integrity
   const allObjectIds = collectAllObjectIds(state);
   if (!allObjectIds.has(params.sourceId)) {
-    return {
-      ok: false,
-      error: `Source object '${params.sourceId}' not found`,
-    };
+    return { ok: false, error: `Source object '${params.sourceId}' not found` };
   }
   if (!allObjectIds.has(params.targetId)) {
-    return {
-      ok: false,
-      error: `Target object '${params.targetId}' not found`,
-    };
+    return { ok: false, error: `Target object '${params.targetId}' not found` };
   }
 
-  const newLink: Link = {
-    id: params.linkId,
-    sourceId: params.sourceId,
-    targetId: params.targetId,
-    relation: params.relation,
-    ...(params.weight !== undefined ? { weight: params.weight } : {}),
-  };
-
-  return {
-    ok: true,
-    value: {
-      ...state,
-      links: [...state.links, newLink],
-    },
-  };
+  return { ok: true, value: applyCreateLink(state, params) };
 }
 
 /**
@@ -1138,13 +652,7 @@ export function deleteLink(
     return { ok: false, error: `Link with id '${params.linkId}' not found` };
   }
 
-  return {
-    ok: true,
-    value: {
-      ...state,
-      links: state.links.filter((l) => l.id !== params.linkId),
-    },
-  };
+  return { ok: true, value: applyDeleteLink(state, params.linkId) };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1183,34 +691,14 @@ export function createVariable(
   }
 
   // Check for duplicate ID
-  if (state.variables.some((v) => v.id === params.variableId)) {
-    return {
-      ok: false,
-      error: `Variable with id '${params.variableId}' already exists`,
-    };
-  }
+  const duplicateCheck = checkNoDuplicateId(
+    state.variables,
+    params.variableId,
+    "Variable",
+  );
+  if (!duplicateCheck.ok) return duplicateCheck;
 
-  const newVariable: Variable = {
-    id: params.variableId,
-    node: params.node,
-    name: params.name.trim(),
-    status: params.status,
-    ...(params.description ? { description: params.description.trim() } : {}),
-    ...(params.preferredRange
-      ? { preferredRange: params.preferredRange.trim() }
-      : {}),
-    ...(params.measurementCadence
-      ? { measurementCadence: params.measurementCadence }
-      : {}),
-  };
-
-  return {
-    ok: true,
-    value: {
-      ...state,
-      variables: [...state.variables, newVariable],
-    },
-  };
+  return { ok: true, value: applyCreateVariable(state, params) };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1238,23 +726,16 @@ export function createProxy(
   }
 
   // Validate variableId exists
-  const variableExists = state.variables.some(
-    (v) => v.id === params.variableId,
-  );
-  if (!variableExists) {
-    return {
-      ok: false,
-      error: `Variable with id '${params.variableId}' not found`,
-    };
-  }
+  const variableCheck = checkVariableExists(state, params.variableId);
+  if (!variableCheck.ok) return variableCheck;
 
   // Check for duplicate proxy ID
-  if (state.proxies.some((p) => p.id === params.proxyId)) {
-    return {
-      ok: false,
-      error: `Proxy with id '${params.proxyId}' already exists`,
-    };
-  }
+  const duplicateCheck = checkNoDuplicateId(
+    state.proxies,
+    params.proxyId,
+    "Proxy",
+  );
+  if (!duplicateCheck.ok) return duplicateCheck;
 
   // For categorical proxies, validate categories are provided
   if (params.valueType === "categorical") {
@@ -1266,24 +747,7 @@ export function createProxy(
     }
   }
 
-  const newProxy: Proxy = {
-    id: params.proxyId,
-    variableId: params.variableId,
-    name: params.name.trim(),
-    valueType: params.valueType,
-    ...(params.description ? { description: params.description.trim() } : {}),
-    ...(params.unit ? { unit: params.unit.trim() } : {}),
-    ...(params.categories ? { categories: params.categories } : {}),
-    ...(params.thresholds ? { thresholds: params.thresholds } : {}),
-  };
-
-  return {
-    ok: true,
-    value: {
-      ...state,
-      proxies: [...state.proxies, newProxy],
-    },
-  };
+  return { ok: true, value: applyCreateProxy(state, params) };
 }
 
 /**
@@ -1364,24 +828,10 @@ export function deleteProxy(
   state: State,
   params: DeleteProxyParams,
 ): Result<State> {
-  const proxyExists = state.proxies.some((p) => p.id === params.proxyId);
-  if (!proxyExists) {
-    return {
-      ok: false,
-      error: `Proxy with id '${params.proxyId}' not found`,
-    };
-  }
+  const proxyCheck = checkProxyExists(state, params.proxyId);
+  if (!proxyCheck.ok) return proxyCheck;
 
-  return {
-    ok: true,
-    value: {
-      ...state,
-      proxies: state.proxies.filter((p) => p.id !== params.proxyId),
-      proxyReadings: state.proxyReadings.filter(
-        (r) => r.proxyId !== params.proxyId,
-      ),
-    },
-  };
+  return { ok: true, value: applyDeleteProxy(state, params.proxyId) };
 }
 
 /**
@@ -1402,19 +852,16 @@ export function logProxyReading(
   // Validate proxyId exists
   const proxy = state.proxies.find((p) => p.id === params.proxyId);
   if (!proxy) {
-    return {
-      ok: false,
-      error: `Proxy with id '${params.proxyId}' not found`,
-    };
+    return { ok: false, error: `Proxy with id '${params.proxyId}' not found` };
   }
 
   // Check for duplicate reading ID
-  if (state.proxyReadings.some((r) => r.id === params.readingId)) {
-    return {
-      ok: false,
-      error: `Reading with id '${params.readingId}' already exists`,
-    };
-  }
+  const duplicateCheck = checkNoDuplicateId(
+    state.proxyReadings,
+    params.readingId,
+    "Reading",
+  );
+  if (!duplicateCheck.ok) return duplicateCheck;
 
   // Validate value type matches proxy type
   if (params.value.type !== proxy.valueType) {
@@ -1436,62 +883,7 @@ export function logProxyReading(
     };
   }
 
-  const newReading: ProxyReading = {
-    id: params.readingId,
-    proxyId: params.proxyId,
-    value: params.value,
-    recordedAt: params.recordedAt,
-    ...(params.source ? { source: params.source } : {}),
-  };
-
-  return {
-    ok: true,
-    value: {
-      ...state,
-      proxyReadings: [...state.proxyReadings, newReading],
-    },
-  };
-}
-
-/**
- * Gets all proxies for a Variable.
- *
- * **Intent:** Query proxies that inform a specific Variable.
- *
- * **Contract:**
- * - Returns: Array of Proxy objects for the given variable
- * - Pure function: does not mutate state
- */
-export function getProxiesForVariable(
-  state: State,
-  variableId: string,
-): Proxy[] {
-  return state.proxies.filter((p) => p.variableId === variableId);
-}
-
-/**
- * Gets recent readings for a proxy.
- *
- * **Intent:** Query recent measurements for status inference.
- *
- * **Contract:**
- * - Returns: Array of ProxyReading objects sorted by recordedAt (newest first)
- * - Optional limit parameter to cap results
- * - Pure function: does not mutate state
- */
-export function getRecentReadings(
-  state: State,
-  proxyId: string,
-  limit?: number,
-): ProxyReading[] {
-  const readings = state.proxyReadings
-    .filter((r) => r.proxyId === proxyId)
-    .sort(
-      (a, b) =>
-        new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime(),
-    );
-
-  return limit !== undefined ? readings.slice(0, limit) : readings;
+  return { ok: true, value: applyLogProxyReading(state, params) };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1514,64 +906,20 @@ export function logException(
   params: LogExceptionParams,
 ): Result<State> {
   // Validate modelId exists
-  const modelExists = state.models.some((m) => m.id === params.modelId);
-  if (!modelExists) {
-    return {
-      ok: false,
-      error: `Model with id '${params.modelId}' not found`,
-    };
-  }
+  const modelCheck = checkModelExists(state, params.modelId);
+  if (!modelCheck.ok) return modelCheck;
 
-  // Validate mutationType
-  if (!MUTATION_TYPES.includes(params.mutationType)) {
-    return {
-      ok: false,
-      error: `Invalid mutationType: '${params.mutationType}'`,
-    };
-  }
-
-  // Validate originalDecision
-  if (!OVERRIDE_DECISIONS.includes(params.originalDecision)) {
-    return {
-      ok: false,
-      error: `Invalid originalDecision: '${params.originalDecision}'`,
-    };
-  }
-
-  // Validate justification is not empty
-  if (params.justification.trim() === "") {
-    return {
-      ok: false,
-      error: "Justification cannot be empty",
-    };
-  }
+  // Validate exception params
+  const paramsCheck = validateExceptionParams(params);
+  if (!paramsCheck.ok) return paramsCheck;
 
   // Check for duplicate exception ID
-  const exceptionExists = state.exceptions.some(
-    (e) => e.id === params.exceptionId,
+  const duplicateCheck = checkNoDuplicateId(
+    state.exceptions,
+    params.exceptionId,
+    "Exception",
   );
-  if (exceptionExists) {
-    return {
-      ok: false,
-      error: `Exception with id '${params.exceptionId}' already exists`,
-    };
-  }
+  if (!duplicateCheck.ok) return duplicateCheck;
 
-  const newException: MembraneException = {
-    id: params.exceptionId,
-    modelId: params.modelId,
-    originalDecision: params.originalDecision,
-    justification: params.justification,
-    mutationType: params.mutationType,
-    mutationId: params.mutationId,
-    createdAt: params.createdAt,
-  };
-
-  return {
-    ok: true,
-    value: {
-      ...state,
-      exceptions: [...state.exceptions, newException],
-    },
-  };
+  return { ok: true, value: applyLogException(state, params) };
 }

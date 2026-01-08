@@ -29,6 +29,7 @@ import type {
   UpdateProxyParams,
 } from "./types.js";
 import * as logic from "./logic.js";
+import * as selectors from "./selectors.js";
 import type { RegulatorPolicy } from "./policy.js";
 import {
   DEFAULT_REGULATOR_POLICY,
@@ -71,14 +72,14 @@ export class Regulator {
    * Returns true when the node is in baseline (no active Episodes).
    */
   isBaseline(state: State, node: NodeRef): boolean {
-    return logic.isBaseline(state, node);
+    return selectors.isBaseline(state, node);
   }
 
   /**
    * Gets all variables for a specific node.
    */
   getVariables(state: State, node: NodeRef): Variable[] {
-    return logic.getVariablesByNode(state, node);
+    return selectors.getVariablesByNode(state, node);
   }
 
   /**
@@ -477,7 +478,7 @@ export class Regulator {
    * Gets all proxies for a Variable.
    */
   getProxiesForVariable(state: State, variableId: string): Proxy[] {
-    return logic.getProxiesForVariable(state, variableId);
+    return selectors.getProxiesForVariable(state, variableId);
   }
 
   /**
@@ -488,6 +489,6 @@ export class Regulator {
     proxyId: string,
     limit?: number,
   ): ProxyReading[] {
-    return logic.getRecentReadings(state, proxyId, limit);
+    return selectors.getRecentReadings(state, proxyId, limit);
   }
 }

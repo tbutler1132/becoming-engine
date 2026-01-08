@@ -15,12 +15,14 @@
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
 import {
+  countActiveExplores,
+  countActiveStabilizesForVariable,
+} from "./selectors.js";
+import {
   openEpisode,
   closeEpisode,
   applySignal,
   createAction,
-  countActiveExplores,
-  countActiveStabilizesForVariable,
 } from "./logic.js";
 import { isValidState } from "../memory/internal/validation.js";
 import {

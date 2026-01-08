@@ -15,6 +15,11 @@ import {
   getActiveEpisodesByNode,
   countActiveExplores,
   countActiveStabilizesForVariable,
+  isBaseline,
+  getPendingActionsForActiveEpisodes,
+  getStatusData,
+} from "./selectors.js";
+import {
   canStartExplore,
   canCreateAction,
   applySignal,
@@ -28,9 +33,6 @@ import {
   createLink,
   deleteLink,
   logException,
-  isBaseline,
-  getPendingActionsForActiveEpisodes,
-  getStatusData,
 } from "./logic.js";
 import {
   DEFAULT_PERSONAL_NODE,

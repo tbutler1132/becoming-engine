@@ -3,6 +3,10 @@ import {
   getVariablesByNode,
   getActiveEpisodesByNode,
   countActiveExplores,
+  getProxiesForVariable,
+  getRecentReadings,
+} from "./selectors.js";
+import {
   canStartExplore,
   canCreateAction,
   applySignal,
@@ -27,8 +31,6 @@ import {
   updateProxy,
   deleteProxy,
   logProxyReading,
-  getProxiesForVariable,
-  getRecentReadings,
 } from "./logic.js";
 import {
   DEFAULT_PERSONAL_NODE,
