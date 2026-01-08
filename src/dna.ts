@@ -15,14 +15,40 @@
 // ONTOLOGY — The fundamental types that define the organism's structure
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** The valid node types in the system (organisms being regulated) */
-export const NODE_TYPES = ["Personal", "Org"] as const;
+/**
+ * Node kinds with semantic meaning for regulation
+ * - agent: has agency, can initiate (person, org, team, AI)
+ * - system: technical/infrastructure (software, service, device)
+ * - domain: life context or project (health, creative, "Project X")
+ */
+export const NODE_KINDS = ["agent", "system", "domain"] as const;
+
+/** Legacy node types for migration compatibility */
+export const LEGACY_NODE_TYPES = ["Personal", "Org"] as const;
+
+/** @deprecated Use NODE_KINDS for new code. Kept for backwards compatibility. */
+export const NODE_TYPES = LEGACY_NODE_TYPES;
 
 /** Default node ID for personal nodes (single-node setups and v1 migration) */
 export const DEFAULT_PERSONAL_NODE_ID = "personal" as const;
 
 /** Default node ID for org nodes (single-node setups and v1 migration) */
 export const DEFAULT_ORG_NODE_ID = "org" as const;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ENGINE NODE — The Becoming Engine's own regulatory node (dogfooding)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** The Engine's node ID (a system node that regulates itself) */
+export const ENGINE_NODE_ID = "system:becoming-engine" as const;
+
+/** The Engine's variable IDs (what the Engine regulates about itself) */
+export const ENGINE_VARIABLE_IDS = {
+  codeHealth: "var:engine:code-health",
+  uxCoherence: "var:engine:ux-coherence",
+  doctrineAlignment: "var:engine:doctrine-alignment",
+  adoption: "var:engine:adoption",
+} as const;
 
 /** The valid variable statuses (homeostatic states) */
 export const VARIABLE_STATUSES = ["Low", "InRange", "High", "Unknown"] as const;
@@ -70,6 +96,9 @@ export const LINK_RELATIONS = [
   "blocks",
   "responds_to",
   "derived_from",
+  // Hierarchical relations (nodes as autonomous peers with relationships)
+  "part_of", // child → parent: "domain:health part_of agent:tim"
+  "coordinates", // parent → child: "agent:company coordinates agent:team:eng"
 ] as const;
 
 /** The valid observation types (what Sensorium senses from input) */
@@ -104,7 +133,7 @@ export const MAX_ACTIVE_STABILIZE_PER_VARIABLE = 1;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Current schema version — increment when State shape changes */
-export const SCHEMA_VERSION = 11 as const;
+export const SCHEMA_VERSION = 13 as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MEMBRANE — Exception tracking for constraint bypasses

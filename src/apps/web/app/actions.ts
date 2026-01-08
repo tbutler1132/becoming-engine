@@ -2,7 +2,8 @@
 
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
-import { DEFAULT_PERSONAL_NODE } from "@libs/memory";
+import { DEFAULT_PERSONAL_NODE, getNodeById } from "@libs/memory";
+import type { NodeRef } from "@libs/memory";
 import { Regulator } from "@libs/regulator";
 import type {
   EpisodeType,
@@ -17,9 +18,31 @@ import type {
   ProxyValue,
   ProxyValueType,
   VariableStatus,
+  State,
 } from "@libs/memory";
 import type { Result } from "@libs/shared";
 import { createStore } from "@/lib/store";
+
+/**
+ * Resolves a node ID to a NodeRef.
+ * Maps new node kinds to legacy NodeRef format for backward compatibility.
+ */
+function resolveNodeRef(state: State, nodeId?: string): NodeRef {
+  if (!nodeId) {
+    return DEFAULT_PERSONAL_NODE;
+  }
+
+  const node = getNodeById(state, nodeId);
+  if (!node) {
+    return DEFAULT_PERSONAL_NODE;
+  }
+
+  // Map tags to legacy type
+  if (node.tags?.includes("org")) {
+    return { type: "Org", id: node.id };
+  }
+  return { type: "Personal", id: node.id };
+}
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown error";
@@ -58,7 +81,8 @@ export async function completeAction(actionId: string): Promise<Result<void>> {
  */
 export async function openStabilizeEpisode(
   variableId: string,
-  objective: string
+  objective: string,
+  nodeId?: string,
 ): Promise<Result<string>> {
   const store = createStore();
   const regulator = new Regulator();
@@ -66,10 +90,11 @@ export async function openStabilizeEpisode(
   const state = await store.load();
   const episodeType: EpisodeType = "Stabilize";
   const episodeId = crypto.randomUUID();
+  const node = resolveNodeRef(state, nodeId);
 
   const result = regulator.openEpisode(state, {
     episodeId,
-    node: DEFAULT_PERSONAL_NODE,
+    node,
     type: episodeType,
     variableId,
     objective,
@@ -94,7 +119,8 @@ export async function openStabilizeEpisode(
  * Returns the new episode ID on success.
  */
 export async function openExploreEpisode(
-  objective: string
+  objective: string,
+  nodeId?: string,
 ): Promise<Result<string>> {
   const store = createStore();
   const regulator = new Regulator();
@@ -102,10 +128,11 @@ export async function openExploreEpisode(
   const state = await store.load();
   const episodeType: EpisodeType = "Explore";
   const episodeId = crypto.randomUUID();
+  const node = resolveNodeRef(state, nodeId);
 
   const result = regulator.openEpisode(state, {
     episodeId,
-    node: DEFAULT_PERSONAL_NODE,
+    node,
     type: episodeType,
     objective,
     openedAt: new Date().toISOString(),
@@ -280,6 +307,7 @@ export async function signalVariable(
 export interface CreateVariableInput {
   name: string;
   nodeType: NodeType;
+  nodeId?: string;
   description?: string;
   preferredRange?: string;
   measurementCadence?: MeasurementCadence;
@@ -290,7 +318,7 @@ export interface CreateVariableInput {
  * Returns the new variable ID on success.
  */
 export async function createVariable(
-  input: CreateVariableInput
+  input: CreateVariableInput,
 ): Promise<Result<string>> {
   const store = createStore();
   const regulator = new Regulator();
@@ -298,9 +326,10 @@ export async function createVariable(
   const state = await store.load();
   const variableId = crypto.randomUUID();
 
-  // Build node reference based on nodeType
-  const node =
-    input.nodeType === "Personal"
+  // Use nodeId if provided, otherwise fall back to nodeType-based lookup
+  const node = input.nodeId
+    ? resolveNodeRef(state, input.nodeId)
+    : input.nodeType === "Personal"
       ? DEFAULT_PERSONAL_NODE
       : { type: input.nodeType as NodeType, id: input.nodeType.toLowerCase() };
 

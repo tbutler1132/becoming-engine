@@ -322,6 +322,20 @@ export function parseCli(argv: readonly string[]): Result<CliCommand> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// GLOBAL FLAG EXTRACTION — For early processing before state load
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Extracts the --node flag value from argv for early processing.
+ * This allows the CLI to decide which state file to load before parsing commands.
+ *
+ * @returns The node ID string if --node flag is present, undefined otherwise
+ */
+export function extractNodeFlag(argv: readonly string[]): string | undefined {
+  return getFlagValue(argv, "--node");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // OBSERVATION PARSING — Structured observations from user input
 // ═══════════════════════════════════════════════════════════════════════════
 

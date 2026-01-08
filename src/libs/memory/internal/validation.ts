@@ -89,7 +89,10 @@ export type LegacyStateV1 = LegacyStateV0 & {
   schemaVersion: 1;
 };
 
-export type StateV2 = Omit<State, "schemaVersion" | "models" | "links"> & {
+export type StateV2 = Omit<
+  State,
+  "schemaVersion" | "models" | "links" | "nodes"
+> & {
   schemaVersion: 2;
 };
 
@@ -132,6 +135,7 @@ export type StateV4 = Omit<
   | "exceptions"
   | "proxies"
   | "proxyReadings"
+  | "nodes"
 > & {
   schemaVersion: 4;
   notes: Array<{
@@ -153,6 +157,7 @@ export type StateV5 = Omit<
   | "exceptions"
   | "proxies"
   | "proxyReadings"
+  | "nodes"
 > & {
   schemaVersion: 5;
   notes: NoteV5[];
@@ -160,14 +165,19 @@ export type StateV5 = Omit<
 
 export type StateV6 = Omit<
   State,
-  "schemaVersion" | "links" | "exceptions" | "proxies" | "proxyReadings"
+  | "schemaVersion"
+  | "links"
+  | "exceptions"
+  | "proxies"
+  | "proxyReadings"
+  | "nodes"
 > & {
   schemaVersion: 6;
 };
 
 export type StateV7 = Omit<
   State,
-  "schemaVersion" | "exceptions" | "proxies" | "proxyReadings"
+  "schemaVersion" | "exceptions" | "proxies" | "proxyReadings" | "nodes"
 > & {
   schemaVersion: 7;
 };
@@ -186,7 +196,7 @@ export type EpisodeV8 = {
 
 export type StateV8 = Omit<
   State,
-  "schemaVersion" | "episodes" | "proxies" | "proxyReadings"
+  "schemaVersion" | "episodes" | "proxies" | "proxyReadings" | "nodes"
 > & {
   schemaVersion: 8;
   episodes: EpisodeV8[];
@@ -201,7 +211,7 @@ export type VariableV9 = {
 
 export type StateV9 = Omit<
   State,
-  "schemaVersion" | "variables" | "proxies" | "proxyReadings"
+  "schemaVersion" | "variables" | "proxies" | "proxyReadings" | "nodes"
 > & {
   schemaVersion: 9;
   variables: VariableV9[];
@@ -209,9 +219,17 @@ export type StateV9 = Omit<
 
 export type StateV10 = Omit<
   State,
-  "schemaVersion" | "proxies" | "proxyReadings"
+  "schemaVersion" | "proxies" | "proxyReadings" | "nodes"
 > & {
   schemaVersion: 10;
+};
+
+export type StateV11 = Omit<State, "schemaVersion" | "nodes"> & {
+  schemaVersion: 11;
+};
+
+export type StateV12 = Omit<State, "schemaVersion"> & {
+  schemaVersion: 12;
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -439,6 +457,43 @@ const SCHEMA_V10: StateSchema = {
 };
 
 const SCHEMA_V11: StateSchema = {
+  schemaVersion: 11,
+  variable: { nodeFormat: "ref", allowEnrichments: true },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+    allowTimeboxDays: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: true, allowLinkedObjects: true },
+  model: { allowExceptionsAllowed: true },
+  hasLinks: true,
+  hasExceptions: true,
+  hasProxies: true,
+  hasProxyReadings: true,
+};
+
+const SCHEMA_V12: StateSchema = {
+  schemaVersion: 12,
+  variable: { nodeFormat: "ref", allowEnrichments: true },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+    allowTimeboxDays: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: true, allowLinkedObjects: true },
+  model: { allowExceptionsAllowed: true },
+  hasLinks: true,
+  hasExceptions: true,
+  hasProxies: true,
+  hasProxyReadings: true,
+  hasNodes: true,
+};
+
+const SCHEMA_V13: StateSchema = {
   schemaVersion: SCHEMA_VERSION,
   variable: { nodeFormat: "ref", allowEnrichments: true },
   episode: {
@@ -454,6 +509,7 @@ const SCHEMA_V11: StateSchema = {
   hasExceptions: true,
   hasProxies: true,
   hasProxyReadings: true,
+  hasNodes: true,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -549,11 +605,26 @@ export function isValidLegacyStateV10(data: unknown): data is StateV10 {
 }
 
 /**
- * Validates current state (schemaVersion: 11).
+ * Validates V11 state (schemaVersion: 11).
+ */
+export function isValidLegacyStateV11(data: unknown): data is StateV11 {
+  return validateStateAgainstSchema(data, SCHEMA_V11);
+}
+
+/**
+ * Validates V12 state (schemaVersion: 12).
+ * V12 introduced the nodes array but may have empty nodes from early migration.
+ */
+export function isValidLegacyStateV12(data: unknown): data is StateV12 {
+  return validateStateAgainstSchema(data, SCHEMA_V12);
+}
+
+/**
+ * Validates current state (schemaVersion: 13).
  */
 export function isValidState(data: unknown): data is State {
   if (typeof data !== "object" || data === null) return false;
   const obj = data as Record<string, unknown>;
   if (!isSchemaVersion(obj.schemaVersion)) return false;
-  return validateStateAgainstSchema(data, SCHEMA_V11);
+  return validateStateAgainstSchema(data, SCHEMA_V13);
 }

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 12,
+  "nodes": [
+    {
+      "id": "system:becoming-engine",
+      "kind": "system",
+      "name": "Becoming Engine",
+      "description": "The regulatory system itself, eating its own dogfood",
+      "tags": ["meta", "infrastructure", "dogfood"],
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "variables": [
+    {
+      "id": "var:engine:code-health",
+      "node": { "type": "Org", "id": "system:becoming-engine" },
+      "name": "Code Health",
+      "status": "InRange",
+      "description": "Is the codebase in good shape?",
+      "preferredRange": "Test coverage >80%, zero lint errors, zero type errors, all tests passing",
+      "measurementCadence": "daily"
+    },
+    {
+      "id": "var:engine:ux-coherence",
+      "node": { "type": "Org", "id": "system:becoming-engine" },
+      "name": "UX Coherence",
+      "status": "InRange",
+      "description": "Is the UI consistent and usable?",
+      "preferredRange": "UI follows design system, no visual regressions, intuitive navigation",
+      "measurementCadence": "weekly"
+    },
+    {
+      "id": "var:engine:doctrine-alignment",
+      "node": { "type": "Org", "id": "system:becoming-engine" },
+      "name": "Doctrine Alignment",
+      "status": "InRange",
+      "description": "Does the system match the philosophy?",
+      "preferredRange": "ADR compliance, no anti-patterns, constraints enforced, baseline quiet",
+      "measurementCadence": "weekly"
+    },
+    {
+      "id": "var:engine:adoption",
+      "node": { "type": "Org", "id": "system:becoming-engine" },
+      "name": "Adoption",
+      "status": "Unknown",
+      "description": "Are people using it?",
+      "preferredRange": "Active users, regular sessions, growing usage over time",
+      "measurementCadence": "monthly"
+    }
+  ],
+  "episodes": [],
+  "actions": [],
+  "notes": [],
+  "models": [
+    {
+      "id": "model:engine:no-capture",
+      "type": "Normative",
+      "statement": "Never ship features that create capture loops or coercive patterns",
+      "confidence": 1.0,
+      "scope": "domain",
+      "enforcement": "block",
+      "exceptionsAllowed": false
+    },
+    {
+      "id": "model:engine:baseline-quiet",
+      "type": "Normative",
+      "statement": "The default state is quiet. Features should reduce noise, not add it.",
+      "confidence": 1.0,
+      "scope": "domain",
+      "enforcement": "warn",
+      "exceptionsAllowed": true
+    },
+    {
+      "id": "model:engine:pr-review",
+      "type": "Procedural",
+      "statement": "All pull requests require review before merge",
+      "confidence": 0.9,
+      "scope": "domain"
+    },
+    {
+      "id": "model:engine:check-before-commit",
+      "type": "Procedural",
+      "statement": "Run npm run check before committing. If it fails, fix before moving on.",
+      "confidence": 1.0,
+      "scope": "domain"
+    },
+    {
+      "id": "model:engine:small-functions",
+      "type": "Descriptive",
+      "statement": "Functions over 20 lines tend to accumulate bugs. Split them.",
+      "confidence": 0.85,
+      "scope": "domain"
+    },
+    {
+      "id": "model:engine:explicit-types",
+      "type": "Descriptive",
+      "statement": "Explicit return types catch errors earlier than inferred types.",
+      "confidence": 0.9,
+      "scope": "domain"
+    }
+  ],
+  "links": [],
+  "exceptions": [],
+  "proxies": [],
+  "proxyReadings": []
+}

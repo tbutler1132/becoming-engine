@@ -39,12 +39,18 @@ export class JsonStore {
   private lockPath: string;
   private logger: Logger;
 
-  constructor(options?: { basePath?: string; logger?: Logger }) {
+  constructor(options?: {
+    basePath?: string;
+    logger?: Logger;
+    /** Override the state file name (defaults to config-based name) */
+    stateFile?: string;
+  }) {
     const basePath = options?.basePath ?? process.cwd();
-    this.filePath = path.join(basePath, config.dataDir, config.stateFile);
+    const stateFileName = options?.stateFile ?? config.stateFile;
+    this.filePath = path.join(basePath, config.dataDir, stateFileName);
     this.lockPath = path.join(
       path.dirname(this.filePath),
-      `${config.stateFile}.lock`,
+      `${stateFileName}.lock`,
     );
     this.logger = options?.logger ?? silentLogger;
   }
@@ -146,6 +152,7 @@ export class JsonStore {
 
     return {
       schemaVersion: SCHEMA_VERSION,
+      nodes: [],
       variables: [agencyVariable, executionCapacityVariable],
       episodes: [],
       actions: [],

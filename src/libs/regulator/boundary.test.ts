@@ -54,6 +54,7 @@ import { isValidState } from "../memory/internal/validation.js";
 function createEmptyState(): State {
   return {
     schemaVersion: SCHEMA_VERSION,
+    nodes: [],
     variables: [],
     episodes: [],
     actions: [],

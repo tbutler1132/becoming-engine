@@ -109,6 +109,7 @@ const closureNoteArb = fc.record({
 /** Generate a minimal valid State (empty arrays) */
 const minimalStateArb: fc.Arbitrary<State> = fc.constant({
   schemaVersion: SCHEMA_VERSION,
+  nodes: [],
   variables: [],
   episodes: [],
   actions: [],
@@ -131,6 +132,7 @@ const validStateArb: fc.Arbitrary<State> = fc
           .array(closedEpisodeArb(node), { minLength: 0, maxLength: 3 })
           .map((episodes) => ({
             schemaVersion: SCHEMA_VERSION,
+            nodes: [],
             variables,
             episodes,
             actions: [] as Action[],
@@ -153,6 +155,7 @@ const stateWithActiveEpisodeArb: fc.Arbitrary<{
   .map(([node, episodeId, openedAt]) => ({
     state: {
       schemaVersion: SCHEMA_VERSION,
+      nodes: [],
       variables: [],
       episodes: [
         {
@@ -181,6 +184,7 @@ const stateWithMaxExploresArb: fc.Arbitrary<{ state: State; node: NodeRef }> =
     fc.uuid().map((episodeId) => ({
       state: {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -214,6 +218,7 @@ const stateWithActiveStabilizeArb: fc.Arbitrary<{
   .map(([node, variableId, episodeId]) => ({
     state: {
       schemaVersion: SCHEMA_VERSION,
+      nodes: [],
       variables: [
         {
           id: variableId,
@@ -581,6 +586,7 @@ describe("Invariant: Episode Lifecycle Consistency", () => {
         (node, episodeId, openedAt, firstClose, secondClose, closureNote) => {
           const state: State = {
             schemaVersion: SCHEMA_VERSION,
+            nodes: [],
             variables: [],
             episodes: [
               {

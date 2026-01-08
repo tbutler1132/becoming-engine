@@ -1,9 +1,15 @@
-.nav {
+.header {
   display: flex;
-  gap: var(--space-8);
+  align-items: center;
+  justify-content: space-between;
   padding: var(--space-4) var(--space-8);
   background: var(--nav-bg);
   border-bottom: 1px solid var(--nav-border);
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-8);
 }
 
 .navLink {

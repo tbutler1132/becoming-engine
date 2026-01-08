@@ -3,7 +3,7 @@
 // Observations from Sensorium are interpreted into Regulator mutations here.
 // Episode mutations are gated through the Membrane before reaching the Regulator.
 
-import { JsonStore } from "../../libs/memory/index.js";
+import { JsonStore, ENGINE_NODE_ID } from "../../libs/memory/index.js";
 import type { EpisodeType, NodeRef, State } from "../../libs/memory/index.js";
 import { checkEpisodeConstraints } from "../../libs/membrane/index.js";
 import type {
@@ -12,10 +12,17 @@ import type {
 } from "../../libs/membrane/index.js";
 import { getStatusData, Regulator } from "../../libs/regulator/index.js";
 import type { Result } from "../../libs/regulator/index.js";
-import { parseCli, parseObservation } from "../../libs/sensorium/index.js";
+import {
+  parseCli,
+  parseObservation,
+  extractNodeFlag,
+} from "../../libs/sensorium/index.js";
 import type { Observation } from "../../libs/sensorium/index.js";
 import { formatStatus } from "./format.js";
 import * as crypto from "node:crypto";
+
+/** Engine state file name (separate from user state) */
+const ENGINE_STATE_FILE = "engine-state.json";
 
 /**
  * Result of checking Membrane constraints for episode opening.
@@ -249,14 +256,35 @@ function interpretObservation(
   }
 }
 
+/**
+ * Determines if the node flag indicates the engine node.
+ * Supports both full ID and shorthand.
+ */
+function isEngineNode(nodeFlag: string | undefined): boolean {
+  if (!nodeFlag) return false;
+  // Support both "system:becoming-engine" and "Org:system:becoming-engine" formats
+  return (
+    nodeFlag === ENGINE_NODE_ID ||
+    nodeFlag.endsWith(`:${ENGINE_NODE_ID}`) ||
+    nodeFlag === "engine"
+  ); // Shorthand
+}
+
 async function main(): Promise<void> {
-  const store = new JsonStore();
-  const regulator = new Regulator();
-
-  const state = await store.load();
-
   // argv: node process args → remove node + script path
   const argv = process.argv.slice(2);
+
+  // Extract --node flag early to determine which state file to load
+  const nodeFlag = extractNodeFlag(argv);
+  const useEngineState = isEngineNode(nodeFlag);
+
+  // Create store with appropriate state file
+  const store = useEngineState
+    ? new JsonStore({ stateFile: ENGINE_STATE_FILE })
+    : new JsonStore();
+
+  const regulator = new Regulator();
+  const state = await store.load();
 
   // Handle "observe" command through the new Observation flow
   if (argv[0] === "observe") {

@@ -9,9 +9,11 @@ import {
   LINK_RELATIONS,
   nodeRefEquals,
   NOTE_TAGS,
+  getNodeDescendants,
 } from "../memory/index.js";
 import type {
   Action,
+  Node,
   Proxy,
   ProxyReading,
   State,
@@ -117,6 +119,80 @@ export function getPendingActionsForActiveEpisodes(
       a.episodeId !== undefined &&
       activeEpisodeIds.has(a.episodeId),
   );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CROSS-NODE QUERIES (Relationship-Aware)
+// These are opt-in aggregation functions for dashboards, not enforcement.
+// Episode limits remain per-node (autonomy preserved).
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Get all Variables for a node and its descendants.
+ * Useful for aggregate dashboards showing a "subtree" view.
+ *
+ * Note: This queries based on Node entities (the new architecture),
+ * not NodeRef. Variables still use NodeRef, so we match by id.
+ */
+export function getVariablesWithDescendants(
+  state: State,
+  nodeId: string,
+): Variable[] {
+  const descendantIds = new Set([
+    nodeId,
+    ...getNodeDescendants(state, nodeId).map((n: Node) => n.id),
+  ]);
+
+  return state.variables.filter((v) => descendantIds.has(v.node.id));
+}
+
+/**
+ * Get all active Episodes for a node and its descendants.
+ * Useful for seeing what's "in flight" across a subtree.
+ */
+export function getActiveEpisodesWithDescendants(
+  state: State,
+  nodeId: string,
+): Episode[] {
+  const descendantIds = new Set([
+    nodeId,
+    ...getNodeDescendants(state, nodeId).map((n: Node) => n.id),
+  ]);
+
+  return state.episodes.filter(
+    (e) => e.status === ACTIVE_STATUS && descendantIds.has(e.node.id),
+  );
+}
+
+/**
+ * Aggregate status: is any descendant in distress?
+ * Returns the "worst" status across the node and its descendants.
+ *
+ * Status priority: critical > warning > healthy
+ * - critical: any Variable is Low
+ * - warning: any Variable is High or Unknown
+ * - healthy: all Variables are InRange
+ */
+export type AggregateHealth = "healthy" | "warning" | "critical";
+
+export function getAggregateNodeHealth(
+  state: State,
+  nodeId: string,
+): AggregateHealth {
+  const variables = getVariablesWithDescendants(state, nodeId);
+
+  if (variables.length === 0) {
+    return "healthy"; // No variables = baseline quiet
+  }
+
+  const hasLow = variables.some((v) => v.status === "Low");
+  if (hasLow) return "critical";
+
+  const hasHigh = variables.some((v) => v.status === "High");
+  const hasUnknown = variables.some((v) => v.status === "Unknown");
+  if (hasHigh || hasUnknown) return "warning";
+
+  return "healthy";
 }
 
 /**

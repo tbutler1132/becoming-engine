@@ -13,6 +13,7 @@ import type { State, Model } from "../memory/index.js";
 function emptyState(): State {
   return {
     schemaVersion: SCHEMA_VERSION,
+    nodes: [],
     variables: [],
     episodes: [],
     actions: [],

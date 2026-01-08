@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { openExploreEpisode } from "@/app/actions";
 import styles from "./OpenExploreForm.module.css";
 
-export function OpenExploreForm(): React.ReactNode {
+interface OpenExploreFormProps {
+  /** Node ID to open the episode on */
+  nodeId?: string;
+}
+
+export function OpenExploreForm({
+  nodeId,
+}: OpenExploreFormProps): React.ReactNode {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
   const [objective, setObjective] = useState("");
@@ -23,7 +30,7 @@ export function OpenExploreForm(): React.ReactNode {
 
     setIsSaving(true);
 
-    const result = await openExploreEpisode(objective.trim());
+    const result = await openExploreEpisode(objective.trim(), nodeId);
 
     if (!result.ok) {
       setError(result.error);

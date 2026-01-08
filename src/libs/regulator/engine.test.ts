@@ -22,6 +22,7 @@ describe("Regulator (Class Integration)", () => {
     it("filters by node correctly", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -57,6 +58,7 @@ describe("Regulator (Class Integration)", () => {
     it("returns Result correctly", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -76,6 +78,7 @@ describe("Regulator (Class Integration)", () => {
     it("supports policy overrides (prepared for multi-node networks)", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -127,6 +130,7 @@ describe("Regulator (Class Integration)", () => {
     it("returns Result correctly", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -157,6 +161,7 @@ describe("Regulator (Class Integration)", () => {
     it("returns Result<State> on success", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -193,6 +198,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -228,6 +234,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -259,6 +266,7 @@ describe("Regulator (Class Integration)", () => {
     it("returns Result<State> on success", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -306,6 +314,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -352,6 +361,7 @@ describe("Regulator (Class Integration)", () => {
     it("uses silent logger by default (cybernetic quiet)", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -387,6 +397,7 @@ describe("Regulator (Class Integration)", () => {
     it("calls logic function correctly", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -428,6 +439,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -471,6 +483,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -501,6 +514,7 @@ describe("Regulator (Class Integration)", () => {
     it("closing an Explore can create a new Model", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -557,6 +571,7 @@ describe("Regulator (Class Integration)", () => {
     it("closing an Explore can update an existing Model", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -613,6 +628,7 @@ describe("Regulator (Class Integration)", () => {
     it("closing an Explore can create multiple Models", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -674,6 +690,7 @@ describe("Regulator (Class Integration)", () => {
     it("creates a proxy via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -718,6 +735,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -745,6 +763,7 @@ describe("Regulator (Class Integration)", () => {
     it("updates a proxy via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -794,6 +813,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -819,6 +839,7 @@ describe("Regulator (Class Integration)", () => {
     it("deletes a proxy via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -867,6 +888,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -891,6 +913,7 @@ describe("Regulator (Class Integration)", () => {
     it("logs a reading via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -942,6 +965,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -969,6 +993,7 @@ describe("Regulator (Class Integration)", () => {
     it("returns proxies via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -1004,6 +1029,7 @@ describe("Regulator (Class Integration)", () => {
     it("returns readings via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1043,6 +1069,7 @@ describe("Regulator (Class Integration)", () => {
     it("applies signal via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -1086,6 +1113,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1116,6 +1144,7 @@ describe("Regulator (Class Integration)", () => {
     it("creates variable via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1153,6 +1182,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1184,6 +1214,7 @@ describe("Regulator (Class Integration)", () => {
     it("creates action via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1220,6 +1251,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1250,6 +1282,7 @@ describe("Regulator (Class Integration)", () => {
     it("completes action via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [
@@ -1290,6 +1323,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1318,6 +1352,7 @@ describe("Regulator (Class Integration)", () => {
     it("creates note via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1354,6 +1389,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1380,6 +1416,7 @@ describe("Regulator (Class Integration)", () => {
     it("adds tag via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1422,6 +1459,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1447,6 +1485,7 @@ describe("Regulator (Class Integration)", () => {
     it("removes tag via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1489,6 +1528,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1514,6 +1554,7 @@ describe("Regulator (Class Integration)", () => {
     it("links object via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -1563,6 +1604,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1588,6 +1630,7 @@ describe("Regulator (Class Integration)", () => {
     it("updates note via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1630,6 +1673,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1659,6 +1703,7 @@ describe("Regulator (Class Integration)", () => {
     it("logs exception via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1705,6 +1750,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1739,6 +1785,7 @@ describe("Regulator (Class Integration)", () => {
     it("updates episode via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -1774,6 +1821,7 @@ describe("Regulator (Class Integration)", () => {
     it("updates episode timebox via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -1818,6 +1866,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1847,6 +1896,7 @@ describe("Regulator (Class Integration)", () => {
     it("closes episode via regulator", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -1895,6 +1945,7 @@ describe("Regulator (Class Integration)", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1928,6 +1979,7 @@ describe("Regulator (Class Integration)", () => {
     it("returns true when no active episodes", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1947,6 +1999,7 @@ describe("Regulator (Class Integration)", () => {
     it("returns false when there are active episodes", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2001,6 +2054,7 @@ describe("Regulator (Class Integration)", () => {
       // Regulator should still work because it fell back to default
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],

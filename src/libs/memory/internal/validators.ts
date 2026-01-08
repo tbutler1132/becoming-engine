@@ -18,13 +18,14 @@ import {
   MODEL_SCOPES,
   MODEL_TYPES,
   MUTATION_TYPES,
+  NODE_KINDS,
   NODE_TYPES,
   NOTE_TAGS,
   OVERRIDE_DECISIONS,
   PROXY_VALUE_TYPES,
   VARIABLE_STATUSES,
 } from "../types.js";
-import type { NodeRef, NodeType } from "../types.js";
+import type { NodeKind, NodeRef, NodeType } from "../types.js";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PRIMITIVE VALIDATORS
@@ -39,6 +40,10 @@ function isMember<T extends readonly string[]>(
 
 function isNodeType(value: unknown): value is NodeType {
   return typeof value === "string" && isMember(NODE_TYPES, value);
+}
+
+function isNodeKind(value: unknown): value is NodeKind {
+  return typeof value === "string" && isMember(NODE_KINDS, value);
 }
 
 export function isNodeRef(value: unknown): value is NodeRef {
@@ -381,6 +386,29 @@ export function validateProxy(p: unknown, variableIds: Set<string>): boolean {
   return true;
 }
 
+/** Validates a single node entity */
+export function validateNode(n: unknown): boolean {
+  if (typeof n !== "object" || n === null) return false;
+  const obj = n as Record<string, unknown>;
+
+  if (typeof obj.id !== "string") return false;
+  if (typeof obj.name !== "string") return false;
+  if (!isNodeKind(obj.kind)) return false;
+  if (typeof obj.createdAt !== "string") return false;
+
+  // Optional fields
+  if (obj.description !== undefined && typeof obj.description !== "string")
+    return false;
+  if (obj.tags !== undefined) {
+    if (!Array.isArray(obj.tags)) return false;
+    for (const tag of obj.tags) {
+      if (typeof tag !== "string") return false;
+    }
+  }
+
+  return true;
+}
+
 /** Validates a single proxy reading */
 export function validateProxyReading(
   r: unknown,
@@ -497,6 +525,8 @@ export interface StateSchema {
   hasProxies?: boolean;
   /** Whether proxyReadings array should exist */
   hasProxyReadings?: boolean;
+  /** Whether nodes array should exist */
+  hasNodes?: boolean;
 }
 
 /** Validates a state object against a schema */
@@ -528,6 +558,7 @@ export function validateStateAgainstSchema(
   if (schema.hasProxies && !Array.isArray(obj.proxies)) return false;
   if (schema.hasProxyReadings && !Array.isArray(obj.proxyReadings))
     return false;
+  if (schema.hasNodes && !Array.isArray(obj.nodes)) return false;
 
   // Unique IDs
   if (!hasUniqueIds(obj.variables)) return false;
@@ -543,6 +574,7 @@ export function validateStateAgainstSchema(
     return false;
   if (schema.hasProxyReadings && !hasUniqueIds(obj.proxyReadings as unknown[]))
     return false;
+  if (schema.hasNodes && !hasUniqueIds(obj.nodes as unknown[])) return false;
 
   // Action → Episode referential integrity
   if (
@@ -636,6 +668,13 @@ export function validateStateAgainstSchema(
       : new Set<string>();
     for (const r of obj.proxyReadings as unknown[]) {
       if (!validateProxyReading(r, proxyIds)) return false;
+    }
+  }
+
+  // Validate nodes if present
+  if (schema.hasNodes) {
+    for (const n of obj.nodes as unknown[]) {
+      if (!validateNode(n)) return false;
     }
   }
 

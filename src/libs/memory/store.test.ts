@@ -103,6 +103,7 @@ describe("JsonStore", () => {
     it("reads existing state from file", async () => {
       const existingState: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "test-1",
@@ -195,6 +196,7 @@ describe("JsonStore", () => {
 
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",

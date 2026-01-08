@@ -26,6 +26,8 @@ import {
   migrateV8ToV9,
   migrateV9ToV10,
   migrateV10ToV11,
+  migrateV11ToV12,
+  migrateV12ToV13,
 } from "./migrations.js";
 import { validateProxy, validateProxyReading } from "./validators.js";
 import {
@@ -50,6 +52,7 @@ import {
 function createValidStateV7(): unknown {
   return {
     schemaVersion: SCHEMA_VERSION,
+    nodes: [],
     variables: [
       {
         id: "v1",
@@ -95,6 +98,7 @@ function createValidStateV7(): unknown {
 function createMinimalValidStateV7(): unknown {
   return {
     schemaVersion: SCHEMA_VERSION,
+    nodes: [],
     variables: [],
     episodes: [],
     actions: [],
@@ -332,6 +336,7 @@ describe("isValidState", () => {
     it("accepts state with all optional episode fields", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -360,6 +365,7 @@ describe("isValidState", () => {
     it("accepts action without episodeId (episode-less action)", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [
@@ -383,6 +389,7 @@ describe("isValidState", () => {
     it("accepts state with Org node", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -453,6 +460,7 @@ describe("isValidState", () => {
     it("rejects missing episodes array", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         actions: [],
         notes: [],
@@ -463,6 +471,7 @@ describe("isValidState", () => {
     it("rejects missing actions array", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         notes: [],
@@ -473,6 +482,7 @@ describe("isValidState", () => {
     it("rejects missing notes array", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -483,6 +493,7 @@ describe("isValidState", () => {
     it("rejects non-array variables", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: "not an array",
         episodes: [],
         actions: [],
@@ -496,6 +507,7 @@ describe("isValidState", () => {
     it("rejects variable with invalid status", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -514,6 +526,7 @@ describe("isValidState", () => {
     it("rejects variable with invalid node ref (missing id)", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -532,6 +545,7 @@ describe("isValidState", () => {
     it("rejects variable with invalid node ref (invalid type)", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -550,6 +564,7 @@ describe("isValidState", () => {
     it("rejects variable with empty node id", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -568,6 +583,7 @@ describe("isValidState", () => {
     it("rejects duplicate variable IDs", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -592,6 +608,7 @@ describe("isValidState", () => {
     it("rejects variable without name", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -609,6 +626,7 @@ describe("isValidState", () => {
     it("rejects variable with non-string name", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -627,6 +645,7 @@ describe("isValidState", () => {
     it("accepts variable with all optional fields", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -654,6 +673,7 @@ describe("isValidState", () => {
     it("accepts variable with Unknown status", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -677,6 +697,7 @@ describe("isValidState", () => {
     it("rejects variable with non-string description", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -699,6 +720,7 @@ describe("isValidState", () => {
     it("rejects variable with non-string preferredRange", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -721,6 +743,7 @@ describe("isValidState", () => {
     it("rejects variable with invalid measurementCadence", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -745,6 +768,7 @@ describe("isValidState", () => {
     it("rejects episode without openedAt", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -765,6 +789,7 @@ describe("isValidState", () => {
     it("rejects episode with invalid type", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -785,6 +810,7 @@ describe("isValidState", () => {
     it("rejects episode with invalid status", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -805,6 +831,7 @@ describe("isValidState", () => {
     it("rejects duplicate episode IDs", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -833,6 +860,7 @@ describe("isValidState", () => {
     it("rejects episode with non-string variableId", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -854,6 +882,7 @@ describe("isValidState", () => {
     it("rejects episode with non-string closedAt", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -875,6 +904,7 @@ describe("isValidState", () => {
     it("rejects episode with non-string closureNoteId", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -897,6 +927,7 @@ describe("isValidState", () => {
     it("rejects episode without objective", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -918,6 +949,7 @@ describe("isValidState", () => {
     it("rejects action referencing non-existent episode", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [
@@ -936,6 +968,7 @@ describe("isValidState", () => {
     it("rejects action with invalid status", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [
@@ -953,6 +986,7 @@ describe("isValidState", () => {
     it("rejects duplicate action IDs", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [
@@ -975,6 +1009,7 @@ describe("isValidState", () => {
     it("rejects action without description", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [
@@ -991,6 +1026,7 @@ describe("isValidState", () => {
     it("rejects action with non-string episodeId", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -1020,6 +1056,7 @@ describe("isValidState", () => {
     it("rejects note without content", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1031,6 +1068,7 @@ describe("isValidState", () => {
     it("rejects note with non-string content", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1042,6 +1080,7 @@ describe("isValidState", () => {
     it("rejects duplicate note IDs", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1056,6 +1095,7 @@ describe("isValidState", () => {
     it("rejects note without id", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1448,6 +1488,7 @@ describe("isValidState - Model Validation", () => {
     it("accepts state with empty models array", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1464,6 +1505,7 @@ describe("isValidState - Model Validation", () => {
     it("accepts minimal model (required fields only)", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1486,6 +1528,7 @@ describe("isValidState - Model Validation", () => {
     it("accepts model with all optional fields", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1511,6 +1554,7 @@ describe("isValidState - Model Validation", () => {
     it("accepts multiple valid models", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1545,6 +1589,7 @@ describe("isValidState - Model Validation", () => {
     it("accepts confidence at boundary values (0.0 and 1.0)", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1576,6 +1621,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects missing models array", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1588,6 +1634,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects model with invalid type", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1606,6 +1653,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects model missing statement", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1624,6 +1672,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects model with non-string statement", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1642,6 +1691,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects model with invalid scope", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1661,6 +1711,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects model with confidence below 0", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1680,6 +1731,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects model with confidence above 1", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1699,6 +1751,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects model with non-number confidence", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1718,6 +1771,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects model with invalid enforcement level", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1737,6 +1791,7 @@ describe("isValidState - Model Validation", () => {
     it("rejects duplicate model IDs", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1997,7 +2052,7 @@ describe("migrateV6ToV7", () => {
     expect(isValidLegacyStateV8(v8State)).toBe(true);
   });
 
-  it("full migration chain V4 -> V5 -> V6 -> V7 -> V8 -> V9 -> V10 produces valid state", () => {
+  it("full migration chain V4 -> V5 -> V6 -> V7 -> V8 -> V9 -> V10 -> V11 -> V12 -> V13 produces valid state", () => {
     const v4State = {
       schemaVersion: 4 as const,
       variables: [
@@ -2022,23 +2077,31 @@ describe("migrateV6ToV7", () => {
       notes: [{ id: "n1", content: "Note" }],
     };
 
-    const v11State = migrateV10ToV11(
-      migrateV9ToV10(
-        migrateV8ToV9(
-          migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State)))),
+    const v13State = migrateV12ToV13(
+      migrateV11ToV12(
+        migrateV10ToV11(
+          migrateV9ToV10(
+            migrateV8ToV9(
+              migrateV7ToV8(
+                migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4State))),
+              ),
+            ),
+          ),
         ),
       ),
     );
 
-    expect(v11State.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(v11State.models).toEqual([]);
-    expect(v11State.links).toEqual([]);
-    expect(v11State.exceptions).toEqual([]);
-    expect(v11State.proxies).toEqual([]);
-    expect(v11State.proxyReadings).toEqual([]);
-    expect(v11State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
-    expect(v11State.notes[0]?.tags).toEqual([]);
-    expect(isValidState(v11State)).toBe(true);
+    expect(v13State.schemaVersion).toBe(SCHEMA_VERSION);
+    // V13 adds default nodes
+    expect(v13State.nodes).toHaveLength(3);
+    expect(v13State.models).toEqual([]);
+    expect(v13State.links).toEqual([]);
+    expect(v13State.exceptions).toEqual([]);
+    expect(v13State.proxies).toEqual([]);
+    expect(v13State.proxyReadings).toEqual([]);
+    expect(v13State.notes[0]?.createdAt).toBe("1970-01-01T00:00:00.000Z");
+    expect(v13State.notes[0]?.tags).toEqual([]);
+    expect(isValidState(v13State)).toBe(true);
   });
 });
 
@@ -2233,7 +2296,7 @@ describe("migrateV9ToV10", () => {
 // ============================================================================
 
 describe("migrateV10ToV11", () => {
-  it("sets schemaVersion to 11 (current) and adds empty proxy arrays", () => {
+  it("sets schemaVersion to 11 and adds empty proxy arrays", () => {
     const v10State = {
       schemaVersion: 10 as const,
       variables: [
@@ -2261,7 +2324,7 @@ describe("migrateV10ToV11", () => {
 
     const v11State = migrateV10ToV11(v10State);
 
-    expect(v11State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v11State.schemaVersion).toBe(11);
     expect(v11State.proxies).toEqual([]);
     expect(v11State.proxyReadings).toEqual([]);
     // Preserves existing data
@@ -2271,7 +2334,7 @@ describe("migrateV10ToV11", () => {
     expect(v11State.exceptions).toEqual(v10State.exceptions);
   });
 
-  it("produces valid current state", () => {
+  it("produces valid V11 state (needs V12 migration for current)", () => {
     const v10State = {
       schemaVersion: 10 as const,
       variables: [
@@ -2299,7 +2362,192 @@ describe("migrateV10ToV11", () => {
 
     const v11State = migrateV10ToV11(v10State);
 
-    expect(isValidState(v11State)).toBe(true);
+    // V11 is not the current state (V13 is), so isValidState returns false
+    expect(isValidState(v11State)).toBe(false);
+
+    // But migrating to V13 produces valid current state
+    const v13State = migrateV12ToV13(migrateV11ToV12(v11State));
+    expect(isValidState(v13State)).toBe(true);
+  });
+});
+
+// ============================================================================
+// migrateV11ToV12 Tests
+// ============================================================================
+
+describe("migrateV11ToV12", () => {
+  it("sets schemaVersion to 12 and adds empty nodes array", () => {
+    const v11State = {
+      schemaVersion: 11 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+      links: [],
+      exceptions: [],
+      proxies: [],
+      proxyReadings: [],
+    };
+
+    const v12State = migrateV11ToV12(v11State);
+
+    expect(v12State.schemaVersion).toBe(12);
+    expect(v12State.nodes).toEqual([]);
+    // Preserves existing data
+    expect(v12State.variables).toEqual(v11State.variables);
+    expect(v12State.notes).toEqual(v11State.notes);
+    expect(v12State.links).toEqual(v11State.links);
+    expect(v12State.exceptions).toEqual(v11State.exceptions);
+    expect(v12State.proxies).toEqual(v11State.proxies);
+    expect(v12State.proxyReadings).toEqual(v11State.proxyReadings);
+  });
+
+  it("produces valid V12 state (not current)", () => {
+    const v11State = {
+      schemaVersion: 11 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [
+        {
+          id: "n1",
+          content: "Note",
+          createdAt: "2025-01-01T00:00:00.000Z",
+          tags: [],
+        },
+      ],
+      models: [],
+      links: [],
+      exceptions: [],
+      proxies: [],
+      proxyReadings: [],
+    };
+
+    const v12State = migrateV11ToV12(v11State);
+
+    // V12 is not current (V13 is), so isValidState returns false
+    expect(isValidState(v12State)).toBe(false);
+    // But further migration to V13 produces valid current state
+    const v13State = migrateV12ToV13(v12State);
+    expect(isValidState(v13State)).toBe(true);
+  });
+});
+
+// ============================================================================
+// migrateV12ToV13 Tests
+// ============================================================================
+
+describe("migrateV12ToV13", () => {
+  it("adds default nodes when nodes array is empty", () => {
+    const v12State = {
+      schemaVersion: 12 as const,
+      variables: [],
+      episodes: [],
+      actions: [],
+      notes: [],
+      models: [],
+      links: [],
+      exceptions: [],
+      proxies: [],
+      proxyReadings: [],
+      nodes: [],
+    };
+
+    const v13State = migrateV12ToV13(v12State);
+
+    expect(v13State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v13State.nodes).toHaveLength(3);
+    expect(v13State.nodes.map((n) => n.id)).toEqual([
+      "personal",
+      "org",
+      "system:becoming-engine",
+    ]);
+  });
+
+  it("preserves existing nodes and adds missing defaults", () => {
+    const existingNode = {
+      id: "personal",
+      kind: "agent" as const,
+      name: "My Personal",
+      description: "Already exists",
+      tags: ["personal"],
+      createdAt: "2025-01-01T00:00:00.000Z",
+    };
+
+    const v12State = {
+      schemaVersion: 12 as const,
+      variables: [],
+      episodes: [],
+      actions: [],
+      notes: [],
+      models: [],
+      links: [],
+      exceptions: [],
+      proxies: [],
+      proxyReadings: [],
+      nodes: [existingNode],
+    };
+
+    const v13State = migrateV12ToV13(v12State);
+
+    expect(v13State.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(v13State.nodes).toHaveLength(3);
+    // Existing node is preserved
+    expect(v13State.nodes[0]).toEqual(existingNode);
+    // Missing defaults are added
+    expect(v13State.nodes.find((n) => n.id === "org")).toBeDefined();
+    expect(
+      v13State.nodes.find((n) => n.id === "system:becoming-engine"),
+    ).toBeDefined();
+  });
+
+  it("produces valid current state", () => {
+    const v12State = {
+      schemaVersion: 12 as const,
+      variables: [
+        {
+          id: "v1",
+          node: DEFAULT_PERSONAL_NODE,
+          name: "Agency",
+          status: VARIABLE_STATUSES[1],
+        },
+      ],
+      episodes: [],
+      actions: [],
+      notes: [],
+      models: [],
+      links: [],
+      exceptions: [],
+      proxies: [],
+      proxyReadings: [],
+      nodes: [],
+    };
+
+    const v13State = migrateV12ToV13(v12State);
+
+    expect(isValidState(v13State)).toBe(true);
   });
 });
 
@@ -2338,6 +2586,7 @@ describe("isValidState - Link Validation", () => {
     it("accepts state with empty links array", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -2354,6 +2603,7 @@ describe("isValidState - Link Validation", () => {
     it("accepts valid link with required fields", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2390,6 +2640,7 @@ describe("isValidState - Link Validation", () => {
     it("accepts link with optional weight", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2421,6 +2672,7 @@ describe("isValidState - Link Validation", () => {
     it("accepts weight at boundary values (0.0 and 1.0)", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2459,6 +2711,7 @@ describe("isValidState - Link Validation", () => {
     it("accepts all valid relation types", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2489,6 +2742,7 @@ describe("isValidState - Link Validation", () => {
     it("rejects link with invalid relation type", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2516,6 +2770,7 @@ describe("isValidState - Link Validation", () => {
     it("rejects link with weight below 0", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2544,6 +2799,7 @@ describe("isValidState - Link Validation", () => {
     it("rejects link with weight above 1", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2572,6 +2828,7 @@ describe("isValidState - Link Validation", () => {
     it("rejects duplicate link IDs", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2605,6 +2862,7 @@ describe("isValidState - Link Validation", () => {
     it("rejects link with non-existent sourceId (referential integrity)", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2632,6 +2890,7 @@ describe("isValidState - Link Validation", () => {
     it("rejects link with non-existent targetId (referential integrity)", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2659,6 +2918,7 @@ describe("isValidState - Link Validation", () => {
     it("rejects link missing required fields", () => {
       const state = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2980,6 +3240,7 @@ describe("State Schema Snapshot", () => {
   it("State has expected top-level keys", () => {
     const validState = {
       schemaVersion: SCHEMA_VERSION,
+      nodes: [],
       variables: [],
       episodes: [],
       actions: [],
@@ -2999,6 +3260,7 @@ describe("State Schema Snapshot", () => {
         "exceptions",
         "links",
         "models",
+        "nodes",
         "notes",
         "proxies",
         "proxyReadings",

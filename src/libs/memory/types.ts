@@ -4,9 +4,13 @@
 
 // Re-export DNA constants for consumers
 export {
-  NODE_TYPES,
+  NODE_KINDS,
+  NODE_TYPES, // @deprecated - use NODE_KINDS for new code
+  LEGACY_NODE_TYPES,
   DEFAULT_PERSONAL_NODE_ID,
   DEFAULT_ORG_NODE_ID,
+  ENGINE_NODE_ID,
+  ENGINE_VARIABLE_IDS,
   VARIABLE_STATUSES,
   MEASUREMENT_CADENCES,
   EPISODE_TYPES,
@@ -25,6 +29,7 @@ export {
 
 // Import for local type derivations
 import {
+  NODE_KINDS,
   NODE_TYPES,
   DEFAULT_PERSONAL_NODE_ID,
   DEFAULT_ORG_NODE_ID,
@@ -45,6 +50,8 @@ import {
 } from "../../dna.js";
 
 // Type derivations from DNA constants
+export type NodeKind = (typeof NODE_KINDS)[number];
+/** @deprecated Use NodeKind for new code. Kept for backwards compatibility. */
 export type NodeType = (typeof NODE_TYPES)[number];
 export type VariableStatus = (typeof VARIABLE_STATUSES)[number];
 export type MeasurementCadence = (typeof MEASUREMENT_CADENCES)[number];
@@ -92,6 +99,25 @@ export function formatNodeRef(node: NodeRef): string {
  */
 export function nodeRefEquals(a: NodeRef, b: NodeRef): boolean {
   return a.type === b.type && a.id === b.id;
+}
+
+/**
+ * A Node is a first-class entity in the system representing an organism being regulated.
+ * Nodes have semantic kinds (agent, system, domain) and can have hierarchical
+ * relationships expressed via Links (part_of, coordinates).
+ *
+ * NOTE: Hierarchy is expressed via Links, not parentId. This preserves autonomy —
+ * nodes are autonomous peers with relationships, not containers with contents.
+ */
+export interface Node {
+  id: string;
+  kind: NodeKind;
+  name: string;
+  description?: string;
+  /** Optional semantic tags for filtering/grouping (e.g., ["personal"], ["team", "engineering"]) */
+  tags?: string[];
+  /** ISO timestamp when node was created */
+  createdAt: string;
 }
 
 export interface Variable {
@@ -257,6 +283,7 @@ export interface ProxyReading {
 
 export interface State {
   schemaVersion: SchemaVersion;
+  nodes: Node[];
   variables: Variable[];
   episodes: Episode[];
   actions: Action[];
@@ -281,6 +308,7 @@ export interface State {
 export function createEmptyState(): State {
   return {
     schemaVersion: SCHEMA_VERSION,
+    nodes: [],
     variables: [],
     episodes: [],
     actions: [],

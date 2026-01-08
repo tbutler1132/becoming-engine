@@ -56,6 +56,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("filters variables by node type", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -94,6 +95,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("filters active episodes by node type", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -144,6 +146,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("counts active Explore episodes for a node", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -190,6 +193,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("allows starting Explore when none active", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -208,6 +212,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("blocks second Explore episode for same node", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -240,6 +245,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("allows Explore for different node", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -267,6 +273,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("respects configurable policy override", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -323,6 +330,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("allows action without episodeId", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -343,6 +351,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("allows action when referenced episode is active and node matches", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -403,6 +412,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("returns new state with episode added and sets openedAt", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -440,6 +450,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on empty objective", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -467,6 +478,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("enforces Explore constraint", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -502,6 +514,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("enforces Stabilize constraint per variable", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -549,6 +562,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("marks episode as closed, sets closedAt, and creates closure note", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -598,6 +612,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates variables when provided", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -642,6 +657,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent episode", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -667,6 +683,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on already closed episode", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -702,6 +719,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on empty closure note content", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -736,6 +754,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on whitespace-only closure note content", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -770,6 +789,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("requires Model updates when closing an Explore episode", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -829,6 +849,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("does NOT require Model updates when closing a Stabilize episode", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -864,6 +885,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates only the intended variable", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -909,6 +931,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("succeeds without episodeId (episode-less action)", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -935,6 +958,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails if episode does not exist", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -958,6 +982,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails if episode is wrong node", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -990,6 +1015,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails if episode is not active", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -1023,6 +1049,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("succeeds when episode is active and node matches", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -1062,6 +1089,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("marks a pending action as done", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [
@@ -1091,6 +1119,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails if action not found", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1112,6 +1141,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("is idempotent - completing already-done action returns success", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [
@@ -1140,6 +1170,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("preserves other actions when completing one", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [
@@ -1176,6 +1207,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates a model with valid params", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1209,6 +1241,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates model with all optional fields", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1240,6 +1273,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on empty statement", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1266,6 +1300,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on whitespace-only statement", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1289,6 +1324,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on confidence below 0", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1316,6 +1352,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on confidence above 1", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1340,6 +1377,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on duplicate model ID", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1374,6 +1412,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates statement on existing model", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1407,6 +1446,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates confidence on existing model", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1439,6 +1479,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates multiple fields at once", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1474,6 +1515,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent model", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1499,6 +1541,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on empty statement update", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1527,6 +1570,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on invalid confidence update", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1557,6 +1601,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates a note with timestamp and empty tags", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1590,6 +1635,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates a note with initial tags", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1617,6 +1663,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates a note with linkedObjects", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1647,6 +1694,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on empty content", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1673,6 +1721,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on duplicate note ID", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1708,6 +1757,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("adds a tag to an existing note", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1742,6 +1792,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("is idempotent - adding existing tag returns success", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1776,6 +1827,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent note", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1803,6 +1855,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("removes a tag from an existing note", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1837,6 +1890,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("is idempotent - removing non-existent tag returns success", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1871,6 +1925,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent note", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1898,6 +1953,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("adds a linked object to an existing note", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1932,6 +1988,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("adds to existing linkedObjects array", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -1968,6 +2025,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("is idempotent - adding already-linked object returns success", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -2003,6 +2061,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent note", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -2028,6 +2087,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on empty objectId", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -2062,6 +2122,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates an existing note's content", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -2101,6 +2162,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent note", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -2126,6 +2188,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on empty content", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -2158,6 +2221,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on whitespace-only content", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -2192,6 +2256,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates an existing episode's objective", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2234,6 +2299,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates an existing episode's timeboxDays", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2273,6 +2339,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates both objective and timeboxDays together", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2310,6 +2377,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("removes timeboxDays when set to null", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2345,6 +2413,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("preserves other episode fields", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2388,6 +2457,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent episode", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -2413,6 +2483,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on empty objective", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2447,6 +2518,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on whitespace-only objective", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2481,6 +2553,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on negative timeboxDays", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2515,6 +2588,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on zero timeboxDays", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2549,6 +2623,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on closed episode", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2585,6 +2660,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("allows editing Active episodes", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [
           {
@@ -2618,6 +2694,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates a link between two existing objects", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2667,6 +2744,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates a link with optional weight", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2708,6 +2786,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("accepts weight at boundary values (0.0 and 1.0)", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2754,6 +2833,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on invalid relation type", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2788,6 +2868,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on weight below 0", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2823,6 +2904,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on weight above 1", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2858,6 +2940,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on duplicate link ID", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2899,6 +2982,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent sourceId (referential integrity)", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2933,6 +3017,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent targetId (referential integrity)", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -2967,6 +3052,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("can link to any object type (variable, episode, action, note, model, link)", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -3046,6 +3132,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("deletes an existing link", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -3091,6 +3178,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on non-existent link", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3115,6 +3203,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("logs a membrane exception", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3160,6 +3249,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails when model does not exist", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3190,6 +3280,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails with empty justification", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3226,6 +3317,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails with duplicate exception ID", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3274,6 +3366,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates a variable with valid params", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3307,6 +3400,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("trims whitespace from name", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3334,6 +3428,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on empty name", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3361,6 +3456,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on whitespace-only name", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3388,6 +3484,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on duplicate name within same node (case-insensitive)", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -3422,6 +3519,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("allows same name on different nodes", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -3456,6 +3554,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails on duplicate variable ID", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -3490,6 +3589,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("preserves existing variables when adding new one", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "v1",
@@ -3532,6 +3632,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates a proxy with required fields", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -3568,6 +3669,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails if variable does not exist", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3592,6 +3694,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails with empty name", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -3623,6 +3726,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails with duplicate proxy ID", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -3663,6 +3767,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("updates proxy name", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -3702,6 +3807,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails for non-existent proxy", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3726,6 +3832,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("deletes a proxy and its readings", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -3772,6 +3879,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails for non-existent proxy", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3795,6 +3903,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("logs a numeric reading", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -3840,6 +3949,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails for non-existent proxy", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -3864,6 +3974,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("fails with mismatched value type", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -3904,6 +4015,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("returns proxies for a variable", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -3958,6 +4070,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("returns readings sorted by timestamp (newest first)", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -4005,6 +4118,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("limits results when limit is provided", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [],
         episodes: [],
         actions: [],
@@ -4053,6 +4167,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("creates audit note when status changes", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",
@@ -4090,6 +4205,7 @@ describe("Regulator Logic (Pure Functions)", () => {
     it("does not create audit note when status unchanged", () => {
       const state: State = {
         schemaVersion: SCHEMA_VERSION,
+        nodes: [],
         variables: [
           {
             id: "var-1",

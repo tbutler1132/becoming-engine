@@ -11,9 +11,13 @@
 
 import { describe, it, expect } from "vitest";
 import {
+  NODE_KINDS,
   NODE_TYPES,
+  LEGACY_NODE_TYPES,
   DEFAULT_PERSONAL_NODE_ID,
   DEFAULT_ORG_NODE_ID,
+  ENGINE_NODE_ID,
+  ENGINE_VARIABLE_IDS,
   VARIABLE_STATUSES,
   MEASUREMENT_CADENCES,
   EPISODE_TYPES,
@@ -36,13 +40,32 @@ import {
 
 describe("DNA Integrity (Tripwire)", () => {
   describe("Ontology Constants", () => {
-    it("has expected node types", () => {
-      expect(NODE_TYPES).toEqual(["Personal", "Org"]);
+    it("has expected node kinds", () => {
+      expect(NODE_KINDS).toEqual(["agent", "system", "domain"]);
+    });
+
+    it("has expected legacy node types for backwards compatibility", () => {
+      expect(LEGACY_NODE_TYPES).toEqual(["Personal", "Org"]);
+      // NODE_TYPES is an alias for backwards compatibility
+      expect(NODE_TYPES).toEqual(LEGACY_NODE_TYPES);
     });
 
     it("has expected default node IDs", () => {
       expect(DEFAULT_PERSONAL_NODE_ID).toBe("personal");
       expect(DEFAULT_ORG_NODE_ID).toBe("org");
+    });
+
+    it("has expected engine node ID", () => {
+      expect(ENGINE_NODE_ID).toBe("system:becoming-engine");
+    });
+
+    it("has expected engine variable IDs", () => {
+      expect(ENGINE_VARIABLE_IDS).toEqual({
+        codeHealth: "var:engine:code-health",
+        uxCoherence: "var:engine:ux-coherence",
+        doctrineAlignment: "var:engine:doctrine-alignment",
+        adoption: "var:engine:adoption",
+      });
     });
 
     it("has expected variable statuses", () => {
@@ -100,7 +123,14 @@ describe("DNA Integrity (Tripwire)", () => {
         "blocks",
         "responds_to",
         "derived_from",
+        "part_of",
+        "coordinates",
       ]);
+    });
+
+    it("includes hierarchical link relations", () => {
+      expect(LINK_RELATIONS).toContain("part_of");
+      expect(LINK_RELATIONS).toContain("coordinates");
     });
 
     it("has expected observation types", () => {
@@ -140,7 +170,7 @@ describe("DNA Integrity (Tripwire)", () => {
 
   describe("Schema Version", () => {
     it("has expected schema version", () => {
-      expect(SCHEMA_VERSION).toBe(11);
+      expect(SCHEMA_VERSION).toBe(13);
     });
   });
 });
