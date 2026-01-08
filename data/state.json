@@ -118,13 +118,13 @@
     {
       "id": "f10ddf1d-9c0b-470b-be58-3b35f417a222",
       "description": "Go out to eat at restaurant",
-      "status": "Pending",
+      "status": "Done",
       "episodeId": "54c01e7a-36fa-45bd-b2c3-45cf31294a79"
     },
     {
       "id": "e55fc62c-ad7f-42b2-a382-1cf0df9da8a0",
       "description": "Set up Proxies",
-      "status": "Pending",
+      "status": "Done",
       "episodeId": "2b38a17d-95fa-4bd9-af90-c09595cb9fca"
     },
     {
@@ -132,6 +132,18 @@
       "description": "Fix some dark mode bugs",
       "status": "Pending",
       "episodeId": "2b38a17d-95fa-4bd9-af90-c09595cb9fca"
+    },
+    {
+      "id": "1bd4df64-c5fe-4afa-b797-08ef92ecb6b4",
+      "description": "Add ability to promote a Note to an Action directly",
+      "status": "Pending",
+      "episodeId": "2b38a17d-95fa-4bd9-af90-c09595cb9fca"
+    },
+    {
+      "id": "80a6d42b-5c8e-4bbb-85cf-2c9c033936dd",
+      "description": "Go to Smoothie place + Maybe Go to Burrito place",
+      "status": "Pending",
+      "episodeId": "54c01e7a-36fa-45bd-b2c3-45cf31294a79"
     }
   ],
   "notes": [

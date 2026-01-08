@@ -39,17 +39,15 @@ export default async function ActionsLensPage(): Promise<React.ReactNode> {
 
   for (const episode of activeEpisodes) {
     const actions = actionsByEpisode.get(episode.id) ?? [];
-    if (actions.length > 0) {
-      const item = { episode, actions };
-      if (episode.type === "Explore") {
-        exploreEpisodes.push(item);
-      } else {
-        stabilizeEpisodes.push(item);
-      }
+    const item = { episode, actions };
+    if (episode.type === "Explore") {
+      exploreEpisodes.push(item);
+    } else {
+      stabilizeEpisodes.push(item);
     }
   }
 
-  const hasAnyActions =
+  const hasAnyContent =
     exploreEpisodes.length > 0 ||
     stabilizeEpisodes.length > 0 ||
     orphanActions.length > 0;
@@ -66,7 +64,7 @@ export default async function ActionsLensPage(): Promise<React.ReactNode> {
         <h1 style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>Actions</h1>
       </header>
 
-      {!hasAnyActions && (
+      {!hasAnyContent && (
         <p style={{ color: "#999", textAlign: "center" }}>No active actions</p>
       )}
 
@@ -199,9 +197,13 @@ function EpisodeCard({ episode, actions }: EpisodeCardProps): React.ReactNode {
       >
         Actions
       </div>
-      {actions.map((action) => (
-        <ActionCard key={action.id} action={action} showStatus={false} />
-      ))}
+      {actions.length > 0 ? (
+        actions.map((action) => (
+          <ActionCard key={action.id} action={action} showStatus={false} />
+        ))
+      ) : (
+        <p style={{ color: "#999", fontSize: "0.875rem" }}>No actions yet</p>
+      )}
     </div>
   );
 }
