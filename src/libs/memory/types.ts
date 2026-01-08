@@ -20,6 +20,7 @@ export {
   SCHEMA_VERSION,
   MUTATION_TYPES,
   OVERRIDE_DECISIONS,
+  PROXY_VALUE_TYPES,
 } from "../../dna.js";
 
 // Import for local type derivations
@@ -40,6 +41,7 @@ import {
   SCHEMA_VERSION,
   MUTATION_TYPES,
   OVERRIDE_DECISIONS,
+  PROXY_VALUE_TYPES,
 } from "../../dna.js";
 
 // Type derivations from DNA constants
@@ -57,6 +59,7 @@ export type LinkRelation = (typeof LINK_RELATIONS)[number];
 export type SchemaVersion = typeof SCHEMA_VERSION;
 export type MutationType = (typeof MUTATION_TYPES)[number];
 export type OverrideDecision = (typeof OVERRIDE_DECISIONS)[number];
+export type ProxyValueType = (typeof PROXY_VALUE_TYPES)[number];
 
 export type NodeId = string;
 
@@ -193,6 +196,65 @@ export interface MembraneException {
   createdAt: string;
 }
 
+/**
+ * Thresholds for inferring Variable status from proxy readings.
+ * Used with numeric proxies to suggest when a Variable is Low/High.
+ */
+export interface ProxyThresholds {
+  /** status = Low if value < this */
+  lowBelow?: number;
+  /** status = High if value > this */
+  highAbove?: number;
+}
+
+/**
+ * A Proxy is a concrete signal that informs a Variable.
+ * Proxies are named data sources (e.g., "Sleep hours", "Morning energy")
+ * that can be measured and used to suggest Variable status.
+ */
+export interface Proxy {
+  id: string;
+  /** The Variable this proxy informs */
+  variableId: string;
+  /** Human-readable name (e.g., "Sleep hours", "Morning energy") */
+  name: string;
+  /** Optional description of what this proxy measures */
+  description?: string;
+  /** What kind of values this proxy records */
+  valueType: ProxyValueType;
+  /** Unit of measurement (e.g., "hours", "1-10", "%") */
+  unit?: string;
+  /** For categorical proxies: the allowed values */
+  categories?: string[];
+  /** For numeric proxies: thresholds for status inference */
+  thresholds?: ProxyThresholds;
+}
+
+/**
+ * Discriminated union for proxy reading values.
+ * Supports numeric, boolean, and categorical data.
+ */
+export type ProxyValue =
+  | { type: "numeric"; value: number }
+  | { type: "boolean"; value: boolean }
+  | { type: "categorical"; value: string };
+
+/**
+ * A ProxyReading is a timestamped measurement from a proxy.
+ * Readings are stored data used for status inference.
+ */
+export interface ProxyReading {
+  id: string;
+  /** Which proxy this reading is for */
+  proxyId: string;
+  /** The measured value */
+  value: ProxyValue;
+  /** ISO timestamp when reading was recorded */
+  recordedAt: string;
+  /** How the reading was obtained (e.g., "manual", integration name) */
+  source?: string;
+}
+
 export interface State {
   schemaVersion: SchemaVersion;
   variables: Variable[];
@@ -202,6 +264,8 @@ export interface State {
   models: Model[];
   links: Link[];
   exceptions: MembraneException[];
+  proxies: Proxy[];
+  proxyReadings: ProxyReading[];
 }
 
 /**
@@ -224,5 +288,7 @@ export function createEmptyState(): State {
     models: [],
     links: [],
     exceptions: [],
+    proxies: [],
+    proxyReadings: [],
   };
 }

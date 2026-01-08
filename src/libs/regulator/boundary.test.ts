@@ -61,6 +61,8 @@ function createEmptyState(): State {
     models: [],
     links: [],
     exceptions: [],
+    proxies: [],
+    proxyReadings: [],
   };
 }
 

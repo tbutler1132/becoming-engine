@@ -22,6 +22,7 @@ import {
   NODE_TYPES,
   NOTE_TAGS,
   OVERRIDE_DECISIONS,
+  PROXY_VALUE_TYPES,
   SCHEMA_VERSION,
   VARIABLE_STATUSES,
 } from "../types.js";
@@ -39,6 +40,7 @@ import type {
   NodeType,
   NoteTag,
   OverrideDecision,
+  ProxyValueType,
   SchemaVersion,
   State,
   VariableStatus,
@@ -123,7 +125,13 @@ export type StateV3 = {
 
 export type StateV4 = Omit<
   State,
-  "schemaVersion" | "models" | "notes" | "links" | "exceptions"
+  | "schemaVersion"
+  | "models"
+  | "notes"
+  | "links"
+  | "exceptions"
+  | "proxies"
+  | "proxyReadings"
 > & {
   schemaVersion: 4;
   notes: Array<{
@@ -139,17 +147,28 @@ export type NoteV5 = {
 
 export type StateV5 = Omit<
   State,
-  "schemaVersion" | "notes" | "links" | "exceptions"
+  | "schemaVersion"
+  | "notes"
+  | "links"
+  | "exceptions"
+  | "proxies"
+  | "proxyReadings"
 > & {
   schemaVersion: 5;
   notes: NoteV5[];
 };
 
-export type StateV6 = Omit<State, "schemaVersion" | "links" | "exceptions"> & {
+export type StateV6 = Omit<
+  State,
+  "schemaVersion" | "links" | "exceptions" | "proxies" | "proxyReadings"
+> & {
   schemaVersion: 6;
 };
 
-export type StateV7 = Omit<State, "schemaVersion" | "exceptions"> & {
+export type StateV7 = Omit<
+  State,
+  "schemaVersion" | "exceptions" | "proxies" | "proxyReadings"
+> & {
   schemaVersion: 7;
 };
 
@@ -165,7 +184,10 @@ export type EpisodeV8 = {
   closureNoteId?: string;
 };
 
-export type StateV8 = Omit<State, "schemaVersion" | "episodes"> & {
+export type StateV8 = Omit<
+  State,
+  "schemaVersion" | "episodes" | "proxies" | "proxyReadings"
+> & {
   schemaVersion: 8;
   episodes: EpisodeV8[];
 };
@@ -177,9 +199,19 @@ export type VariableV9 = {
   status: VariableStatus;
 };
 
-export type StateV9 = Omit<State, "schemaVersion" | "variables"> & {
+export type StateV9 = Omit<
+  State,
+  "schemaVersion" | "variables" | "proxies" | "proxyReadings"
+> & {
   schemaVersion: 9;
   variables: VariableV9[];
+};
+
+export type StateV10 = Omit<
+  State,
+  "schemaVersion" | "proxies" | "proxyReadings"
+> & {
+  schemaVersion: 10;
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -265,6 +297,11 @@ export function isMeasurementCadence(
   value: unknown,
 ): value is MeasurementCadence {
   return typeof value === "string" && isMember(MEASUREMENT_CADENCES, value);
+}
+
+/** Validates that a value is a valid ProxyValueType */
+export function isProxyValueType(value: unknown): value is ProxyValueType {
+  return typeof value === "string" && isMember(PROXY_VALUE_TYPES, value);
 }
 
 /** Converts legacy NodeType to NodeRef */
@@ -386,6 +423,22 @@ const SCHEMA_V9: StateSchema = {
 };
 
 const SCHEMA_V10: StateSchema = {
+  schemaVersion: 10,
+  variable: { nodeFormat: "ref", allowEnrichments: true },
+  episode: {
+    nodeFormat: "ref",
+    timestamps: "required",
+    allowClosureNoteId: true,
+    allowTimeboxDays: true,
+  },
+  action: { episodeIdRequired: false },
+  note: { requireMetadata: true, allowLinkedObjects: true },
+  model: { allowExceptionsAllowed: true },
+  hasLinks: true,
+  hasExceptions: true,
+};
+
+const SCHEMA_V11: StateSchema = {
   schemaVersion: SCHEMA_VERSION,
   variable: { nodeFormat: "ref", allowEnrichments: true },
   episode: {
@@ -399,6 +452,8 @@ const SCHEMA_V10: StateSchema = {
   model: { allowExceptionsAllowed: true },
   hasLinks: true,
   hasExceptions: true,
+  hasProxies: true,
+  hasProxyReadings: true,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -487,11 +542,18 @@ export function isValidLegacyStateV9(data: unknown): data is StateV9 {
 }
 
 /**
- * Validates current state (schemaVersion: 10).
+ * Validates V10 state (schemaVersion: 10).
+ */
+export function isValidLegacyStateV10(data: unknown): data is StateV10 {
+  return validateStateAgainstSchema(data, SCHEMA_V10);
+}
+
+/**
+ * Validates current state (schemaVersion: 11).
  */
 export function isValidState(data: unknown): data is State {
   if (typeof data !== "object" || data === null) return false;
   const obj = data as Record<string, unknown>;
   if (!isSchemaVersion(obj.schemaVersion)) return false;
-  return validateStateAgainstSchema(data, SCHEMA_V10);
+  return validateStateAgainstSchema(data, SCHEMA_V11);
 }

@@ -28,6 +28,7 @@ import {
   SIGNAL_EVENT_TYPES,
   MUTATION_TYPES,
   OVERRIDE_DECISIONS,
+  PROXY_VALUE_TYPES,
   MAX_ACTIVE_EXPLORE_PER_NODE,
   MAX_ACTIVE_STABILIZE_PER_VARIABLE,
   SCHEMA_VERSION,
@@ -88,6 +89,7 @@ describe("DNA Integrity (Tripwire)", () => {
         "pending_approval",
         "processed",
         "closure_note",
+        "audit",
       ]);
     });
 
@@ -120,6 +122,10 @@ describe("DNA Integrity (Tripwire)", () => {
     it("has expected override decisions", () => {
       expect(OVERRIDE_DECISIONS).toEqual(["warn", "block"]);
     });
+
+    it("has expected proxy value types", () => {
+      expect(PROXY_VALUE_TYPES).toEqual(["numeric", "boolean", "categorical"]);
+    });
   });
 
   describe("Regulatory Limits", () => {
@@ -134,7 +140,7 @@ describe("DNA Integrity (Tripwire)", () => {
 
   describe("Schema Version", () => {
     it("has expected schema version", () => {
-      expect(SCHEMA_VERSION).toBe(10);
+      expect(SCHEMA_VERSION).toBe(11);
     });
   });
 });

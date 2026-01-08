@@ -32,4 +32,5 @@ export {
   isMutationType,
   isOverrideDecision,
   isMeasurementCadence,
+  isProxyValueType,
 } from "./internal/validation.js";

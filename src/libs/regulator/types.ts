@@ -18,6 +18,9 @@ import type {
   NodeRef,
   NoteTag,
   OverrideDecision,
+  ProxyThresholds,
+  ProxyValue,
+  ProxyValueType,
   Variable,
   VariableStatus,
 } from "../memory/index.js";
@@ -135,6 +138,12 @@ export interface SignalParams {
   variableId: string;
   /** The new status (Low, InRange, High) */
   status: VariableStatus;
+  /** Optional reason for the change (used in audit Note) */
+  reason?: string;
+  /** Optional Note ID for audit trail (generated if not provided) */
+  auditNoteId?: string;
+  /** Optional timestamp for audit (uses current if not provided) */
+  auditTimestamp?: string;
 }
 
 /**
@@ -357,3 +366,74 @@ export type StatusData =
       episodes: Episode[];
       actions: Action[];
     };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Proxy Parameters (MP14)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Parameters for creating a new proxy.
+ * Proxies are concrete signals that inform Variables.
+ */
+export interface CreateProxyParams {
+  /** Unique identifier for the new proxy */
+  proxyId: string;
+  /** The Variable this proxy informs */
+  variableId: string;
+  /** Human-readable name (e.g., "Sleep hours", "Morning energy") */
+  name: string;
+  /** What kind of values this proxy records */
+  valueType: ProxyValueType;
+  /** Optional description of what this proxy measures */
+  description?: string;
+  /** Unit of measurement (e.g., "hours", "1-10", "%") */
+  unit?: string;
+  /** For categorical proxies: the allowed values */
+  categories?: string[];
+  /** For numeric proxies: thresholds for status inference */
+  thresholds?: ProxyThresholds;
+}
+
+/**
+ * Parameters for updating an existing proxy.
+ * Only provided fields are updated; others remain unchanged.
+ */
+export interface UpdateProxyParams {
+  /** The proxy to update */
+  proxyId: string;
+  /** New name (optional) */
+  name?: string;
+  /** New description (optional) */
+  description?: string;
+  /** New unit (optional) */
+  unit?: string;
+  /** New categories (optional, for categorical proxies) */
+  categories?: string[];
+  /** New thresholds (optional, for numeric proxies) */
+  thresholds?: ProxyThresholds;
+}
+
+/**
+ * Parameters for deleting a proxy.
+ */
+export interface DeleteProxyParams {
+  /** The proxy to delete */
+  proxyId: string;
+}
+
+/**
+ * Parameters for logging a proxy reading.
+ * Readings are timestamped measurements from proxies.
+ */
+export interface LogProxyReadingParams {
+  /** Unique identifier for the new reading */
+  readingId: string;
+  /** Which proxy this reading is for */
+  proxyId: string;
+  /** The measured value */
+  value: ProxyValue;
+  /** ISO-8601 timestamp when reading was recorded */
+  recordedAt: string;
+  /** How the reading was obtained (e.g., "manual") */
+  source?: string;
+}

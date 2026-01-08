@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { VariableStatus } from "@libs/memory";
+import type { VariableStatus, Proxy, ProxyReading } from "@libs/memory";
 import { formatNodeRef } from "@libs/memory";
 import { createStore } from "@/lib/store";
 import { Field, EpisodeCard } from "@/components";
 import { OpenStabilizeForm } from "./OpenStabilizeForm";
 import { StatusSelector } from "./StatusSelector";
+import { ProxiesSection } from "./ProxiesSection";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -32,6 +33,18 @@ export default async function VariablePage({
   const hasActiveStabilize = stabilizeEpisodes.some(
     (e) => e.status === "Active"
   );
+
+  // Get proxies for this variable
+  const proxies = state.proxies.filter((p) => p.variableId === id);
+
+  // Get recent readings for each proxy (last 10)
+  const recentReadingsByProxyId: Record<string, ProxyReading[]> = {};
+  for (const proxy of proxies) {
+    recentReadingsByProxyId[proxy.id] = state.proxyReadings
+      .filter((r) => r.proxyId === proxy.id)
+      .sort((a, b) => new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime())
+      .slice(0, 10);
+  }
 
   return (
     <main
@@ -109,7 +122,15 @@ export default async function VariablePage({
         </dl>
       </section>
 
-      <section>
+      <ProxiesSection
+        variableId={id}
+        variableName={variable.name}
+        currentStatus={variable.status as VariableStatus}
+        proxies={proxies}
+        recentReadingsByProxyId={recentReadingsByProxyId}
+      />
+
+      <section style={{ marginTop: "2rem" }}>
         <h2
           style={{
             fontSize: "0.75rem",
